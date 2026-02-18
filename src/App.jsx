@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import useSurfData from "./useSurfData.js";
 import { SURF_SPOTS, GOALS } from "./data.js";
-import { WaveBackground } from "./components.jsx";
+import { WaveBackground, LessonCard, LessonModal } from "./components.jsx";
 import HomeScreen from "./screens/HomeScreen.jsx";
 import BuilderScreen from "./screens/BuilderScreen.jsx";
 import LessonsScreen from "./screens/LessonsScreen.jsx";
@@ -50,43 +50,7 @@ export default function SurfApp() {
     } catch {}
   }, []);
 
-  const LessonModalEl = openLesson ? (
-    <div onClick={() => setOpenLesson(null)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: dm ? "#1a2332" : "#FFFDF7", borderRadius: 24, maxWidth: 560, width: "100%", maxHeight: "85vh", overflow: "auto", padding: "28px 24px", boxShadow: "0 25px 60px rgba(0,0,0,0.3)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-          <div>
-            <span style={{ fontSize: 36 }}>{openLesson.icon}</span>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: t.text, margin: "8px 0 4px" }}>{openLesson.title}</h2>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.accent }}>{openLesson.duration} · {openLesson.level}</span>
-          </div>
-          <button onClick={() => setOpenLesson(null)} style={{ background: dm ? "rgba(255,255,255,0.1)" : "#F5F5F5", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 18, cursor: "pointer", color: t.text3 }}>✕</button>
-        </div>
-        <p style={{ fontSize: 15, color: t.text2, lineHeight: 1.6, marginBottom: 16 }}>{openLesson.content}</p>
-        {openLesson.steps && (
-          <div style={{ background: dm ? "rgba(255,255,255,0.03)" : "#F5F5F5", borderRadius: 14, padding: "16px 18px", marginBottom: 16 }}>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Schritte</div>
-            {openLesson.steps.map((step, i) => (
-              <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8, fontSize: 14, color: t.text }}>
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.accent, minWidth: 20 }}>{i + 1}.</span>
-                <span style={{ lineHeight: 1.5 }}>{step}</span>
-              </div>
-            ))}
-          </div>
-        )}
-        {openLesson.proTip && (
-          <div style={{ background: dm ? "rgba(255,183,77,0.1)" : "#FFF8E1", borderRadius: 12, padding: "12px 16px", border: "1px dashed #FFB74D" }}>
-            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: "#E65100", textTransform: "uppercase" }}>Pro Tip</span>
-            <p style={{ fontSize: 13, color: dm ? "#e8eaed" : "#4E342E", marginTop: 4, lineHeight: 1.5 }}>{openLesson.proTip}</p>
-          </div>
-        )}
-        {openLesson.videoUrl && (
-          <div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden" }}>
-            <iframe src={openLesson.videoUrl} style={{ width: "100%", height: 220, border: "none" }} allowFullScreen title={openLesson.title} />
-          </div>
-        )}
-      </div>
-    </div>
-  ) : null;
+  const LessonModalEl = openLesson ? <LessonModal lesson={openLesson} onClose={() => setOpenLesson(null)} dm={dm} /> : null;
 
   return (
     <div style={{ background: t.bg, minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", color: t.text, transition: "background 0.3s ease" }}>
@@ -109,7 +73,10 @@ export default function SurfApp() {
           <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", padding: 4, color: t.text }}>{menuOpen ? "✕" : "☰"}</button>
           <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }} onClick={() => navigate("home")}>
             <span style={{ fontSize: 22 }}>🏄</span>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text }}>SoulSurf</span>
+            <div>
+              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v4.0.1</span>
+            </div>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -155,7 +122,7 @@ export default function SurfApp() {
               <button onClick={() => { data.exportData(); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 10, fontSize: 12, cursor: "pointer", color: t.text2, fontFamily: "'Space Mono', monospace" }}>💾 Backup exportieren</button>
             </div>
             <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.0 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.0.1 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
