@@ -20,7 +20,7 @@ export const WaveBackground = () => (
   </div>
 );
 
-export const LessonCard = ({ lesson, index, onOpen, dm }) => {
+export const LessonCard = ({ lesson, index, onOpen, onToggle, done, dm }) => {
   const colors = {
     theory: { bg: dm ? "linear-gradient(135deg, #2d2510, #2d2010)" : "linear-gradient(135deg, #FFF8E1, #FFF3E0)", border: "#FFB74D", tag: dm ? "#FFB74D" : "#E65100", tagBg: dm ? "rgba(255,183,77,0.15)" : "#FFF3E0", label: "Theorie" },
     practice: { bg: dm ? "linear-gradient(135deg, #0d2520, #0d2a25)" : "linear-gradient(135deg, #E0F2F1, #E0F7FA)", border: "#4DB6AC", tag: dm ? "#4DB6AC" : "#004D40", tagBg: dm ? "rgba(77,182,172,0.15)" : "#E0F2F1", label: "Praxis" },
@@ -29,23 +29,31 @@ export const LessonCard = ({ lesson, index, onOpen, dm }) => {
   };
   const c = colors[lesson.type] || colors.theory;
   return (
-    <div onClick={() => onOpen(lesson)} style={{ background: c.bg, border: `2px solid ${c.border}22`, borderRadius: 16, padding: "18px 20px", cursor: "pointer", transition: "all 0.3s ease", animationDelay: `${index * 60}ms`, animation: "slideUp 0.5s ease forwards", opacity: 0 }}
-      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 24px ${c.border}33`; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
-    >
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-        <div style={{ fontSize: 28 }}>{lesson.icon}</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: "flex", gap: 6, marginBottom: 5, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: c.tag, background: c.tagBg, padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>{c.label}</span>
-            <span style={{ fontSize: 10, fontWeight: 600, color: "#78909C", background: "#ECEFF1", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>{lesson.duration}</span>
-            {lesson.videoUrl && <span style={{ fontSize: 10, fontWeight: 600, color: "#C62828", background: "#FFEBEE", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>▶ Video</span>}
-            {lesson.articleUrl && <span style={{ fontSize: 10, fontWeight: 600, color: "#1565C0", background: "#E3F2FD", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>📄 Artikel</span>}
+    <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 10 }}>
+      {onToggle && (
+        <button onClick={(e) => { e.stopPropagation(); onToggle(); }} style={{ marginTop: 18, width: 28, height: 28, minWidth: 28, borderRadius: 8, border: `2px solid ${done ? "#4DB6AC" : (dm ? "#2d3f50" : "#CFD8DC")}`, background: done ? (dm ? "rgba(77,182,172,0.2)" : "#E0F2F1") : "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#4DB6AC", transition: "all 0.2s ease" }}>
+          {done ? "✓" : ""}
+        </button>
+      )}
+      <div onClick={() => onOpen(lesson)} style={{ flex: 1, background: c.bg, border: `2px solid ${c.border}22`, borderRadius: 16, padding: "18px 20px", cursor: "pointer", transition: "all 0.3s ease", opacity: done ? 0.6 : 1 }}
+        onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 24px ${c.border}33`; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+          <div style={{ fontSize: 28 }}>{lesson.icon}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", gap: 6, marginBottom: 5, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: c.tag, background: c.tagBg, padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>{c.label}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: "#78909C", background: dm ? "rgba(255,255,255,0.08)" : "#ECEFF1", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>{lesson.duration}</span>
+              {lesson.videoUrl && <span style={{ fontSize: 10, fontWeight: 600, color: "#C62828", background: dm ? "rgba(198,40,40,0.15)" : "#FFEBEE", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>▶ Video</span>}
+              {lesson.articleUrl && <span style={{ fontSize: 10, fontWeight: 600, color: "#1565C0", background: dm ? "rgba(21,101,192,0.15)" : "#E3F2FD", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>📄 Artikel</span>}
+              {done && <span style={{ fontSize: 10, fontWeight: 600, color: "#4DB6AC", background: dm ? "rgba(77,182,172,0.15)" : "#E0F2F1", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>✓ Erledigt</span>}
+            </div>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 700, color: dm ? '#e8eaed' : '#263238', margin: 0, lineHeight: 1.3, textDecoration: done ? "line-through" : "none" }}>{lesson.title}</h3>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: dm ? '#9aa0a6' : '#546E7A', margin: "6px 0 0", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{lesson.content}</p>
           </div>
-          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 700, color: dm ? '#e8eaed' : '#263238', margin: 0, lineHeight: 1.3 }}>{lesson.title}</h3>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: dm ? '#9aa0a6' : '#546E7A', margin: "6px 0 0", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{lesson.content}</p>
+          <div style={{ fontSize: 18, color: c.border, marginTop: 2 }}>→</div>
         </div>
-        <div style={{ fontSize: 18, color: c.border, marginTop: 2 }}>→</div>
       </div>
     </div>
   );
