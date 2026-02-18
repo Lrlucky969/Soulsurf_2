@@ -1,15 +1,18 @@
-// SoulSurf v4.0 – App Shell with Navigation
-import React, { useState, useEffect } from "react";
+// SoulSurf v4.6 – App Shell with Lazy Loading
+import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import { SURF_SPOTS, GOALS } from "./data.js";
-import { WaveBackground, LessonCard, LessonModal } from "./components.jsx";
-import HomeScreen from "./screens/HomeScreen.jsx";
-import BuilderScreen from "./screens/BuilderScreen.jsx";
-import LessonsScreen from "./screens/LessonsScreen.jsx";
-import TripScreen from "./screens/TripScreen.jsx";
-import DiaryScreen from "./screens/DiaryScreen.jsx";
-import ProgressScreen from "./screens/ProgressScreen.jsx";
-import EquipmentScreen from "./screens/EquipmentScreen.jsx";
+import { WaveBackground, LessonModal } from "./components.jsx";
+
+// Lazy-loaded screens (code-split chunks)
+const HomeScreen = lazy(() => import("./screens/HomeScreen.jsx"));
+const BuilderScreen = lazy(() => import("./screens/BuilderScreen.jsx"));
+const LessonsScreen = lazy(() => import("./screens/LessonsScreen.jsx"));
+const TripScreen = lazy(() => import("./screens/TripScreen.jsx"));
+const DiaryScreen = lazy(() => import("./screens/DiaryScreen.jsx"));
+const ProgressScreen = lazy(() => import("./screens/ProgressScreen.jsx"));
+const EquipmentScreen = lazy(() => import("./screens/EquipmentScreen.jsx"));
+const CommunityScreen = lazy(() => import("./screens/CommunityScreen.jsx"));
 
 const THEMES = {
   light: { bg: "#FFFDF7", text: "#263238", text2: "#546E7A", text3: "#90A4AE", accent: "#009688", card: "rgba(255,255,255,0.9)", cardBorder: "rgba(0,0,0,0.06)", inputBg: "#F5F5F5", inputBorder: "#E0E0E0" },
@@ -23,6 +26,7 @@ const NAV_ITEMS = [
   { id: "diary", icon: "📓", label: "Tagebuch" },
   { id: "progress", icon: "📊", label: "Fortschritt" },
   { id: "equipment", icon: "🏄", label: "Equipment" },
+  { id: "community", icon: "🤝", label: "Community" },
 ];
 
 export default function SurfApp() {
@@ -30,37 +34,74 @@ export default function SurfApp() {
   const [screen, setScreen] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
   const [openLesson, setOpenLesson] = useState(null);
+  const [transitioning, setTransitioning] = useState(false);
+  const [screenKey, setScreenKey] = useState(0);
+  const mainRef = useRef(null);
 
   const dm = data.darkMode;
   const t = dm ? THEMES.dark : THEMES.light;
   const spotObj = SURF_SPOTS.find(s => s.id === data.spot);
   const savedGoal = data.hasSaved ? GOALS.find(g => g.id === data.goal) : null;
+  const remaining = data.total - data.done;
 
-  const navigate = (s) => { setScreen(s); setMenuOpen(false); };
+  const navigate = (s) => {
+    if (s === screen) { setMenuOpen(false); return; }
+    setTransitioning(true);
+    setMenuOpen(false);
+    setTimeout(() => {
+      setScreen(s);
+      setScreenKey(k => k + 1);
+      setTransitioning(false);
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }, 150);
+  };
+
+  // Empty state handler – redirect lessons/diary to builder if no program
+  const renderScreen = () => {
+    if ((screen === "lessons" || screen === "diary") && !data.hasSaved) {
+      return <EmptyState icon={screen === "lessons" ? "📚" : "📓"} title={screen === "lessons" ? "Noch keine Lektionen" : "Noch kein Tagebuch"} desc="Erstelle zuerst ein Surf-Programm, um loszulegen." cta="Programm erstellen" onCta={() => navigate("builder")} t={t} dm={dm} />;
+    }
+    if (screen === "progress" && !data.hasSaved) {
+      return <EmptyState icon="📊" title="Noch kein Fortschritt" desc="Starte ein Programm und schließe Lektionen ab, um Badges zu verdienen." cta="Programm erstellen" onCta={() => navigate("builder")} t={t} dm={dm} />;
+    }
+    switch (screen) {
+      case "home": return <HomeScreen data={data} t={t} dm={dm} navigate={navigate} spotObj={spotObj} savedGoal={savedGoal} />;
+      case "builder": return <BuilderScreen data={data} t={t} dm={dm} navigate={navigate} />;
+      case "lessons": return <LessonsScreen data={data} t={t} dm={dm} spotObj={spotObj} setOpenLesson={setOpenLesson} />;
+      case "trip": return <TripScreen data={data} t={t} dm={dm} spotObj={spotObj} navigate={navigate} />;
+      case "diary": return <DiaryScreen data={data} t={t} dm={dm} setOpenLesson={setOpenLesson} />;
+      case "progress": return <ProgressScreen data={data} t={t} dm={dm} setOpenLesson={setOpenLesson} />;
+      case "equipment": return <EquipmentScreen data={data} t={t} dm={dm} />;
+      case "community": return <CommunityScreen data={data} t={t} dm={dm} navigate={navigate} />;
+      default: return null;
+    }
+  };
 
   useEffect(() => {
     try {
       if (!document.querySelector('link[data-soulsurf-fonts]')) {
-        const link = document.createElement("link");
-        link.rel = "stylesheet";
+        const link = document.createElement("link"); link.rel = "stylesheet";
         link.href = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap";
-        link.setAttribute("data-soulsurf-fonts", "1");
-        document.head.appendChild(link);
+        link.setAttribute("data-soulsurf-fonts", "1"); document.head.appendChild(link);
       }
     } catch {}
   }, []);
 
-  const LessonModalEl = openLesson ? <LessonModal lesson={openLesson} onClose={() => setOpenLesson(null)} dm={dm} /> : null;
+  // Current screen label for header
+  const screenLabel = NAV_ITEMS.find(n => n.id === screen);
 
   return (
     <div style={{ background: t.bg, minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", color: t.text, transition: "background 0.3s ease" }}>
       <WaveBackground dm={dm} />
       <style>{`
-        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes wave { 0% { transform: rotate(0deg); } 25% { transform: rotate(20deg); } 75% { transform: rotate(-15deg); } 100% { transform: rotate(0deg); } }
         @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes screenIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes menuSlideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+        @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { overflow-x: hidden; }
         ::-webkit-scrollbar { width: 4px; }
@@ -68,38 +109,43 @@ export default function SurfApp() {
         input[type=range] { accent-color: #009688; }
       `}</style>
 
-      <header style={{ position: "sticky", top: 0, zIndex: 100, background: dm ? "rgba(13,24,32,0.95)" : "rgba(255,253,247,0.95)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${t.cardBorder}`, padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      {/* Header */}
+      <header style={{ position: "sticky", top: 0, zIndex: 100, background: dm ? "rgba(13,24,32,0.95)" : "rgba(255,253,247,0.95)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${t.cardBorder}`, padding: "10px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", padding: 4, color: t.text }}>{menuOpen ? "✕" : "☰"}</button>
+          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", padding: 4, color: t.text, transition: "transform 0.2s ease", transform: menuOpen ? "rotate(90deg)" : "none" }}>{menuOpen ? "✕" : "☰"}</button>
           <div style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }} onClick={() => navigate("home")}>
             <span style={{ fontSize: 22 }}>🏄</span>
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v4.0.1</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v4.6</span>
             </div>
           </div>
+          {screen !== "home" && screen !== "builder" && (
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, background: dm ? "rgba(77,182,172,0.12)" : "#E0F2F1", padding: "3px 10px", borderRadius: 8, marginLeft: 4 }}>{screenLabel?.icon} {screenLabel?.label}</span>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {data.streak > 0 && <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#FFB74D" }}>🔥 {data.streak}</span>}
-          <button onClick={data.toggleDark} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", padding: 4 }}>{dm ? "☀️" : "🌙"}</button>
+          <button onClick={data.toggleDark} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", padding: 4, transition: "transform 0.3s ease" }} onMouseEnter={e => e.currentTarget.style.transform = "rotate(30deg)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{dm ? "☀️" : "🌙"}</button>
         </div>
       </header>
 
+      {/* Slide-out Menu */}
       {menuOpen && (
-        <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.4)" }}>
-          <nav onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 280, background: dm ? "#1a2332" : "#FFFDF7", borderRight: `1px solid ${t.cardBorder}`, paddingTop: 70, boxShadow: "4px 0 24px rgba(0,0,0,0.15)" }}>
+        <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.4)", animation: "overlayIn 0.2s ease" }}>
+          <nav onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 280, background: dm ? "#1a2332" : "#FFFDF7", borderRight: `1px solid ${t.cardBorder}`, paddingTop: 70, boxShadow: "4px 0 24px rgba(0,0,0,0.15)", animation: "menuSlideIn 0.25s ease" }}>
             {data.hasSaved && spotObj && (
               <div style={{ padding: "0 20px 16px", borderBottom: `1px solid ${t.cardBorder}`, marginBottom: 8 }}>
                 <div style={{ fontSize: 12, color: t.text3, fontFamily: "'Space Mono', monospace", marginBottom: 4 }}>Aktuelles Programm</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{data.days} Tage · {savedGoal?.emoji} {savedGoal?.name}</div>
                 <div style={{ fontSize: 12, color: t.accent }}>{spotObj?.emoji} {spotObj?.name}</div>
                 <div style={{ background: dm ? "rgba(255,255,255,0.1)" : "#E0E0E0", borderRadius: 6, height: 4, marginTop: 8, overflow: "hidden" }}>
-                  <div style={{ background: "linear-gradient(90deg, #FFB74D, #FF7043)", height: "100%", borderRadius: 6, width: `${data.total > 0 ? (data.done / data.total) * 100 : 0}%` }} />
+                  <div style={{ background: "linear-gradient(90deg, #FFB74D, #FF7043)", height: "100%", borderRadius: 6, width: `${data.total > 0 ? (data.done / data.total) * 100 : 0}%`, transition: "width 0.5s ease" }} />
                 </div>
                 <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, marginTop: 4 }}>{data.done}/{data.total} erledigt</div>
               </div>
             )}
-            {NAV_ITEMS.map(item => {
+            {NAV_ITEMS.map((item, i) => {
               const isActive = screen === item.id;
               const needsProgram = ["lessons", "diary"].includes(item.id);
               const disabled = needsProgram && !data.hasSaved;
@@ -111,10 +157,17 @@ export default function SurfApp() {
                   cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1,
                   fontSize: 15, fontWeight: isActive ? 700 : 500, color: isActive ? t.accent : t.text,
                   fontFamily: "'DM Sans', sans-serif", textAlign: "left",
+                  animation: `slideUp 0.3s ease both`, animationDelay: `${i * 40}ms`,
                 }}>
                   <span style={{ fontSize: 18 }}>{item.icon}</span>
-                  <span>{item.label}</span>
-                  {disabled && <span style={{ fontSize: 9, color: t.text3 }}>(Programm nötig)</span>}
+                  <span style={{ flex: 1 }}>{item.label}</span>
+                  {disabled && <span style={{ fontSize: 9, color: t.text3 }}>🔒</span>}
+                  {item.id === "lessons" && remaining > 0 && !disabled && (
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, background: dm ? "rgba(77,182,172,0.15)" : "#E0F2F1", padding: "2px 8px", borderRadius: 10 }}>{remaining}</span>
+                  )}
+                  {item.id === "diary" && data.diaryCount > 0 && !disabled && (
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>{data.diaryCount}</span>
+                  )}
                 </button>
               );
             })}
@@ -122,39 +175,76 @@ export default function SurfApp() {
               <button onClick={() => { data.exportData(); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 10, fontSize: 12, cursor: "pointer", color: t.text2, fontFamily: "'Space Mono', monospace" }}>💾 Backup exportieren</button>
             </div>
             <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.0.1 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.6 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
       )}
 
-      <main style={{ maxWidth: 600, margin: "0 auto", padding: "0 20px 100px", position: "relative" }}>
-        {screen === "home" && <HomeScreen data={data} t={t} dm={dm} navigate={navigate} spotObj={spotObj} savedGoal={savedGoal} />}
-        {screen === "builder" && <BuilderScreen data={data} t={t} dm={dm} navigate={navigate} />}
-        {screen === "lessons" && data.program && <LessonsScreen data={data} t={t} dm={dm} spotObj={spotObj} setOpenLesson={setOpenLesson} />}
-        {screen === "trip" && <TripScreen data={data} t={t} dm={dm} spotObj={spotObj} navigate={navigate} />}
-        {screen === "diary" && <DiaryScreen data={data} t={t} dm={dm} setOpenLesson={setOpenLesson} />}
-        {screen === "progress" && <ProgressScreen data={data} t={t} dm={dm} setOpenLesson={setOpenLesson} />}
-        {screen === "equipment" && <EquipmentScreen data={data} t={t} dm={dm} />}
+      {/* Main Content with Transition + Suspense */}
+      <main ref={mainRef} style={{ maxWidth: 600, margin: "0 auto", padding: "0 20px 100px", position: "relative" }}>
+        <Suspense fallback={<ScreenSkeleton t={t} dm={dm} />}>
+          <div key={screenKey} style={{ animation: transitioning ? "none" : "screenIn 0.3s ease both", opacity: transitioning ? 0 : undefined }}>
+            {renderScreen()}
+          </div>
+        </Suspense>
       </main>
 
+      {/* Bottom Tab Bar */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 80, background: dm ? "rgba(13,24,32,0.97)" : "rgba(255,253,247,0.97)", backdropFilter: "blur(12px)", borderTop: `1px solid ${t.cardBorder}`, display: "flex", justifyContent: "space-around", padding: "6px 0 env(safe-area-inset-bottom, 6px)" }}>
-        {NAV_ITEMS.slice(0, 5).map(item => {
+        {NAV_ITEMS.filter(i => ["home","lessons","trip","diary","community"].includes(i.id)).map(item => {
           const isActive = screen === item.id;
+          const showBadge = item.id === "lessons" && remaining > 0 && data.hasSaved;
           return (
             <button key={item.id} onClick={() => navigate(item.id)} style={{
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-              background: "none", border: "none", cursor: "pointer", padding: "4px 8px",
+              display: "flex", flexDirection: "column", alignItems: "center", gap: 2, position: "relative",
+              background: "none", border: "none", cursor: "pointer", padding: "4px 12px",
               color: isActive ? t.accent : t.text3, fontSize: 10, fontWeight: isActive ? 700 : 500,
-              fontFamily: "'Space Mono', monospace",
+              fontFamily: "'Space Mono', monospace", transition: "color 0.2s ease",
             }}>
-              <span style={{ fontSize: 20, transform: isActive ? "scale(1.15)" : "scale(1)" }}>{item.icon}</span>
+              <span style={{ fontSize: 20, transition: "transform 0.2s ease", transform: isActive ? "scale(1.2) translateY(-2px)" : "scale(1)" }}>{item.icon}</span>
               <span>{item.label}</span>
+              {showBadge && (
+                <span style={{ position: "absolute", top: 0, right: 4, background: "#FF7043", color: "white", fontSize: 8, fontWeight: 700, borderRadius: 8, padding: "1px 5px", minWidth: 16, textAlign: "center" }}>{remaining}</span>
+              )}
+              {isActive && <div style={{ position: "absolute", bottom: -6, width: 20, height: 3, borderRadius: 2, background: t.accent }} />}
             </button>
           );
         })}
       </div>
-      {LessonModalEl}
+
+      {openLesson && <LessonModal lesson={openLesson} onClose={() => setOpenLesson(null)} dm={dm} />}
+    </div>
+  );
+}
+
+// Shared Empty State component
+function EmptyState({ icon, title, desc, cta, onCta, t, dm }) {
+  return (
+    <div style={{ paddingTop: 80, textAlign: "center", animation: "screenIn 0.4s ease both" }}>
+      <div style={{ fontSize: 64, marginBottom: 16, animation: "float 4s ease-in-out infinite" }}>{icon}</div>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 8 }}>{title}</h2>
+      <p style={{ fontSize: 15, color: t.text2, maxWidth: 320, margin: "0 auto 28px", lineHeight: 1.6 }}>{desc}</p>
+      <button onClick={onCta} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "16px 36px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>{cta} →</button>
+    </div>
+  );
+}
+
+// Skeleton loading placeholder
+function ScreenSkeleton({ t, dm }) {
+  const bg = dm ? "rgba(255,255,255,0.05)" : "#F0F0F0";
+  return (
+    <div style={{ paddingTop: 24, animation: "pulse 1.5s ease-in-out infinite" }}>
+      <div style={{ background: bg, borderRadius: 12, height: 32, width: "60%", marginBottom: 8 }} />
+      <div style={{ background: bg, borderRadius: 8, height: 16, width: "40%", marginBottom: 24 }} />
+      <div style={{ background: bg, borderRadius: 18, height: 140, marginBottom: 16 }} />
+      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <div style={{ flex: 1, background: bg, borderRadius: 12, height: 44 }} />
+        <div style={{ flex: 1, background: bg, borderRadius: 12, height: 44 }} />
+        <div style={{ flex: 1, background: bg, borderRadius: 12, height: 44 }} />
+      </div>
+      <div style={{ background: bg, borderRadius: 16, height: 80, marginBottom: 12 }} />
+      <div style={{ background: bg, borderRadius: 16, height: 80, marginBottom: 12 }} />
     </div>
   );
 }
