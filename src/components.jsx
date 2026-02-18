@@ -1,15 +1,16 @@
-// SoulSurf – UI Components (v2.7)
+// SoulSurf – UI Components (v4.6)
+import React from "react";
 
-export const VideoEmbed = ({ url }) => {
+export const VideoEmbed = React.memo(({ url }) => {
   if (!url) return null;
   return (
     <div style={{ margin: "16px 0", borderRadius: 16, overflow: "hidden", background: "#111", position: "relative", paddingBottom: "56.25%", height: 0 }}>
       <iframe src={`${url}?rel=0&modestbranding=1`} title="Tutorial Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} />
     </div>
   );
-};
+});
 
-export const WaveBackground = () => (
+export const WaveBackground = React.memo(() => (
   <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none" }}>
     <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 200, background: "linear-gradient(0deg, rgba(255,183,77,0.15) 0%, transparent 100%)" }} />
     <svg style={{ position: "absolute", bottom: -5, left: 0, width: "200%", height: 80 }} viewBox="0 0 1440 80">
@@ -18,7 +19,7 @@ export const WaveBackground = () => (
       </path>
     </svg>
   </div>
-);
+));
 
 export const LessonCard = ({ lesson, index, onOpen, onToggle, done, dm }) => {
   const colors = {
