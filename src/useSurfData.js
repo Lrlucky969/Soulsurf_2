@@ -1,16 +1,43 @@
-// SoulSurf – Central State Hook (v4.0)
-import { useState, useEffect, useCallback, useMemo } from "react";
+// SoulSurf – Central State Hook (v4.6 – Performance)
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { CONTENT_POOL, analyzeDiary } from "./data.js";
 import { generateProgram } from "./generator.js";
 
 const STORAGE_KEY = "soulsurf_data";
-const TRIP_KEY = "soulsurf_trip";
+const TRIP_KEY = "soulsurf_trips";
+
+// Debounce helper for diary saves
+function useDebounce(fn, delay = 500) {
+  const timer = useRef(null);
+  return useCallback((...args) => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => fn(...args), delay);
+  }, [fn, delay]);
+}
 
 function loadSaved() { try { if (typeof localStorage === "undefined") return null; const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
 function saveData(data) { try { if (typeof localStorage === "undefined") return; localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, savedAt: new Date().toISOString() })); } catch {} }
 function clearData() { try { if (typeof localStorage === "undefined") return; localStorage.removeItem(STORAGE_KEY); } catch {} }
-function loadTrip() { try { const d = localStorage.getItem(TRIP_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
-function saveTrip(data) { try { localStorage.setItem(TRIP_KEY, JSON.stringify(data)); } catch {} }
+function loadTrips() { try { const d = localStorage.getItem(TRIP_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
+function saveTrips(data) { try { localStorage.setItem(TRIP_KEY, JSON.stringify(data)); } catch {} }
+
+// Migrate old single-trip to new format
+function migrateOldTrip() {
+  try {
+    const old = localStorage.getItem("soulsurf_trip");
+    if (old) {
+      const parsed = JSON.parse(old);
+      if (parsed.dates && (parsed.dates.start || parsed.dates.end)) {
+        const trip = { id: "trip-" + Date.now(), name: "Mein Trip", spot: "", dates: parsed.dates, checked: parsed.checked || {}, notes: "", budget: "" };
+        saveTrips({ trips: [trip], activeTrip: trip.id });
+        localStorage.removeItem("soulsurf_trip");
+        return { trips: [trip], activeTrip: trip.id };
+      }
+      localStorage.removeItem("soulsurf_trip");
+    }
+  } catch {}
+  return null;
+}
 
 export default function useSurfData() {
   const [days, setDays] = useState(7);
@@ -25,9 +52,11 @@ export default function useSurfData() {
   const [surfDays, setSurfDays] = useState([]);
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
-  const [tripDates, setTripDates] = useState({ start: "", end: "" });
-  const [tripChecked, setTripChecked] = useState({});
   const [darkMode, setDarkMode] = useState(false);
+
+  // Multi-trip state
+  const [trips, setTrips] = useState([]);
+  const [activeTrip, setActiveTrip] = useState(null);
 
   useEffect(() => {
     try { const saved = localStorage.getItem("soulsurf_dark"); if (saved === "true") setDarkMode(true); } catch {}
@@ -52,12 +81,18 @@ export default function useSurfData() {
         setProgram(generateProgram(saved.days, saved.goal, saved.spot, eq));
       }
     }
-    const trip = loadTrip();
-    if (trip) {
-      if (trip.dates) setTripDates(trip.dates);
-      if (trip.checked) setTripChecked(trip.checked);
+    // Load trips (with migration from old format)
+    let tripData = loadTrips();
+    if (!tripData) tripData = migrateOldTrip();
+    if (tripData) {
+      if (tripData.trips) setTrips(tripData.trips);
+      if (tripData.activeTrip) setActiveTrip(tripData.activeTrip);
     }
     setHydrated(true);
+  }, []);
+
+  const persistTrips = useCallback((newTrips, newActive) => {
+    saveTrips({ trips: newTrips, activeTrip: newActive });
   }, []);
 
   const saveAll = useCallback((overrides = {}) => {
@@ -66,11 +101,52 @@ export default function useSurfData() {
     setSavedAt(new Date().toISOString());
   }, [days, goal, spot, board, experience, completed, diary, activeDay, surfDays]);
 
-  const updateTripDates = useCallback((dates) => { setTripDates(dates); saveTrip({ dates, checked: tripChecked }); }, [tripChecked]);
-  const updateTripChecked = useCallback((fn) => {
-    setTripChecked(prev => { const next = typeof fn === "function" ? fn(prev) : fn; saveTrip({ dates: tripDates, checked: next }); return next; });
-  }, [tripDates]);
+  // Trip CRUD
+  const createTrip = useCallback((name, spotId) => {
+    const id = "trip-" + Date.now();
+    const trip = { id, name: name || "Neuer Trip", spot: spotId || "", dates: { start: "", end: "" }, checked: {}, notes: "", budget: "" };
+    const next = [...trips, trip];
+    setTrips(next); setActiveTrip(id);
+    persistTrips(next, id);
+    return id;
+  }, [trips, persistTrips]);
 
+  const updateTrip = useCallback((id, updates) => {
+    const next = trips.map(tr => tr.id === id ? { ...tr, ...updates } : tr);
+    setTrips(next);
+    persistTrips(next, activeTrip);
+  }, [trips, activeTrip, persistTrips]);
+
+  const deleteTrip = useCallback((id) => {
+    const next = trips.filter(tr => tr.id !== id);
+    const newActive = activeTrip === id ? (next[0]?.id || null) : activeTrip;
+    setTrips(next); setActiveTrip(newActive);
+    persistTrips(next, newActive);
+  }, [trips, activeTrip, persistTrips]);
+
+  const switchTrip = useCallback((id) => {
+    setActiveTrip(id);
+    persistTrips(trips, id);
+  }, [trips, persistTrips]);
+
+  const resetPackingList = useCallback((tripId) => {
+    updateTrip(tripId, { checked: {} });
+  }, [updateTrip]);
+
+  const currentTrip = useMemo(() => trips.find(tr => tr.id === activeTrip) || null, [trips, activeTrip]);
+
+  // Legacy compat wrappers
+  const tripDates = currentTrip?.dates || { start: "", end: "" };
+  const tripChecked = currentTrip?.checked || {};
+  const updateTripDates = useCallback((dates) => { if (activeTrip) updateTrip(activeTrip, { dates }); }, [activeTrip, updateTrip]);
+  const updateTripChecked = useCallback((fn) => {
+    if (!activeTrip) return;
+    const prev = currentTrip?.checked || {};
+    const next = typeof fn === "function" ? fn(prev) : fn;
+    updateTrip(activeTrip, { checked: next });
+  }, [activeTrip, currentTrip, updateTrip]);
+
+  // Streak
   const streak = useMemo(() => {
     if (!surfDays || surfDays.length === 0) return 0;
     const sorted = [...surfDays].sort((a, b) => b.localeCompare(a));
@@ -95,14 +171,19 @@ export default function useSurfData() {
     setCompleted(p => { const next = { ...p, [id]: !p[id] }; saveAll({ completed: next }); return next; });
   }, [saveAll]);
 
+  // Debounced save for diary (avoids excessive localStorage writes while typing)
+  const debouncedSave = useDebounce((diaryData) => {
+    saveAll({ diary: diaryData });
+  }, 600);
+
   const updateDiary = useCallback((dayNum, field, value) => {
     setDiary(prev => {
       const entry = prev[dayNum] || { date: new Date().toISOString() };
       const next = { ...prev, [dayNum]: { ...entry, [field]: value, date: entry.date || new Date().toISOString() } };
-      saveAll({ diary: next });
+      debouncedSave(next);
       return next;
     });
-  }, [saveAll]);
+  }, [debouncedSave]);
 
   const build = useCallback(() => {
     if (!days || !goal || !spot) return null;
@@ -121,13 +202,13 @@ export default function useSurfData() {
 
   const exportData = useCallback(() => {
     try {
-      const data = { days, goal, spot, board, experience, completed, diary, activeDay, surfDays, exportedAt: new Date().toISOString(), version: "4.0" };
+      const data = { days, goal, spot, board, experience, completed, diary, activeDay, surfDays, trips, exportedAt: new Date().toISOString(), version: "4.1" };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url;
       a.download = `soulsurf-backup-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     } catch (e) { console.error("Export failed:", e); }
-  }, [days, goal, spot, board, experience, completed, diary, activeDay, surfDays]);
+  }, [days, goal, spot, board, experience, completed, diary, activeDay, surfDays, trips]);
 
   const total = program?.program?.reduce((s, d) => s + d.lessons.length, 0) || 0;
   const done = Object.values(completed).filter(Boolean).length;
@@ -139,6 +220,9 @@ export default function useSurfData() {
     days, setDays, goal, setGoal, spot, setSpot, board, setBoard,
     experience, setExperience, program, activeDay, setActiveDay,
     completed, diary, surfDays, hydrated, savedAt, darkMode, toggleDark,
+    // Multi-trip API
+    trips, activeTrip, currentTrip, createTrip, updateTrip, deleteTrip, switchTrip, resetPackingList,
+    // Legacy compat
     tripDates, updateTripDates, tripChecked, updateTripChecked,
     toggle, toggleSurfDay, updateDiary, build, resetProgram, saveAll,
     exportData, total, done, diaryCount, hasSaved, streak, coaching,
