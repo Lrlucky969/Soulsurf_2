@@ -41,6 +41,13 @@ export default function LessonsScreen({ data, t, dm, spotObj, setOpenLesson }) {
         </div>
       )}
 
+      {/* Spot Tips */}
+      {spotObj?.tips && spotObj.tips.length > 0 && (
+        <div style={{ background: dm ? "rgba(30,45,61,0.6)" : "rgba(255,248,225,0.6)", borderRadius: 14, padding: "10px 14px", marginBottom: 16, display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {spotObj.tips.map((tip, i) => <span key={i} style={{ fontSize: 12, color: t.text2, lineHeight: 1.4 }}>💡 {tip}</span>)}
+        </div>
+      )}
+
       {/* Filter */}
       <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
         {[{ k: "all", l: "Alle", e: "📚" }, { k: "equipment", l: "Equipment", e: "🎒" }, { k: "warmup", l: "Warm-Up", e: "🔥" }, { k: "theory", l: "Theorie", e: "📖" }, { k: "practice", l: "Praxis", e: "🏄" }].map(f => (
