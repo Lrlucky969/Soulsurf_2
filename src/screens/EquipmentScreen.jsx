@@ -62,10 +62,8 @@ export default function EquipmentScreen({ data, t, dm }) {
       {/* Fin Setup */}
       <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "#F5F5F5", borderRadius: 16, padding: "16px 18px", marginBottom: 20 }}>
         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>🦈 Fin-Setup Empfehlung</div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{rec.fins}</div>
-        <div style={{ fontSize: 12, color: t.text2, marginTop: 4 }}>
-          {exp === "zero" || exp === "few" ? "Single Fin oder 2+1 für Stabilität und einfaches Paddeln." : exp === "some" ? "Thruster (3 Finnen) für die beste Mischung aus Kontrolle und Wendigkeit." : "Thruster oder Quad – je nach Wellen und persönlicher Vorliebe."}
-        </div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{rec.fins.setup || rec.fins}</div>
+        <div style={{ fontSize: 12, color: t.text2, marginTop: 4 }}>{rec.fins.reason || ""}</div>
       </div>
 
       {/* Coaching Board Hint */}
