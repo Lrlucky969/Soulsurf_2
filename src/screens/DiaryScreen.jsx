@@ -212,7 +212,7 @@ export default function DiaryScreen({ data, t, dm, photoSync }) {
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: 8 }}>
                         {diaryPhotos[dayData.day].map(p => (
                           <div key={p.id} style={{ position: "relative", borderRadius: 12, overflow: "hidden", aspectRatio: "1", border: `1px solid ${t.inputBorder}`, cursor: "pointer" }} onClick={() => getFullPhoto(p.id)}>
-                            <img src={p.thumb} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            <img src={p.thumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             <button onClick={e => { e.stopPropagation(); deletePhoto(p.id, dayData.day); }} style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,0.6)", color: "white", border: "none", borderRadius: "50%", width: 22, height: 22, fontSize: 11, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>✕</button>
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(0,0,0,0.4))", padding: "12px 6px 4px", fontSize: 9, color: "white", textAlign: "center" }}>Antippen</div>
                           </div>
