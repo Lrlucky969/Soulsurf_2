@@ -1,7 +1,8 @@
-// SoulSurf v4.7 – App Shell with Auth
+// SoulSurf v4.8 – App Shell with Auth
 import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
+import useSync from "./useSync.js";
 import { SURF_SPOTS, GOALS } from "./data.js";
 import { WaveBackground, LessonModal } from "./components.jsx";
 import AuthScreen from "./screens/AuthScreen.jsx";
@@ -32,15 +33,18 @@ const NAV_ITEMS = [
 ];
 
 export default function SurfApp() {
-  const data = useSurfData();
   const auth = useAuth();
+  const sync = useSync(auth.user?.id);
+  const data = useSurfData(sync);
   const [screen, setScreen] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
   const [openLesson, setOpenLesson] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [screenKey, setScreenKey] = useState(0);
+  const [syncToast, setSyncToast] = useState(null);
   const mainRef = useRef(null);
+  const hasAutoSynced = useRef(false);
 
   const dm = data.darkMode;
   const t = dm ? THEMES.dark : THEMES.light;
@@ -91,6 +95,28 @@ export default function SurfApp() {
     } catch {}
   }, []);
 
+  // Auto-sync on login: download cloud data, restore if local is empty
+  useEffect(() => {
+    if (!auth.isLoggedIn || !sync.isEnabled || hasAutoSynced.current || !data.hydrated) return;
+    hasAutoSynced.current = true;
+    (async () => {
+      const cloud = await sync.downloadAll();
+      if (!cloud) return;
+      // If local has no program but cloud does → restore from cloud
+      if (!data.hasSaved && cloud.program) {
+        data.restoreFromCloud(cloud);
+        setSyncToast("☁️ Daten aus der Cloud geladen!");
+        setTimeout(() => setSyncToast(null), 3000);
+      }
+      // If local has data but cloud is empty → push to cloud
+      else if (data.hasSaved && !cloud.program) {
+        sync.forceUpload(data.getProgramSnapshot(), data.getTripsSnapshot());
+        setSyncToast("☁️ Lokale Daten in die Cloud gesichert!");
+        setTimeout(() => setSyncToast(null), 3000);
+      }
+    })();
+  }, [auth.isLoggedIn, sync.isEnabled, data.hydrated]);
+
   // Current screen label for header
   const screenLabel = NAV_ITEMS.find(n => n.id === screen);
 
@@ -121,7 +147,7 @@ export default function SurfApp() {
             <span style={{ fontSize: 22 }}>🏄</span>
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v4.7</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v4.8</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -190,7 +216,9 @@ export default function SurfApp() {
                   <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #009688, #4DB6AC)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, fontWeight: 700 }}>{auth.displayName?.charAt(0).toUpperCase() || "U"}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: t.text }}>{auth.displayName}</div>
-                    <div style={{ fontSize: 10, color: t.text3 }}>☁️ Cloud Sync aktiv</div>
+                    <div style={{ fontSize: 10, color: sync.syncStatus === "syncing" ? "#FFB74D" : sync.syncStatus === "error" ? "#E53935" : "#4DB6AC" }}>
+                      {sync.syncStatus === "syncing" ? "⏳ Synchronisiere..." : sync.syncStatus === "error" ? "⚠️ Sync-Fehler" : "☁️ Cloud Sync aktiv"}
+                    </div>
                   </div>
                 </div>
               )}
@@ -203,7 +231,7 @@ export default function SurfApp() {
               )}
             </div>
             <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.7 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.8 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
@@ -243,6 +271,11 @@ export default function SurfApp() {
 
       {openLesson && <LessonModal lesson={openLesson} onClose={() => setOpenLesson(null)} dm={dm} />}
       {showAuth && <AuthScreen auth={auth} t={t} dm={dm} onClose={() => setShowAuth(false)} />}
+      {syncToast && (
+        <div style={{ position: "fixed", top: 70, left: "50%", transform: "translateX(-50%)", zIndex: 1200, background: dm ? "#1a2332" : "white", border: `1px solid ${t.accent}`, borderRadius: 14, padding: "10px 20px", fontSize: 13, fontWeight: 600, color: t.accent, boxShadow: "0 8px 30px rgba(0,0,0,0.15)", animation: "slideUp 0.3s ease both" }}>
+          {syncToast}
+        </div>
+      )}
     </div>
   );
 }

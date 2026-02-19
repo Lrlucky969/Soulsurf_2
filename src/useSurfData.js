@@ -1,4 +1,4 @@
-// SoulSurf – Central State Hook (v4.6 – Performance)
+// SoulSurf – Central State Hook (v4.8 – Cloud Sync)
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { CONTENT_POOL, analyzeDiary } from "./data.js";
 import { generateProgram } from "./generator.js";
@@ -39,7 +39,7 @@ function migrateOldTrip() {
   return null;
 }
 
-export default function useSurfData() {
+export default function useSurfData(sync) {
   const [days, setDays] = useState(7);
   const [goal, setGoal] = useState("");
   const [spot, setSpot] = useState("");
@@ -93,13 +93,16 @@ export default function useSurfData() {
 
   const persistTrips = useCallback((newTrips, newActive) => {
     saveTrips({ trips: newTrips, activeTrip: newActive });
-  }, []);
+    if (sync?.uploadTrips) sync.uploadTrips({ trips: newTrips, activeTrip: newActive });
+  }, [sync]);
 
   const saveAll = useCallback((overrides = {}) => {
     const base = { days, goal, spot, board, experience, completed, diary, activeDay, surfDays };
     saveData({ ...base, ...overrides });
     setSavedAt(new Date().toISOString());
-  }, [days, goal, spot, board, experience, completed, diary, activeDay, surfDays]);
+    // Cloud sync (if logged in)
+    if (sync?.uploadProgram) sync.uploadProgram({ ...base, ...overrides });
+  }, [days, goal, spot, board, experience, completed, diary, activeDay, surfDays, sync]);
 
   // Trip CRUD
   const createTrip = useCallback((name, spotId) => {
@@ -216,6 +219,43 @@ export default function useSurfData() {
   const hasSaved = hydrated && program !== null && days && goal && spot;
   const coaching = useMemo(() => analyzeDiary(diary, CONTENT_POOL), [diary]);
 
+  // Restore data from cloud (called after login if cloud has newer data)
+  const restoreFromCloud = useCallback((cloudData) => {
+    if (!cloudData) return;
+    if (cloudData.program) {
+      const p = cloudData.program;
+      if (p.days) setDays(p.days);
+      if (p.goal) setGoal(p.goal);
+      if (p.spot) setSpot(p.spot);
+      if (p.board) setBoard(p.board);
+      if (p.experience) setExperience(p.experience);
+      if (p.completed) setCompleted(p.completed);
+      if (p.diary) setDiary(p.diary);
+      if (p.activeDay) setActiveDay(p.activeDay);
+      if (p.surfDays) setSurfDays(p.surfDays);
+      if (p.days && p.goal && p.spot) {
+        const eq = { board: p.board || "none", experience: p.experience || "zero" };
+        setProgram(generateProgram(p.days, p.goal, p.spot, eq));
+      }
+      saveData(p);
+    }
+    if (cloudData.trips) {
+      const t = cloudData.trips;
+      if (t.trips) setTrips(t.trips);
+      if (t.activeTrip) setActiveTrip(t.activeTrip);
+      saveTrips(t);
+    }
+  }, []);
+
+  // Snapshot for cloud upload
+  const getProgramSnapshot = useCallback(() => {
+    return { days, goal, spot, board, experience, completed, diary, activeDay, surfDays };
+  }, [days, goal, spot, board, experience, completed, diary, activeDay, surfDays]);
+
+  const getTripsSnapshot = useCallback(() => {
+    return { trips, activeTrip };
+  }, [trips, activeTrip]);
+
   return {
     days, setDays, goal, setGoal, spot, setSpot, board, setBoard,
     experience, setExperience, program, activeDay, setActiveDay,
@@ -226,5 +266,7 @@ export default function useSurfData() {
     tripDates, updateTripDates, tripChecked, updateTripChecked,
     toggle, toggleSurfDay, updateDiary, build, resetProgram, saveAll,
     exportData, total, done, diaryCount, hasSaved, streak, coaching,
+    // Cloud sync helpers
+    restoreFromCloud, getProgramSnapshot, getTripsSnapshot,
   };
 }
