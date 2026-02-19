@@ -1,8 +1,10 @@
-// SoulSurf v4.6 – App Shell with Lazy Loading
+// SoulSurf v4.7 – App Shell with Auth
 import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
+import useAuth from "./useAuth.js";
 import { SURF_SPOTS, GOALS } from "./data.js";
 import { WaveBackground, LessonModal } from "./components.jsx";
+import AuthScreen from "./screens/AuthScreen.jsx";
 
 // Lazy-loaded screens (code-split chunks)
 const HomeScreen = lazy(() => import("./screens/HomeScreen.jsx"));
@@ -31,9 +33,11 @@ const NAV_ITEMS = [
 
 export default function SurfApp() {
   const data = useSurfData();
+  const auth = useAuth();
   const [screen, setScreen] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
   const [openLesson, setOpenLesson] = useState(null);
+  const [showAuth, setShowAuth] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
   const [screenKey, setScreenKey] = useState(0);
   const mainRef = useRef(null);
@@ -117,7 +121,7 @@ export default function SurfApp() {
             <span style={{ fontSize: 22 }}>🏄</span>
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v4.6</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v4.7</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -126,6 +130,15 @@ export default function SurfApp() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {data.streak > 0 && <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#FFB74D" }}>🔥 {data.streak}</span>}
+          {auth.isConfigured && (
+            auth.isLoggedIn ? (
+              <button onClick={() => setMenuOpen(true)} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", border: "none", borderRadius: "50%", width: 30, height: 30, fontSize: 12, fontWeight: 700, color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {auth.displayName?.charAt(0).toUpperCase() || "U"}
+              </button>
+            ) : (
+              <button onClick={() => setShowAuth(true)} style={{ background: dm ? "rgba(77,182,172,0.12)" : "#E0F2F1", border: `1px solid ${t.accent}`, borderRadius: 8, padding: "4px 10px", fontSize: 11, fontWeight: 600, color: t.accent, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>Login</button>
+            )
+          )}
           <button onClick={data.toggleDark} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", padding: 4, transition: "transform 0.3s ease" }} onMouseEnter={e => e.currentTarget.style.transform = "rotate(30deg)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{dm ? "☀️" : "🌙"}</button>
         </div>
       </header>
@@ -172,10 +185,25 @@ export default function SurfApp() {
               );
             })}
             <div style={{ padding: "16px 24px", borderTop: `1px solid ${t.cardBorder}`, marginTop: 8 }}>
-              <button onClick={() => { data.exportData(); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 10, fontSize: 12, cursor: "pointer", color: t.text2, fontFamily: "'Space Mono', monospace" }}>💾 Backup exportieren</button>
+              {auth.isConfigured && auth.isLoggedIn && (
+                <div style={{ marginBottom: 12, padding: "10px 12px", background: dm ? "rgba(77,182,172,0.08)" : "#E0F2F1", borderRadius: 10, display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #009688, #4DB6AC)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, fontWeight: 700 }}>{auth.displayName?.charAt(0).toUpperCase() || "U"}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: t.text }}>{auth.displayName}</div>
+                    <div style={{ fontSize: 10, color: t.text3 }}>☁️ Cloud Sync aktiv</div>
+                  </div>
+                </div>
+              )}
+              {auth.isConfigured && !auth.isLoggedIn && (
+                <button onClick={() => { setShowAuth(true); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: "linear-gradient(135deg, #009688, #4DB6AC)", border: "none", borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: "pointer", color: "white", fontFamily: "'Space Mono', monospace", marginBottom: 8 }}>🔐 Einloggen / Registrieren</button>
+              )}
+              <button onClick={() => { data.exportData(); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 10, fontSize: 12, cursor: "pointer", color: t.text2, fontFamily: "'Space Mono', monospace", marginBottom: auth.isLoggedIn ? 8 : 0 }}>💾 Backup exportieren</button>
+              {auth.isConfigured && auth.isLoggedIn && (
+                <button onClick={() => { auth.logout(); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: dm ? "rgba(229,57,53,0.08)" : "#FFEBEE", border: `1px solid ${dm ? "rgba(229,57,53,0.2)" : "#FFCDD2"}`, borderRadius: 10, fontSize: 12, cursor: "pointer", color: "#E53935", fontFamily: "'Space Mono', monospace" }}>🚪 Ausloggen</button>
+              )}
             </div>
             <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.6 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.7 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
@@ -214,6 +242,7 @@ export default function SurfApp() {
       </div>
 
       {openLesson && <LessonModal lesson={openLesson} onClose={() => setOpenLesson(null)} dm={dm} />}
+      {showAuth && <AuthScreen auth={auth} t={t} dm={dm} onClose={() => setShowAuth(false)} />}
     </div>
   );
 }
