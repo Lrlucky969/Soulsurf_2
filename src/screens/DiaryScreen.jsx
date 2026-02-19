@@ -5,7 +5,7 @@ import { BOARD_TYPES } from "../data.js";
 const MOODS = [null, "😩", "😕", "😐", "😊", "🤩"];
 const MOOD_COLORS = [null, "#E53935", "#FF7043", "#FFB74D", "#66BB6A", "#4DB6AC"];
 
-export default function DiaryScreen({ data, t, dm }) {
+export default function DiaryScreen({ data, t, dm, photoSync }) {
   const [openDay, setOpenDay] = useState(null);
   const [voiceField, setVoiceField] = useState(null);
   const [diaryPhotos, setDiaryPhotos] = useState({});
@@ -19,11 +19,19 @@ export default function DiaryScreen({ data, t, dm }) {
   const getDB = () => new Promise((res, rej) => { if (dbRef.current) return res(dbRef.current); const r = indexedDB.open("soulsurf_photos", 1); r.onupgradeneeded = e => e.target.result.createObjectStore("photos", { keyPath: "id" }); r.onsuccess = e => { dbRef.current = e.target.result; res(e.target.result); }; r.onerror = () => rej(); });
   const refreshPhotos = async (d) => { try { const db = await getDB(); const tx = db.transaction("photos", "readonly"); const r = tx.objectStore("photos").getAll(); r.onsuccess = () => setDiaryPhotos(p => ({ ...p, [d]: r.result.filter(x => x.day === d).map(x => ({ id: x.id, thumb: x.thumb })) })); } catch {} };
   const refreshAllPhotos = async () => { try { const db = await getDB(); const tx = db.transaction("photos", "readonly"); const r = tx.objectStore("photos").getAll(); r.onsuccess = () => { const byDay = {}; r.result.forEach(x => { if (!byDay[x.day]) byDay[x.day] = []; byDay[x.day].push({ id: x.id, thumb: x.thumb }); }); setDiaryPhotos(byDay); }; } catch {} };
-  const addPhoto = async (d, file) => { try { const db = await getDB(); const id = `photo-${d}-${Date.now()}`; const thumb = await new Promise(r => { const rd = new FileReader(); rd.onload = e => { const img = new Image(); img.onload = () => { const c = document.createElement("canvas"); c.width = c.height = 200; c.getContext("2d").drawImage(img, (img.width - Math.min(img.width, img.height)) / 2, (img.height - Math.min(img.width, img.height)) / 2, Math.min(img.width, img.height), Math.min(img.width, img.height), 0, 0, 200, 200); r(c.toDataURL("image/jpeg", 0.8)); }; img.src = e.target.result; }; rd.readAsDataURL(file); }); const buf = await file.arrayBuffer(); const tx = db.transaction("photos", "readwrite"); tx.objectStore("photos").put({ id, day: d, blob: buf, thumb, ts: Date.now() }); await new Promise((r, j) => { tx.oncomplete = r; tx.onerror = j; }); refreshPhotos(d); } catch {} };
-  const deletePhoto = async (id, d) => { try { const db = await getDB(); const tx = db.transaction("photos", "readwrite"); tx.objectStore("photos").delete(id); await new Promise(r => { tx.oncomplete = r; }); refreshPhotos(d); } catch {} };
+  const addPhoto = async (d, file) => { try { const db = await getDB(); const id = `photo-${d}-${Date.now()}`; const thumb = await new Promise(r => { const rd = new FileReader(); rd.onload = e => { const img = new Image(); img.onload = () => { const c = document.createElement("canvas"); c.width = c.height = 200; c.getContext("2d").drawImage(img, (img.width - Math.min(img.width, img.height)) / 2, (img.height - Math.min(img.width, img.height)) / 2, Math.min(img.width, img.height), Math.min(img.width, img.height), 0, 0, 200, 200); r(c.toDataURL("image/jpeg", 0.8)); }; img.src = e.target.result; }; rd.readAsDataURL(file); }); const buf = await file.arrayBuffer(); const tx = db.transaction("photos", "readwrite"); tx.objectStore("photos").put({ id, day: d, blob: buf, thumb, ts: Date.now() }); await new Promise((r, j) => { tx.oncomplete = r; tx.onerror = j; }); if (photoSync?.uploadPhoto) photoSync.uploadPhoto(id, buf, thumb); refreshPhotos(d); } catch {} };
+  const deletePhoto = async (id, d) => { try { const db = await getDB(); const tx = db.transaction("photos", "readwrite"); tx.objectStore("photos").delete(id); await new Promise(r => { tx.oncomplete = r; }); if (photoSync?.deleteCloudPhoto) photoSync.deleteCloudPhoto(id); refreshPhotos(d); } catch {} };
   const getFullPhoto = async (photoId) => { try { const db = await getDB(); const tx = db.transaction("photos", "readonly"); const r = tx.objectStore("photos").get(photoId); r.onsuccess = () => { if (r.result?.blob) { const blob = new Blob([r.result.blob], { type: "image/jpeg" }); setFullscreenPhoto(URL.createObjectURL(blob)); } }; } catch {} };
 
-  useEffect(() => { refreshAllPhotos(); }, []);
+  // On mount: refresh local photos, then sync from cloud if available
+  useEffect(() => {
+    refreshAllPhotos();
+    if (photoSync?.isEnabled) {
+      photoSync.syncFromCloud(getDB).then(count => {
+        if (count > 0) refreshAllPhotos(); // Refresh UI if photos were restored
+      });
+    }
+  }, []);
   useEffect(() => { if (openDay) refreshPhotos(openDay); }, [openDay]);
 
   // Voice
