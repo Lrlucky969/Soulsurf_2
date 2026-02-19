@@ -152,15 +152,20 @@ export default function useSurfData(sync) {
   // Streak
   const streak = useMemo(() => {
     if (!surfDays || surfDays.length === 0) return 0;
-    const sorted = [...surfDays].sort((a, b) => b.localeCompare(a));
+    const sorted = [...new Set(surfDays)].sort((a, b) => b.localeCompare(a)); // dedupe + sort newest first
     const today = new Date().toISOString().slice(0, 10);
     const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    // Streak must start from today or yesterday
     if (sorted[0] !== today && sorted[0] !== yesterday) return 0;
     let count = 1;
     for (let i = 1; i < sorted.length; i++) {
-      const prev = new Date(sorted[i - 1]);
-      const cur = new Date(sorted[i]);
-      if ((prev - cur) / 86400000 === 1) count++; else break;
+      // Check if previous day in sorted list is exactly 1 calendar day before
+      const prevDate = new Date(sorted[i - 1] + "T12:00:00"); // noon to avoid timezone issues
+      const expectedPrev = new Date(prevDate);
+      expectedPrev.setDate(expectedPrev.getDate() - 1);
+      const expectedStr = expectedPrev.toISOString().slice(0, 10);
+      if (sorted[i] === expectedStr) count++;
+      else break;
     }
     return count;
   }, [surfDays]);
