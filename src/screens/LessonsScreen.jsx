@@ -3,13 +3,25 @@ import React, { useState } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import { LessonCard } from "../components.jsx";
 
-export default function LessonsScreen({ data, t, dm, spotObj, setOpenLesson }) {
+export default function LessonsScreen({ data, t, dm, spotObj, setOpenLesson, navigate }) {
   const [filter, setFilter] = useState("all");
   const [activeDay, setActiveDay] = useState(data.activeDay);
   const { program, completed, toggle, total, done, streak, toggleSurfDay, surfDays } = data;
   const today = new Date().toISOString().slice(0, 10);
   const surfedToday = surfDays.includes(today);
   const savedGoal = GOALS.find(g => g.id === data.goal);
+
+  // Empty state: no program yet
+  if (!program || !program.program) {
+    return (
+      <div style={{ paddingTop: 60, textAlign: "center" }}>
+        <div style={{ fontSize: 60, marginBottom: 16, animation: "float 4s ease-in-out infinite" }}>📚</div>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 8 }}>Noch kein Programm</h2>
+        <p style={{ fontSize: 14, color: t.text2, maxWidth: 320, margin: "0 auto 24px", lineHeight: 1.6 }}>Erstelle dein persönliches Surf-Programm um Lektionen freizuschalten.</p>
+        <button onClick={() => navigate("builder")} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "14px 36px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 6px 20px rgba(0,150,136,0.3)" }}>Programm erstellen 🤙</button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ paddingTop: 24 }}>

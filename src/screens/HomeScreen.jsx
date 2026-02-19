@@ -91,13 +91,17 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
 
   // === DASHBOARD (returning users with program) ===
   if (data.hasSaved && spotObj) {
+    const today = new Date().toISOString().slice(0, 10);
+    const surfedToday = (data.surfDays || []).includes(today);
+    const hour = new Date().getHours();
+    const timeGreeting = hour < 10 ? "Guten Morgen! ☀️" : hour < 14 ? "Moin! 🤙" : hour < 18 ? "Hey! 🌊" : "Guten Abend! 🌅";
     return (
       <div style={{ paddingTop: 20 }}>
         {/* Greeting */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>{new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}</div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginTop: 4 }}>
-            {data.streak > 2 ? "Du bist on fire! 🔥" : progressPct >= 80 ? "Fast geschafft! 💪" : progressPct >= 50 ? "Weiter so! 🤙" : "Ready to surf? 🌊"}
+            {data.streak > 2 ? "Du bist on fire! 🔥" : progressPct >= 80 ? "Fast geschafft! 💪" : progressPct >= 50 ? "Weiter so! 🤙" : timeGreeting}
           </h2>
         </div>
 
@@ -161,6 +165,19 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
           </button>
         )}
 
+        {/* Surf Today Toggle on Dashboard */}
+        <button onClick={data.toggleSurfDay} style={{
+          width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", marginBottom: 12, borderRadius: 14, cursor: "pointer", textAlign: "left",
+          background: surfedToday ? (dm ? "rgba(255,183,77,0.12)" : "#FFF8E1") : t.card,
+          border: `1px solid ${surfedToday ? "#FFB74D" : t.cardBorder}`,
+        }}>
+          <span style={{ fontSize: 24 }}>{surfedToday ? "🏄‍♂️" : "🏖️"}</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: surfedToday ? "#E65100" : t.text }}>{surfedToday ? "Heute gesurft! ✓" : "Heute gesurft?"}</div>
+            <div style={{ fontSize: 11, color: t.text2 }}>{surfedToday ? `Streak: ${data.streak} Tag${data.streak > 1 ? "e" : ""} 🔥` : "Tippe um deinen Surf-Tag zu loggen"}</div>
+          </div>
+        </button>
+
         {/* Coaching Tip */}
         {coachingTip && (
           <button onClick={() => navigate("progress")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: dm ? "rgba(102,187,106,0.08)" : "#E8F5E9", border: `1px solid ${dm ? "rgba(102,187,106,0.15)" : "#C8E6C9"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12, cursor: "pointer", textAlign: "left" }}>
@@ -174,15 +191,16 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
         )}
 
         {/* Quick Nav */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 24 }}>
           {[
+            { icon: "🌊", label: "Forecast", screen: "forecast" },
             { icon: "✈️", label: "Trip", screen: "trip" },
             { icon: "📓", label: "Tagebuch", screen: "diary" },
             { icon: "🏄", label: "Equipment", screen: "equipment" },
           ].map((card, i) => (
-            <button key={i} onClick={() => navigate(card.screen)} style={{ background: t.card, borderRadius: 14, padding: "16px 10px", border: `1px solid ${t.cardBorder}`, cursor: "pointer", textAlign: "center" }}>
-              <div style={{ fontSize: 24, marginBottom: 4 }}>{card.icon}</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, fontWeight: 600, color: t.text2 }}>{card.label}</div>
+            <button key={i} onClick={() => navigate(card.screen)} style={{ background: t.card, borderRadius: 14, padding: "14px 8px", border: `1px solid ${t.cardBorder}`, cursor: "pointer", textAlign: "center" }}>
+              <div style={{ fontSize: 22, marginBottom: 4 }}>{card.icon}</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, fontWeight: 600, color: t.text2 }}>{card.label}</div>
             </button>
           ))}
         </div>
@@ -203,9 +221,10 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
 
       <button onClick={() => navigate("builder")} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "18px 44px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)", marginBottom: 32 }}>Programm erstellen 🤙</button>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginBottom: 32 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 32 }}>
         {[
-          { icon: "✈️", title: "Trip planen", desc: "Spots, Wetter & Packliste", screen: "trip" },
+          { icon: "✈️", title: "Trip planen", desc: "Spots & Packliste", screen: "trip" },
+          { icon: "🌊", title: "Forecast", desc: "Surf-Bedingungen", screen: "forecast" },
           { icon: "🏄", title: "Board-Berater", desc: "Finde dein Board", screen: "equipment" },
         ].map((card, i) => (
           <button key={i} onClick={() => navigate(card.screen)} style={{
