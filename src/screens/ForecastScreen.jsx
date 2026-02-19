@@ -18,7 +18,14 @@ export default function ForecastScreen({ data, t, dm }) {
   const [selectedSpot, setSelectedSpot] = useState(data.spot || SURF_SPOTS[0]?.id || "bali");
   const spot = SURF_SPOTS.find(s => s.id === selectedSpot) || SURF_SPOTS[0];
   const { hourly, loading } = useHourlyForecast(spot);
-  const [selectedDay, setSelectedDay] = useState(0); // 0 = today, 1 = tomorrow, 2 = day after
+  const [selectedDay, setSelectedDay] = useState(0);
+  const [showTip, setShowTip] = useState(() => {
+    try { return !JSON.parse(localStorage.getItem("soulsurf_tooltips") || "{}")["forecast-intro"]; } catch { return true; }
+  });
+  const dismissTip = () => {
+    setShowTip(false);
+    try { const t = JSON.parse(localStorage.getItem("soulsurf_tooltips") || "{}"); t["forecast-intro"] = true; localStorage.setItem("soulsurf_tooltips", JSON.stringify(t)); } catch {}
+  };
 
   // Group hours by day
   const days = useMemo(() => {
@@ -69,6 +76,16 @@ export default function ForecastScreen({ data, t, dm }) {
     <div style={{ paddingTop: 24 }}>
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>🌊 Surf-Forecast</h2>
       <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>Stündliche Bedingungen & beste Surf-Zeiten.</p>
+
+      {showTip && (
+        <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>💡 So liest du den Forecast</div>
+            <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>Score 80+ = Perfekte Bedingungen. Scrolle durch die Stunden und finde das beste Zeitfenster. Offshore-Wind (🟢) macht die besten Wellen!</div>
+          </div>
+          <button onClick={dismissTip} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4, marginLeft: 8, flexShrink: 0 }}>✕</button>
+        </div>
+      )}
 
       {/* Spot Selector */}
       <select value={selectedSpot} onChange={e => setSelectedSpot(e.target.value)} style={{ width: "100%", padding: "10px 14px", borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, fontWeight: 600, marginBottom: 16 }}>

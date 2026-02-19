@@ -74,6 +74,14 @@ export default function DiaryScreen({ data, t, dm, photoSync }) {
     <div style={{ paddingTop: 24 }}>
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 6 }}>📓 Surf-Tagebuch</h2>
 
+      {/* First-visit tooltip */}
+      {stats.count === 0 && (
+        <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>💡 Tipp: Dein Tagebuch</div>
+          <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>Notiere nach jeder Session was funktioniert hat und was nicht. Du kannst Fotos anhängen und sogar per Spracheingabe 🎤 diktieren. Dein Coaching passt sich an deine Einträge an!</div>
+        </div>
+      )}
+
       {/* Stats Bar */}
       <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" }}>
         {[

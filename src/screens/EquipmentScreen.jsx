@@ -10,7 +10,14 @@ export default function EquipmentScreen({ data, t, dm }) {
   return (
     <div style={{ paddingTop: 24 }}>
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 6 }}>🏄 Board-Berater</h2>
-      <p style={{ fontSize: 14, color: t.text2, marginBottom: 24 }}>Finde das perfekte Board für dein Level und Gewicht.</p>
+      <p style={{ fontSize: 14, color: t.text2, marginBottom: 16 }}>Finde das perfekte Board für dein Level und Gewicht.</p>
+
+      {exp === "zero" && (
+        <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>💡 Anfänger-Tipp</div>
+          <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>Als Anfänger brauchst du ein großes, stabiles Board. Softboards (8'0+) sind ideal – sicher, günstig und verzeihend bei Fehlern. Stelle oben dein Level ein für genauere Empfehlungen!</div>
+        </div>
+      )}
 
       {/* Weight Slider */}
       <div style={{ background: dm ? "rgba(30,45,61,0.8)" : t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "18px 20px", marginBottom: 20 }}>

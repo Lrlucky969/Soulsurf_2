@@ -7,7 +7,8 @@ const ONBOARDING_KEY = "soulsurf_onboarded";
 export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }) {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [onboarded, setOnboarded] = useState(true); // assume true until checked
-  const [obStep, setObStep] = useState(0); // onboarding step
+  const [obStep, setObStep] = useState(0);
+  const [obRoute, setObRoute] = useState(null);
 
   useEffect(() => {
     try { const v = localStorage.getItem(ONBOARDING_KEY); if (!v) setOnboarded(false); } catch {}
@@ -38,53 +39,107 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
 
   const progressPct = data.total > 0 ? Math.round((data.done / data.total) * 100) : 0;
 
+  // Tooltip system
+  const [seenTooltips, setSeenTooltips] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("soulsurf_tooltips") || "{}"); } catch { return {}; }
+  });
+  const dismissTooltip = (id) => {
+    const next = { ...seenTooltips, [id]: true };
+    setSeenTooltips(next);
+    try { localStorage.setItem("soulsurf_tooltips", JSON.stringify(next)); } catch {}
+  };
+
+  // Milestone nudge
+  const milestone = useMemo(() => {
+    if (data.done === 1) return { emoji: "🎉", text: "Erste Lektion geschafft! Weiter so!" };
+    if (data.done === 10) return { emoji: "📗", text: "10 Lektionen! Du hast den Paddler-Badge!" };
+    if (data.done === 25) return { emoji: "📘", text: "25 Lektionen – Wave Catcher! Stark!" };
+    if (data.streak === 3) return { emoji: "🔥", text: "3-Tage Streak! Dranbleiben zahlt sich aus!" };
+    if (data.streak === 7) return { emoji: "💎", text: "7-Tage Streak! Du bist eine Surf-Maschine!" };
+    if (data.diaryCount === 1) return { emoji: "✏️", text: "Erster Tagebuch-Eintrag! Reflexion macht dich besser." };
+    if (progressPct >= 50 && progressPct < 55) return { emoji: "🏅", text: "Halbzeit! 50% deines Programms geschafft!" };
+    if (progressPct === 100) return { emoji: "🏆", text: "PROGRAMM KOMPLETT! Du bist bereit fürs Wasser!" };
+    return null;
+  }, [data.done, data.streak, data.diaryCount, progressPct]);
+
   // === ONBOARDING FLOW (first-time users) ===
   if (!onboarded && !data.hasSaved) {
+    const features = [
+      { emoji: "📚", title: "63 Surf-Lektionen", desc: "Pop-Up bis Barrel" },
+      { emoji: "🌊", title: "Live Forecast", desc: "Stündliche Bedingungen" },
+      { emoji: "🎮", title: "XP & Levels", desc: "Gamifiziertes Lernen" },
+      { emoji: "☁️", title: "Cloud Sync", desc: "Alle Geräte synchron" },
+    ];
     return (
-      <div style={{ paddingTop: 30, textAlign: "center" }}>
+      <div style={{ paddingTop: 20, textAlign: "center" }}>
         {obStep === 0 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
-            <div style={{ fontSize: 80, marginBottom: 16, animation: "float 4s ease-in-out infinite" }}>🏄</div>
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 10 }}>Willkommen bei<br /><span style={{ color: t.accent }}>SoulSurf</span></h1>
-            <p style={{ fontSize: 16, color: t.text2, maxWidth: 380, margin: "0 auto 32px", lineHeight: 1.6 }}>Dein persönlicher Surf-Coach. Lerne Surfen, plane Trips und tracke deinen Fortschritt – alles in einer App.</p>
-            <button onClick={() => setObStep(1)} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "18px 44px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>Los geht's 🤙</button>
-            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 24 }}>
-              {[0, 1, 2].map(s => <div key={s} style={{ width: s === obStep ? 24 : 8, height: 8, borderRadius: 4, background: s === obStep ? t.accent : (dm ? "#2d3f50" : "#E0E0E0"), transition: "all 0.3s ease" }} />)}
+            <img src="/icon-192.png" alt="SoulSurf" style={{ width: 88, height: 88, borderRadius: 22, marginBottom: 16, animation: "float 4s ease-in-out infinite", boxShadow: "0 12px 40px rgba(0,150,136,0.2)" }} />
+            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 34, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 8 }}>Willkommen bei<br /><span style={{ color: t.accent }}>SoulSurf</span></h1>
+            <p style={{ fontSize: 15, color: t.text2, maxWidth: 360, margin: "0 auto 24px", lineHeight: 1.6 }}>Dein persönlicher Surf-Coach – lerne Surfen, plane Trips und tracke deinen Fortschritt.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, maxWidth: 320, margin: "0 auto 28px" }}>
+              {features.map((f, i) => (
+                <div key={i} style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 12, padding: "12px 10px", animation: "slideUp 0.3s ease both", animationDelay: `${i * 80}ms` }}>
+                  <div style={{ fontSize: 22, marginBottom: 4 }}>{f.emoji}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: t.text }}>{f.title}</div>
+                  <div style={{ fontSize: 9, color: t.text3, marginTop: 2 }}>{f.desc}</div>
+                </div>
+              ))}
             </div>
+            <button onClick={() => setObStep(1)} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "16px 44px", fontSize: 17, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>Los geht's 🤙</button>
           </div>
         )}
 
         {obStep === 1 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
-            <div style={{ fontSize: 56, marginBottom: 16 }}>🎯</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 8 }}>Was willst du machen?</h2>
-            <p style={{ fontSize: 15, color: t.text2, marginBottom: 28 }}>Wähle deinen Einstieg – du kannst jederzeit alles nutzen.</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 380, margin: "0 auto" }}>
+            <div style={{ fontSize: 52, marginBottom: 12 }}>🎯</div>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 6 }}>Was willst du machen?</h2>
+            <p style={{ fontSize: 14, color: t.text2, marginBottom: 24 }}>Wähle deinen Einstieg – du kannst jederzeit alles nutzen.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 380, margin: "0 auto" }}>
               {[
-                { icon: "📚", title: "Surfen lernen", desc: "Personalisiertes Programm mit Lektionen, Videos & Tipps", route: "builder", color: "#009688" },
-                { icon: "✈️", title: "Trip planen", desc: "Spots entdecken, Wetter checken, Packliste erstellen", route: "trip", color: "#5C6BC0" },
-                { icon: "🏄", title: "Board finden", desc: "Board-Berater basierend auf Gewicht und Level", route: "equipment", color: "#FF7043" },
+                { icon: "📚", title: "Surfen lernen", desc: "Personalisiertes Programm mit Lektionen & Videos", route: "builder", color: "#009688" },
+                { icon: "🌊", title: "Forecast checken", desc: "Surf-Bedingungen für deinen Spot", route: "forecast", color: "#0288D1" },
+                { icon: "✈️", title: "Trip planen", desc: "Spots entdecken, Wetter, Packliste", route: "trip", color: "#5C6BC0" },
+                { icon: "🏄", title: "Board finden", desc: "Board-Berater für dein Level", route: "equipment", color: "#FF7043" },
               ].map((opt, i) => (
-                <button key={i} onClick={() => finishOnboarding(opt.route)} style={{
-                  display: "flex", alignItems: "center", gap: 14, padding: "18px 20px", borderRadius: 16,
+                <button key={i} onClick={() => { setObStep(2); setObRoute(opt.route); }} style={{
+                  display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16,
                   background: t.card, border: `2px solid ${t.cardBorder}`, cursor: "pointer", textAlign: "left",
-                  animation: "slideUp 0.4s ease both", animationDelay: `${i * 100}ms`,
+                  animation: "slideUp 0.3s ease both", animationDelay: `${i * 70}ms`,
                 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 14, background: `${opt.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>{opt.icon}</div>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: `${opt.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{opt.icon}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: t.text }}>{opt.title}</div>
-                    <div style={{ fontSize: 12, color: t.text2, marginTop: 2 }}>{opt.desc}</div>
+                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: t.text }}>{opt.title}</div>
+                    <div style={{ fontSize: 11, color: t.text2, marginTop: 1 }}>{opt.desc}</div>
                   </div>
-                  <span style={{ fontSize: 16, color: t.text3 }}>→</span>
+                  <span style={{ fontSize: 14, color: t.text3 }}>→</span>
                 </button>
               ))}
             </div>
-            <button onClick={() => finishOnboarding(null)} style={{ marginTop: 20, background: "none", border: "none", color: t.text3, fontSize: 13, cursor: "pointer", textDecoration: "underline" }}>Überspringen</button>
-            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 20 }}>
-              {[0, 1, 2].map(s => <div key={s} style={{ width: s === obStep ? 24 : 8, height: 8, borderRadius: 4, background: s <= obStep ? t.accent : (dm ? "#2d3f50" : "#E0E0E0"), transition: "all 0.3s ease", cursor: s < obStep ? "pointer" : "default" }} onClick={() => { if (s < obStep) setObStep(s); }} />)}
-            </div>
+            <button onClick={() => setObStep(0)} style={{ marginTop: 16, background: "none", border: "none", color: t.text3, fontSize: 12, cursor: "pointer" }}>← Zurück</button>
           </div>
         )}
+
+        {obStep === 2 && (
+          <div style={{ animation: "screenIn 0.4s ease both" }}>
+            <div style={{ fontSize: 52, marginBottom: 12 }}>✨</div>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 6 }}>Bereit?</h2>
+            <p style={{ fontSize: 14, color: t.text2, maxWidth: 340, margin: "0 auto 24px", lineHeight: 1.6 }}>Starte mit deinem persönlichen Programm oder erkunde die App frei.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 320, margin: "0 auto" }}>
+              <button onClick={() => finishOnboarding(obRoute || "builder")} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 16, padding: "16px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 6px 20px rgba(0,150,136,0.3)" }}>
+                Jetzt starten 🚀
+              </button>
+              <button onClick={() => finishOnboarding(null)} style={{ background: t.card, color: t.text, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                Erstmal frei erkunden 🏖️
+              </button>
+            </div>
+            <button onClick={() => setObStep(1)} style={{ marginTop: 16, background: "none", border: "none", color: t.text3, fontSize: 12, cursor: "pointer" }}>← Zurück</button>
+          </div>
+        )}
+
+        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 24 }}>
+          {[0, 1, 2].map(s => <div key={s} style={{ width: s === obStep ? 24 : 8, height: 8, borderRadius: 4, background: s <= obStep ? t.accent : (dm ? "#2d3f50" : "#E0E0E0"), transition: "all 0.3s ease", cursor: s < obStep ? "pointer" : "default" }} onClick={() => { if (s < obStep) setObStep(s); }} />)}
+        </div>
       </div>
     );
   }
@@ -132,6 +187,28 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
             <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
               <button onClick={() => { data.resetProgram(); setShowResetConfirm(false); }} style={{ background: "#E53935", color: "white", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Löschen</button>
               <button onClick={() => setShowResetConfirm(false)} style={{ background: "#ECEFF1", color: "#546E7A", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, cursor: "pointer" }}>Abbrechen</button>
+            </div>
+          </div>
+        )}
+
+        {/* Milestone Nudge */}
+        {milestone && !seenTooltips[`ms-${data.done}-${data.streak}`] && (
+          <div style={{ background: dm ? "rgba(255,183,77,0.1)" : "#FFF8E1", border: `1px solid ${dm ? "rgba(255,183,77,0.2)" : "#FFE0B2"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, animation: "slideUp 0.4s ease both" }}>
+            <span style={{ fontSize: 28 }}>{milestone.emoji}</span>
+            <div style={{ flex: 1, fontSize: 13, fontWeight: 600, color: dm ? "#FFB74D" : "#E65100" }}>{milestone.text}</div>
+            <button onClick={() => dismissTooltip(`ms-${data.done}-${data.streak}`)} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4 }}>✕</button>
+          </div>
+        )}
+
+        {/* First-visit Dashboard Tooltip */}
+        {!seenTooltips["dashboard-intro"] && (
+          <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, animation: "slideUp 0.3s ease both" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: t.accent, marginBottom: 4 }}>💡 Tipp: Dein Dashboard</div>
+                <div style={{ fontSize: 12, color: t.text2, lineHeight: 1.5 }}>Hier siehst du deinen Fortschritt, tägliche Ziele und Wochen-Challenges. Logge jeden Surf-Tag für XP und Streak-Boni!</div>
+              </div>
+              <button onClick={() => dismissTooltip("dashboard-intro")} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4, marginLeft: 8, flexShrink: 0 }}>✕</button>
             </div>
           </div>
         )}
