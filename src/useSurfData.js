@@ -261,6 +261,81 @@ export default function useSurfData(sync) {
     return { trips, activeTrip };
   }, [trips, activeTrip]);
 
+  // === GAMIFICATION: XP, Levels, Daily Goals, Weekly Challenges ===
+  const gamification = useMemo(() => {
+    // XP calculation
+    const lessonXP = done * 25;
+    const diaryXP = diaryCount * 15;
+    const surfDayXP = (surfDays?.length || 0) * 20;
+    const streakBonus = streak >= 7 ? 100 : streak >= 3 ? 30 : 0;
+    const tripXP = (trips?.length || 0) * 10;
+    const totalXP = lessonXP + diaryXP + surfDayXP + streakBonus + tripXP;
+
+    // Level system
+    const LEVELS = [
+      { name: "Grom", emoji: "🐣", minXP: 0 },
+      { name: "Paddler", emoji: "🏊", minXP: 100 },
+      { name: "Wave Catcher", emoji: "🌊", minXP: 300 },
+      { name: "Local", emoji: "🤙", minXP: 600 },
+      { name: "Shredder", emoji: "🔥", minXP: 1000 },
+      { name: "Ripper", emoji: "⚡", minXP: 1500 },
+      { name: "Pro", emoji: "🏆", minXP: 2500 },
+      { name: "Legend", emoji: "👑", minXP: 4000 },
+    ];
+    const currentLevel = [...LEVELS].reverse().find(l => totalXP >= l.minXP) || LEVELS[0];
+    const nextLevel = LEVELS[LEVELS.indexOf(currentLevel) + 1] || null;
+    const levelProgress = nextLevel ? (totalXP - currentLevel.minXP) / (nextLevel.minXP - currentLevel.minXP) : 1;
+
+    // Daily Goals (reset daily, based on what user hasn't done today)
+    const today = new Date().toISOString().slice(0, 10);
+    const surfedToday = (surfDays || []).includes(today);
+    const diaryToday = diary[program?.program?.findIndex?.((d, i) => {
+      const todayEntry = diary[i + 1];
+      return todayEntry && (todayEntry.whatWorked || todayEntry.whatFailed || todayEntry.notes || todayEntry.mood);
+    }) + 1] != null;
+    // Simplified: check if any diary entry was updated today
+    const hasDiaryToday = Object.values(diary).some(e => e?.lastEdited === today);
+
+    const dailyGoals = [
+      { id: "lesson", label: "1 Lektion abschließen", emoji: "📚", xp: 25, done: done > 0 && Object.entries(completed).some(([k, v]) => v) },
+      { id: "surf", label: "Heute gesurft loggen", emoji: "🏄", xp: 20, done: surfedToday },
+      { id: "diary", label: "Tagebuch-Eintrag schreiben", emoji: "📓", xp: 15, done: hasDiaryToday || diaryCount > 0 },
+    ];
+    const dailyDone = dailyGoals.filter(g => g.done).length;
+    const dailyBonusXP = dailyDone === 3 ? 20 : 0; // Bonus for completing all 3
+
+    // Weekly Challenges (deterministic per week using week number)
+    const weekNum = Math.floor((Date.now() - new Date("2026-01-01").getTime()) / (7 * 86400000));
+    const ALL_CHALLENGES = [
+      { id: "surf3", label: "3 Tage diese Woche surfen", emoji: "🏄", target: 3, check: () => { const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); const ws = weekStart.toISOString().slice(0, 10); return (surfDays || []).filter(d => d >= ws).length; } },
+      { id: "lessons5", label: "5 Lektionen abschließen", emoji: "📚", target: 5, check: () => done },
+      { id: "diary5", label: "5 Tagebuch-Einträge", emoji: "📓", target: 5, check: () => diaryCount },
+      { id: "streak3", label: "3-Tage Streak erreichen", emoji: "🔥", target: 3, check: () => streak },
+      { id: "lessons10", label: "10 Lektionen schaffen", emoji: "💪", target: 10, check: () => done },
+      { id: "surf5", label: "5 Tage diese Woche surfen", emoji: "🌊", target: 5, check: () => { const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); const ws = weekStart.toISOString().slice(0, 10); return (surfDays || []).filter(d => d >= ws).length; } },
+    ];
+    // Pick 2 challenges per week (deterministic)
+    const c1 = ALL_CHALLENGES[weekNum % ALL_CHALLENGES.length];
+    const c2 = ALL_CHALLENGES[(weekNum + 3) % ALL_CHALLENGES.length];
+    const weeklyChallenges = [c1, c2].map(c => ({
+      ...c,
+      current: c.check(),
+      completed: c.check() >= c.target,
+    }));
+
+    return {
+      totalXP: totalXP + dailyBonusXP,
+      currentLevel,
+      nextLevel,
+      levelProgress,
+      dailyGoals,
+      dailyDone,
+      dailyBonusXP,
+      weeklyChallenges,
+      xpBreakdown: { lessonXP, diaryXP, surfDayXP, streakBonus, tripXP },
+    };
+  }, [done, diaryCount, surfDays, streak, trips, diary, completed, program]);
+
   return {
     days, setDays, goal, setGoal, spot, setSpot, board, setBoard,
     experience, setExperience, program, activeDay, setActiveDay,
@@ -271,6 +346,8 @@ export default function useSurfData(sync) {
     tripDates, updateTripDates, tripChecked, updateTripChecked,
     toggle, toggleSurfDay, updateDiary, build, resetProgram, saveAll,
     exportData, total, done, diaryCount, hasSaved, streak, coaching,
+    // Gamification
+    gamification,
     // Cloud sync helpers
     restoreFromCloud, getProgramSnapshot, getTripsSnapshot,
   };
