@@ -1,4 +1,4 @@
-// SoulSurf v4.8 – App Shell with Auth
+// SoulSurf v4.9 – App Shell with Auth
 import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -80,7 +80,7 @@ export default function SurfApp() {
       case "diary": return <DiaryScreen data={data} t={t} dm={dm} setOpenLesson={setOpenLesson} />;
       case "progress": return <ProgressScreen data={data} t={t} dm={dm} setOpenLesson={setOpenLesson} />;
       case "equipment": return <EquipmentScreen data={data} t={t} dm={dm} />;
-      case "community": return <CommunityScreen data={data} t={t} dm={dm} navigate={navigate} />;
+      case "community": return <CommunityScreen data={data} auth={auth} t={t} dm={dm} navigate={navigate} />;
       default: return null;
     }
   };
@@ -147,7 +147,7 @@ export default function SurfApp() {
             <span style={{ fontSize: 22 }}>🏄</span>
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v4.8</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v4.9</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -231,7 +231,7 @@ export default function SurfApp() {
               )}
             </div>
             <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.8 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v4.9 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>

@@ -70,6 +70,23 @@ export default function useAuth() {
     return { success: true };
   }, []);
 
+  const loginWithProvider = useCallback(async (provider) => {
+    if (!supabase) return { error: { message: "Supabase nicht konfiguriert" } };
+    setError(null);
+    const { data, error: err } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: window.location.origin },
+    });
+    if (err) { setError(err.message); return { error: err }; }
+    return { data };
+  }, []);
+
+  // Better display name: prefer full name from social login, fallback to email
+  const displayName = user?.user_metadata?.full_name
+    || user?.user_metadata?.name
+    || user?.email?.split("@")[0]
+    || null;
+
   return {
     user,
     session,
@@ -80,8 +97,9 @@ export default function useAuth() {
     register,
     logout,
     resetPassword,
+    loginWithProvider,
     isConfigured: isSupabaseConfigured,
     isLoggedIn: Boolean(user),
-    displayName: user?.email?.split("@")[0] || null,
+    displayName,
   };
 }
