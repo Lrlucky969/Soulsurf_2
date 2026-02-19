@@ -1,5 +1,5 @@
-// SoulSurf v5.5 – App Shell with Auth
-import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
+// SoulSurf v5.6 – App Shell with Auth
+import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
 import useSync from "./useSync.js";
@@ -51,12 +51,12 @@ export default function SurfApp() {
   const hasAutoSynced = useRef(false);
 
   const dm = data.darkMode;
-  const t = dm ? THEMES.dark : THEMES.light;
-  const spotObj = SURF_SPOTS.find(s => s.id === data.spot);
-  const savedGoal = data.hasSaved ? GOALS.find(g => g.id === data.goal) : null;
+  const t = useMemo(() => dm ? THEMES.dark : THEMES.light, [dm]);
+  const spotObj = useMemo(() => SURF_SPOTS.find(s => s.id === data.spot), [data.spot]);
+  const savedGoal = useMemo(() => data.hasSaved ? GOALS.find(g => g.id === data.goal) : null, [data.hasSaved, data.goal]);
   const remaining = data.total - data.done;
 
-  const navigate = (s) => {
+  const navigate = useCallback((s) => {
     if (s === screen) { setMenuOpen(false); return; }
     setTransitioning(true);
     setMenuOpen(false);
@@ -66,7 +66,7 @@ export default function SurfApp() {
       setTransitioning(false);
       window.scrollTo({ top: 0, behavior: "instant" });
     }, 150);
-  };
+  }, [screen]);
 
   // Empty state handler – redirect lessons/diary to builder if no program
   const renderScreen = () => {
@@ -152,7 +152,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v5.5</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v5.6</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -237,7 +237,7 @@ export default function SurfApp() {
               )}
             </div>
             <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v5.5 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v5.6 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
