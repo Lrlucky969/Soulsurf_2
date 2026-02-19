@@ -181,3 +181,118 @@ export function swellRating(height, period) {
   if (period < 8) return { emoji: "😐", label: "Windswell", color: "#FFB74D" };
   return { emoji: "🌊", label: "Okay", color: "#42A5F5" };
 }
+
+// Sprint 21: Hourly forecast for best-time-to-surf analysis
+const HOURLY_CACHE_KEY = "soulsurf_hourly";
+
+export function useHourlyForecast(spot) {
+  const [hourly, setHourly] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!spot?.lat || !spot?.lng) return;
+
+    // Check cache
+    try {
+      const raw = localStorage.getItem(HOURLY_CACHE_KEY);
+      if (raw) {
+        const cache = JSON.parse(raw);
+        const entry = cache[spot.id];
+        if (entry && Date.now() - entry.ts < CACHE_TTL) { setHourly(entry.data); return; }
+      }
+    } catch {}
+
+    let cancelled = false;
+    setLoading(true);
+
+    // Fetch hourly weather + marine data in parallel
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lng}&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code&timezone=auto&forecast_days=3`;
+    const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${spot.lat}&longitude=${spot.lng}&hourly=wave_height,wave_period,wave_direction&timezone=auto&forecast_days=3`;
+
+    Promise.all([
+      fetch(weatherUrl).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(marineUrl).then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([wData, mData]) => {
+      if (cancelled) return;
+      const times = wData?.hourly?.time || [];
+      const result = times.map((time, i) => ({
+        time,
+        temp: wData?.hourly?.temperature_2m?.[i],
+        wind: wData?.hourly?.wind_speed_10m?.[i],
+        windDir: wData?.hourly?.wind_direction_10m?.[i],
+        gusts: wData?.hourly?.wind_gusts_10m?.[i],
+        code: wData?.hourly?.weather_code?.[i],
+        waveHeight: mData?.hourly?.wave_height?.[i],
+        wavePeriod: mData?.hourly?.wave_period?.[i],
+        waveDir: mData?.hourly?.wave_direction?.[i],
+      }));
+      setHourly(result);
+      try {
+        const raw = localStorage.getItem(HOURLY_CACHE_KEY);
+        const cache = raw ? JSON.parse(raw) : {};
+        cache[spot.id] = { data: result, ts: Date.now() };
+        localStorage.setItem(HOURLY_CACHE_KEY, JSON.stringify(cache));
+      } catch {}
+      setLoading(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [spot?.id, spot?.lat, spot?.lng]);
+
+  return { hourly, loading };
+}
+
+// Best-time-to-surf score (0-100) for each hour
+export function surfScore(hour) {
+  if (!hour) return 0;
+  let score = 50;
+  // Wave height: 0.5-1.5m is ideal, flat or huge is bad
+  const h = hour.waveHeight;
+  if (h != null) {
+    if (h >= 0.5 && h <= 1.5) score += 20;
+    else if (h > 1.5 && h <= 2.5) score += 10;
+    else if (h < 0.3) score -= 30;
+    else if (h > 3) score -= 20;
+  }
+  // Wave period: longer is better (groundswell)
+  const p = hour.wavePeriod;
+  if (p != null) {
+    if (p >= 12) score += 15;
+    else if (p >= 8) score += 5;
+    else if (p < 6) score -= 10;
+  }
+  // Wind: lighter is better, offshore bonus
+  const w = hour.wind;
+  if (w != null) {
+    if (w < 10) score += 10;
+    else if (w < 20) score += 0;
+    else if (w < 30) score -= 10;
+    else score -= 25;
+  }
+  // Gusts penalty
+  if (hour.gusts > 40) score -= 10;
+  // Rain/storm penalty
+  if (hour.code >= 61) score -= 10;
+  if (hour.code >= 95) score -= 15;
+  // Time of day bonus (early morning, late afternoon = less wind typically)
+  const hourNum = new Date(hour.time).getHours();
+  if (hourNum >= 5 && hourNum <= 8) score += 5;
+  if (hourNum >= 16 && hourNum <= 18) score += 3;
+  if (hourNum < 5 || hourNum > 20) score -= 20; // night penalty
+  return Math.max(0, Math.min(100, score));
+}
+
+// Score to label
+export function scoreLabel(score) {
+  if (score >= 80) return { emoji: "🟢", label: "Perfekt", color: "#4CAF50" };
+  if (score >= 60) return { emoji: "🟡", label: "Gut", color: "#FFC107" };
+  if (score >= 40) return { emoji: "🟠", label: "Okay", color: "#FF9800" };
+  return { emoji: "🔴", label: "Schwierig", color: "#F44336" };
+}
+
+// Wind direction arrow character
+export function windArrow(deg) {
+  if (deg == null) return "–";
+  const arrows = ["↓", "↙", "←", "↖", "↑", "↗", "→", "↘"];
+  return arrows[Math.round(deg / 45) % 8];
+}
