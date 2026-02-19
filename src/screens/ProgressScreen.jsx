@@ -12,14 +12,58 @@ const BADGES = [
 ];
 
 export default function ProgressScreen({ data, t, dm, setOpenLesson }) {
-  const { done, diaryCount, coaching, completed, program } = data;
+  const { done, diaryCount, coaching, completed, program, gamification } = data;
   const earned = BADGES.filter(b => b.cat === "lessons" ? done >= b.threshold : diaryCount >= b.threshold);
   const nextBadge = BADGES.find(b => b.cat === "lessons" ? done < b.threshold : diaryCount < b.threshold);
+  const gm = gamification || {};
 
   return (
     <div style={{ paddingTop: 24 }}>
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 6 }}>📊 Fortschritt</h2>
-      <p style={{ fontSize: 14, color: t.text2, marginBottom: 24 }}>{done} Lektionen · {diaryCount} Tagebuch-Einträge · 🔥 {data.streak} Streak</p>
+      <p style={{ fontSize: 14, color: t.text2, marginBottom: 20 }}>{done} Lektionen · {diaryCount} Einträge · 🔥 {data.streak} Streak</p>
+
+      {/* XP & Level Card */}
+      {gm.currentLevel && (
+        <div style={{ background: "linear-gradient(135deg, #004D40, #00695C)", borderRadius: 20, padding: "20px", color: "white", marginBottom: 20, position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -15, right: -15, fontSize: 70, opacity: 0.08 }}>{gm.currentLevel.emoji}</div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, textTransform: "uppercase", opacity: 0.7 }}>Dein Level</div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, marginTop: 2 }}>{gm.currentLevel.emoji} {gm.currentLevel.name}</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 900 }}>{gm.totalXP}</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, opacity: 0.7 }}>XP total</div>
+            </div>
+          </div>
+          {gm.nextLevel && (
+            <>
+              <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 6, height: 8, overflow: "hidden", marginBottom: 6 }}>
+                <div style={{ height: "100%", borderRadius: 6, background: "linear-gradient(90deg, #FFB74D, #FF7043)", width: `${Math.round(gm.levelProgress * 100)}%` }} />
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.7, textAlign: "right" }}>{gm.nextLevel.emoji} {gm.nextLevel.name} in {gm.nextLevel.minXP - gm.totalXP} XP</div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* XP Breakdown */}
+      {gm.xpBreakdown && (
+        <div style={{ display: "flex", gap: 6, marginBottom: 20, overflowX: "auto" }}>
+          {[
+            { emoji: "📚", value: gm.xpBreakdown.lessonXP, label: "Lektionen" },
+            { emoji: "📓", value: gm.xpBreakdown.diaryXP, label: "Tagebuch" },
+            { emoji: "🏄", value: gm.xpBreakdown.surfDayXP, label: "Surf-Tage" },
+            { emoji: "🔥", value: gm.xpBreakdown.streakBonus, label: "Streak" },
+          ].map((s, i) => (
+            <div key={i} style={{ flex: 1, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 12, padding: "10px 8px", textAlign: "center" }}>
+              <div style={{ fontSize: 16 }}>{s.emoji}</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, fontWeight: 700, color: t.accent }}>{s.value}</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, color: t.text3 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Badges */}
       <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #FFF8E1, #FFF3E0)", border: `1px solid ${dm ? "rgba(255,183,77,0.15)" : "#FFE0B2"}`, borderRadius: 16, padding: "16px 18px", marginBottom: 24 }}>

@@ -136,6 +136,66 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
           </div>
         )}
 
+        {/* XP Level Bar */}
+        {data.gamification && (
+          <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 22 }}>{data.gamification.currentLevel.emoji}</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{data.gamification.currentLevel.name}</div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent }}>{data.gamification.totalXP} XP</div>
+                </div>
+              </div>
+              {data.gamification.nextLevel && (
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 10, color: t.text3 }}>Nächstes Level</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: t.text2 }}>{data.gamification.nextLevel.emoji} {data.gamification.nextLevel.name}</div>
+                </div>
+              )}
+            </div>
+            <div style={{ background: dm ? "rgba(255,255,255,0.08)" : "#ECEFF1", borderRadius: 6, height: 8, overflow: "hidden" }}>
+              <div style={{ height: "100%", borderRadius: 6, background: "linear-gradient(90deg, #009688, #4DB6AC, #80CBC4)", width: `${Math.round(data.gamification.levelProgress * 100)}%`, transition: "width 0.5s ease" }} />
+            </div>
+          </div>
+        )}
+
+        {/* Daily Goals */}
+        {data.gamification && (
+          <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>🎯 Tages-Ziele</div>
+              <span style={{ fontSize: 11, fontWeight: 600, color: data.gamification.dailyDone === 3 ? "#4CAF50" : t.text3 }}>{data.gamification.dailyDone}/3 {data.gamification.dailyDone === 3 ? "✨ +20 Bonus-XP" : ""}</span>
+            </div>
+            {data.gamification.dailyGoals.map(g => (
+              <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0" }}>
+                <span style={{ fontSize: 16, opacity: g.done ? 1 : 0.4 }}>{g.done ? "✅" : g.emoji}</span>
+                <span style={{ flex: 1, fontSize: 13, color: g.done ? t.text3 : t.text, textDecoration: g.done ? "line-through" : "none" }}>{g.label}</span>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: g.done ? "#4CAF50" : t.text3 }}>+{g.xp} XP</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Weekly Challenges */}
+        {data.gamification?.weeklyChallenges?.length > 0 && (
+          <div style={{ background: dm ? "rgba(92,107,192,0.08)" : "#E8EAF6", border: `1px solid ${dm ? "rgba(92,107,192,0.15)" : "#C5CAE9"}`, borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#7986CB" : "#3949AB", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>🏆 Wochen-Challenge</div>
+            {data.gamification.weeklyChallenges.map(c => (
+              <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0" }}>
+                <span style={{ fontSize: 16 }}>{c.completed ? "🏆" : c.emoji}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: c.completed ? "#4CAF50" : t.text }}>{c.label}</div>
+                  <div style={{ background: dm ? "rgba(255,255,255,0.06)" : "#E0E0E0", borderRadius: 4, height: 4, marginTop: 4 }}>
+                    <div style={{ height: "100%", borderRadius: 4, background: c.completed ? "#4CAF50" : "#7986CB", width: `${Math.min(100, (c.current / c.target) * 100)}%`, transition: "width 0.3s" }} />
+                  </div>
+                </div>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: c.completed ? "#4CAF50" : t.text3, fontWeight: 600 }}>{c.current}/{c.target}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Quick Stats Row */}
         <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" }}>
           {[
