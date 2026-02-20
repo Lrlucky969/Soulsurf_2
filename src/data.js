@@ -373,3 +373,172 @@ export function analyzeDiary(diary, contentPool) {
   const patterns = Object.entries(patternCounts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([keyword, count]) => ({ keyword, count }));
   return { tips, patterns, boardHint };
 }
+
+// === Sprint 26: Surfschul-Marketplace ===
+
+// Additional PT/BR Spots
+export const EXTRA_SPOTS = [
+  { id: "peniche", name: "Peniche, Portugal", emoji: "🇵🇹", difficulty: "intermediate", waveType: "Supertubos & Beachbreaks", breakType: "beach", hazards: ["rip", "current"], season: "Sep–Nov", water: "18°C", wetsuit: "4/3mm", lat: 39.36, lng: -9.38, tips: ["Supertubos ist eine der besten Barrel-Wellen Europas", "Baleal für Anfänger, Supertubos nur für Erfahrene", "WSL-Event-Location – oft crowded im Herbst"] },
+  { id: "nazare", name: "Nazaré, Portugal", emoji: "🇵🇹", difficulty: "advanced", waveType: "Big Wave Capital", breakType: "beach", hazards: ["current", "rocks"], season: "Okt–Mär", water: "16°C", wetsuit: "4/3mm", lat: 39.60, lng: -9.07, tips: ["Praia do Norte hat die größten Wellen der Welt", "NUR zuschauen wenn du kein Big-Wave-Surfer bist", "Praia da Vila ist okay für Anfänger im Sommer"] },
+  { id: "cascais", name: "Cascais/Carcavelos, Portugal", emoji: "🇵🇹", difficulty: "beginner", waveType: "Stadtnah & Konsistent", breakType: "beach", hazards: ["rip"], season: "Sep–Mai", water: "18°C", wetsuit: "3/2mm", lat: 38.68, lng: -9.34, tips: ["Carcavelos ist DER Surf-Strand für Lissabonner", "30 Min von Lissabon – perfekt für After-Work Sessions", "Viele Surfschulen, gut für Anfänger"] },
+  { id: "ubatuba", name: "Ubatuba, Brasilien", emoji: "🇧🇷", difficulty: "beginner", waveType: "Tropische Beachbreaks", breakType: "beach", hazards: ["rip"], season: "Apr–Sep", water: "24°C", wetsuit: "none", lat: -23.43, lng: -45.07, tips: ["'Capital do Surf' – Brasiliens Surf-Hauptstadt", "Praia Vermelha und Itamambuca sind die besten Spots", "3h von São Paulo – perfekt fürs Wochenende"] },
+  { id: "garopaba", name: "Garopaba, Brasilien", emoji: "🇧🇷", difficulty: "intermediate", waveType: "Kraftvolle Beachbreaks", breakType: "beach", hazards: ["rip", "current"], season: "Apr–Sep", water: "19°C", wetsuit: "springsuits", lat: -28.02, lng: -48.62, tips: ["Silveira Beach hat kraftvolle, hohle Wellen", "Zwischen Juni und November: Wal-Beobachtung möglich!", "Ruhigere Alternative zu Floripa mit guten Wellen"] },
+];
+
+// Surf Schools Database (PT/BR focus, global-ready)
+export const SURF_SCHOOLS = [
+  // === PORTUGAL ===
+  { id: "sc-algarve-amado", name: "Amado Surf School", spotId: "portugal", country: "PT",
+    logo: "🏄", coverEmoji: "🌅",
+    location: { lat: 37.17, lng: -8.90, address: "Praia do Amado, Carrapateira" },
+    languages: ["pt", "en", "de", "fr"],
+    rating: 4.8, reviewCount: 342,
+    priceRange: { currency: "EUR", from: 35, to: 75, unit: "Stunde" },
+    courses: [
+      { id: "beginner", name: "Iniciante / Anfänger", duration: "2h", price: 40, groupSize: "max 6", description: "Pop-Up, Paddeln, erste Wellen. Board & Wetsuit inklusive." },
+      { id: "intermediate", name: "Intermédio / Mittelstufe", duration: "2h", price: 50, groupSize: "max 4", description: "Bottom Turns, Positioning, Wellenwahl." },
+      { id: "private", name: "Aula Privada / Privat", duration: "1.5h", price: 75, groupSize: "1:1", description: "Individuelles Coaching, Video-Analyse." },
+      { id: "weekpack", name: "Pacote Semanal / Wochenpaket", duration: "5×2h", price: 170, groupSize: "max 6", description: "5 Tage Surfkurs – perfekt für Surf-Trips." },
+    ],
+    about: "Familiäre Surfschule direkt am Praia do Amado. ISA-zertifizierte Instruktoren mit über 15 Jahren Erfahrung. Board & Wetsuit immer inklusive.",
+    highlights: ["ISA-zertifiziert", "Board & Wetsuit inkl.", "Foto/Video-Paket", "Transport ab Lagos"],
+    contact: { phone: "+351 912 345 678", email: "info@amadosurf.pt", instagram: "@amadosurfschool" },
+    verified: true,
+  },
+  { id: "sc-ericeira-rapture", name: "Rapture Surf Camp Ericeira", spotId: "ericeira", country: "PT",
+    logo: "🌊", coverEmoji: "🏠",
+    location: { lat: 38.97, lng: -9.42, address: "Rua da Ribeira, Ericeira" },
+    languages: ["pt", "en", "es", "fr"],
+    rating: 4.7, reviewCount: 518,
+    priceRange: { currency: "EUR", from: 45, to: 280, unit: "Stunde" },
+    courses: [
+      { id: "beginner", name: "Beginner Surf Lesson", duration: "2.5h", price: 45, groupSize: "max 5", description: "Fundamentals: Paddel-Technik, Pop-Up, Safety." },
+      { id: "intermediate", name: "Progression Coaching", duration: "2.5h", price: 55, groupSize: "max 4", description: "Green Waves, Turns, Positioning im Lineup." },
+      { id: "weekcamp", name: "Surf & Stay Week", duration: "7 Nächte + 5 Tage Surf", price: 550, groupSize: "max 8", description: "Unterkunft, Frühstück, 5 Surf-Sessions, Yoga." },
+      { id: "private", name: "Private Coaching", duration: "2h", price: 90, groupSize: "1:1", description: "Video-Analyse, personalisiertes Feedback." },
+    ],
+    about: "Premium Surfcamp in Ericeira – Europas einziges World Surf Reserve. Unterkunft, Surf, Yoga und Community. 45 Min von Lissabon.",
+    highlights: ["World Surf Reserve", "Unterkunft inkl.", "Yoga", "Flughafen-Transfer"],
+    contact: { phone: "+351 913 456 789", email: "book@raptureericeira.pt", instagram: "@rapturesurfcamp" },
+    verified: true,
+  },
+  { id: "sc-peniche-baleal", name: "Baleal Surf Camp", spotId: "peniche", country: "PT",
+    logo: "🏖️", coverEmoji: "🌊",
+    location: { lat: 39.37, lng: -9.34, address: "Baleal, Peniche" },
+    languages: ["pt", "en", "de"],
+    rating: 4.6, reviewCount: 287,
+    priceRange: { currency: "EUR", from: 35, to: 450, unit: "Stunde" },
+    courses: [
+      { id: "beginner", name: "Aula de Surf / Surfstunde", duration: "2h", price: 35, groupSize: "max 8", description: "Grundlagen für absolute Anfänger." },
+      { id: "weekpack", name: "5-Tage Kurs", duration: "5×2h", price: 150, groupSize: "max 6", description: "Kompletter Anfängerkurs über eine Woche." },
+      { id: "camp", name: "Surf Camp Woche", duration: "7 Nächte + Surf", price: 450, groupSize: "max 10", description: "Shared Room, Frühstück, täglicher Surf." },
+    ],
+    about: "Direkt auf der Halbinsel Baleal. Waves auf beiden Seiten – immer eine surfbare Option. Perfekt für Anfänger und Intermediate.",
+    highlights: ["Baleal-Halbinsel", "Immer surfbar", "Budget-freundlich", "Deutscher Support"],
+    contact: { phone: "+351 914 567 890", email: "hello@balealsurfcamp.pt", instagram: "@balealsurfcamp" },
+    verified: true,
+  },
+  { id: "sc-cascais-moana", name: "Moana Surf School", spotId: "cascais", country: "PT",
+    logo: "☀️", coverEmoji: "🏙️",
+    location: { lat: 38.68, lng: -9.34, address: "Praia de Carcavelos, Cascais" },
+    languages: ["pt", "en", "es"],
+    rating: 4.5, reviewCount: 195,
+    priceRange: { currency: "EUR", from: 30, to: 70, unit: "Stunde" },
+    courses: [
+      { id: "beginner", name: "Intro Surf", duration: "1.5h", price: 30, groupSize: "max 8", description: "Schnupperstunde am Carcavelos Beach." },
+      { id: "regular", name: "Surf Course", duration: "2h", price: 45, groupSize: "max 6", description: "Aufbaukurs: Wellenwahl, Positioning." },
+      { id: "private", name: "Private Session", duration: "1.5h", price: 70, groupSize: "1:1", description: "Persönliches Coaching mit Video." },
+    ],
+    about: "Urban Surfschule in Carcavelos, 30 Min von Lissabons Zentrum. Perfekt für Surfen & Sightseeing.",
+    highlights: ["Nahe Lissabon", "30 Min Innenstadt", "Metro-Anbindung", "After-Surf Tapas"],
+    contact: { email: "surf@moanacascais.pt", instagram: "@moanasurf" },
+    verified: false,
+  },
+  // === BRASILIEN ===
+  { id: "sc-itacare-easydrop", name: "Easy Drop Surf Camp", spotId: "itacare", country: "BR",
+    logo: "🌴", coverEmoji: "🌿",
+    location: { lat: -14.28, lng: -38.99, address: "Rua Pedro Longo, Itacaré, Bahia" },
+    languages: ["pt", "en"],
+    rating: 4.9, reviewCount: 412,
+    priceRange: { currency: "BRL", from: 120, to: 350, unit: "Stunde" },
+    courses: [
+      { id: "beginner", name: "Aula Iniciante", duration: "2h", price: 120, groupSize: "max 6", description: "Primeiras ondas! Prancha e lycra incluídas." },
+      { id: "intermediate", name: "Aula Intermediário", duration: "2h", price: 150, groupSize: "max 4", description: "Manobras, duck dive, posicionamento." },
+      { id: "private", name: "Aula Particular", duration: "1.5h", price: 250, groupSize: "1:1", description: "Coaching individual com análise de vídeo." },
+      { id: "weekpack", name: "Pacote Semanal", duration: "5×2h", price: 500, groupSize: "max 6", description: "5 dias de surf com transporte para os spots." },
+    ],
+    about: "Mitten im Regenwald, direkt am Meer. Authentische brasilianische Surf-Erfahrung mit lokalen Instructors. Board & Lycra immer inklusive.",
+    highlights: ["Regenwald-Location", "Board & Lycra inkl.", "Spot-Transport", "Açaí nach dem Surf"],
+    contact: { phone: "+55 73 99123 4567", email: "aloha@easydropitacare.com.br", instagram: "@easydropsurf" },
+    verified: true,
+  },
+  { id: "sc-floripa-escola", name: "Escola de Surf Floripa", spotId: "floripa", country: "BR",
+    logo: "🏄", coverEmoji: "🏖️",
+    location: { lat: -27.60, lng: -48.47, address: "Praia Mole, Florianópolis, SC" },
+    languages: ["pt", "en", "es"],
+    rating: 4.7, reviewCount: 328,
+    priceRange: { currency: "BRL", from: 100, to: 300, unit: "Stunde" },
+    courses: [
+      { id: "beginner", name: "Aula Surf Iniciante", duration: "2h", price: 100, groupSize: "max 8", description: "Teoria, segurança e primeiras ondas." },
+      { id: "kids", name: "Surf Kids", duration: "1.5h", price: 90, groupSize: "max 6", description: "Aula para crianças de 6-12 anos." },
+      { id: "private", name: "Particular", duration: "1.5h", price: 200, groupSize: "1:1", description: "Aula personalizada." },
+      { id: "weekpack", name: "Pacote 5 Dias", duration: "5×2h", price: 400, groupSize: "max 6", description: "Semana completa de surf." },
+    ],
+    about: "Die älteste Surfschule in Florianópolis. Seit 2005 an der Praia Mole. ISA- und CBSURF-zertifiziert.",
+    highlights: ["Seit 2005", "ISA-zertifiziert", "CBSURF", "Kids-Kurse"],
+    contact: { phone: "+55 48 99876 5432", email: "contato@escoladesurffloripa.com.br", instagram: "@escoladesurffloripa" },
+    verified: true,
+  },
+  { id: "sc-ubatuba-tropicalsurf", name: "Tropical Surf Ubatuba", spotId: "ubatuba", country: "BR",
+    logo: "🌺", coverEmoji: "🌴",
+    location: { lat: -23.44, lng: -45.07, address: "Praia Vermelha do Norte, Ubatuba, SP" },
+    languages: ["pt", "en"],
+    rating: 4.6, reviewCount: 189,
+    priceRange: { currency: "BRL", from: 100, to: 280, unit: "Stunde" },
+    courses: [
+      { id: "beginner", name: "Iniciante", duration: "2h", price: 100, groupSize: "max 8", description: "Aprenda a surfar nas ondas de Ubatuba." },
+      { id: "intermediate", name: "Intermediário", duration: "2h", price: 140, groupSize: "max 4", description: "Evolua seu surf: manobras e leitura do mar." },
+      { id: "weekend", name: "Fim de Semana", duration: "2×2h", price: 180, groupSize: "max 6", description: "Pacote de fim de semana – Sáb & Dom." },
+    ],
+    about: "Na Capital do Surf! Ubatuba hat über 100 Strände. Wir bringen dich zum besten Spot des Tages.",
+    highlights: ["Capital do Surf", "100+ Strände", "Spot-Shuttle", "Prancha inkl."],
+    contact: { phone: "+55 12 99654 3210", email: "surf@tropicalsurfubatuba.com.br", instagram: "@tropicalsurfuba" },
+    verified: true,
+  },
+  { id: "sc-saquarema-pro", name: "Saquarema Pro Surf", spotId: "saquarema", country: "BR",
+    logo: "⚡", coverEmoji: "🏆",
+    location: { lat: -22.93, lng: -42.49, address: "Praia de Itaúna, Saquarema, RJ" },
+    languages: ["pt", "en"],
+    rating: 4.8, reviewCount: 256,
+    priceRange: { currency: "BRL", from: 130, to: 350, unit: "Stunde" },
+    courses: [
+      { id: "intermediate", name: "Intermediário+", duration: "2h", price: 150, groupSize: "max 4", description: "Für Surfer die bereits stehen können. Fokus auf Manöver." },
+      { id: "advanced", name: "Performance Coaching", duration: "2h", price: 200, groupSize: "max 3", description: "Tube Riding, Aerials, Contest-Vorbereitung." },
+      { id: "private", name: "Coaching Privado", duration: "2h", price: 350, groupSize: "1:1", description: "Pro-Level Coaching mit Video-Analyse." },
+    ],
+    about: "Am 'Maracanã des Surfens'. Coaching durch ehemalige WSL-Athleten. Nur Intermediate bis Advanced.",
+    highlights: ["WSL-Location", "Ex-Pro Coaches", "Video-Analyse", "Nur Intermediate+"],
+    contact: { phone: "+55 21 99321 0987", email: "pro@saquaremaprosurf.com.br", instagram: "@saquaremaprosurf" },
+    verified: true,
+  },
+];
+
+// Helper: get schools for a spot
+export function getSchoolsBySpot(spotId) {
+  return SURF_SCHOOLS.filter(s => s.spotId === spotId);
+}
+
+// Helper: get all spots including extras (merged, deduplicated)
+export function getAllSpots() {
+  const baseIds = new Set(SURF_SPOTS.map(s => s.id));
+  return [...SURF_SPOTS, ...EXTRA_SPOTS.filter(s => !baseIds.has(s.id))];
+}
+
+// Helper: format price for display
+export function formatPrice(price, currency) {
+  if (currency === "BRL") return `R$ ${price}`;
+  return `€${price}`;
+}
+
+// Language labels
+export const LANG_LABELS = { pt: "🇵🇹 Português", en: "🇬🇧 English", de: "🇩🇪 Deutsch", fr: "🇫🇷 Français", es: "🇪🇸 Español" };

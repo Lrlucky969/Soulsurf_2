@@ -1,4 +1,4 @@
-// SoulSurf v5.6 – App Shell with Auth
+// SoulSurf v5.7 – App Shell with Auth
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -18,6 +18,7 @@ const ProgressScreen = lazy(() => import("./screens/ProgressScreen.jsx"));
 const EquipmentScreen = lazy(() => import("./screens/EquipmentScreen.jsx"));
 const CommunityScreen = lazy(() => import("./screens/CommunityScreen.jsx"));
 const ForecastScreen = lazy(() => import("./screens/ForecastScreen.jsx"));
+const SchoolsScreen = lazy(() => import("./screens/SchoolsScreen.jsx"));
 
 const THEMES = {
   light: { bg: "#FFFDF7", text: "#263238", text2: "#546E7A", text3: "#90A4AE", accent: "#009688", card: "rgba(255,255,255,0.9)", cardBorder: "rgba(0,0,0,0.06)", inputBg: "#F5F5F5", inputBorder: "#E0E0E0" },
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { id: "home", icon: "🏠", label: "Home" },
   { id: "lessons", icon: "📚", label: "Lektionen" },
   { id: "forecast", icon: "🌊", label: "Forecast" },
+  { id: "schools", icon: "🏫", label: "Surfschulen" },
   { id: "trip", icon: "✈️", label: "Trip" },
   { id: "diary", icon: "📓", label: "Tagebuch" },
   { id: "progress", icon: "📊", label: "Fortschritt" },
@@ -86,6 +88,7 @@ export default function SurfApp() {
       case "equipment": return <EquipmentScreen data={data} t={t} dm={dm} />;
       case "community": return <CommunityScreen data={data} auth={auth} t={t} dm={dm} navigate={navigate} />;
       case "forecast": return <ForecastScreen data={data} t={t} dm={dm} />;
+      case "schools": return <SchoolsScreen data={data} t={t} dm={dm} navigate={navigate} />;
       default: return null;
     }
   };
@@ -152,7 +155,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v5.6</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v5.7</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -237,7 +240,7 @@ export default function SurfApp() {
               )}
             </div>
             <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v5.6 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v5.7 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
@@ -254,7 +257,7 @@ export default function SurfApp() {
 
       {/* Bottom Tab Bar */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 80, background: dm ? "rgba(13,24,32,0.97)" : "rgba(255,253,247,0.97)", backdropFilter: "blur(12px)", borderTop: `1px solid ${t.cardBorder}`, display: "flex", justifyContent: "space-around", padding: "6px 0 env(safe-area-inset-bottom, 6px)" }}>
-        {NAV_ITEMS.filter(i => ["home","lessons","forecast","diary","community"].includes(i.id)).map(item => {
+        {NAV_ITEMS.filter(i => ["home","lessons","forecast","schools","community"].includes(i.id)).map(item => {
           const isActive = screen === item.id;
           const showBadge = item.id === "lessons" && remaining > 0 && data.hasSaved;
           return (
