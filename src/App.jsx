@@ -1,4 +1,4 @@
-// SoulSurf v5.7 – App Shell with Auth
+// SoulSurf v5.8 – App Shell with Auth
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -19,6 +19,7 @@ const EquipmentScreen = lazy(() => import("./screens/EquipmentScreen.jsx"));
 const CommunityScreen = lazy(() => import("./screens/CommunityScreen.jsx"));
 const ForecastScreen = lazy(() => import("./screens/ForecastScreen.jsx"));
 const SchoolsScreen = lazy(() => import("./screens/SchoolsScreen.jsx"));
+const InstructorScreen = lazy(() => import("./screens/InstructorScreen.jsx"));
 
 const THEMES = {
   light: { bg: "#FFFDF7", text: "#263238", text2: "#546E7A", text3: "#90A4AE", accent: "#009688", card: "rgba(255,255,255,0.9)", cardBorder: "rgba(0,0,0,0.06)", inputBg: "#F5F5F5", inputBorder: "#E0E0E0" },
@@ -34,6 +35,7 @@ const NAV_ITEMS = [
   { id: "diary", icon: "📓", label: "Tagebuch" },
   { id: "progress", icon: "📊", label: "Fortschritt" },
   { id: "equipment", icon: "🏄", label: "Equipment" },
+  { id: "instructor", icon: "👨‍🏫", label: "Instructor" },
   { id: "community", icon: "🤝", label: "Community" },
 ];
 
@@ -89,6 +91,7 @@ export default function SurfApp() {
       case "community": return <CommunityScreen data={data} auth={auth} t={t} dm={dm} navigate={navigate} />;
       case "forecast": return <ForecastScreen data={data} t={t} dm={dm} />;
       case "schools": return <SchoolsScreen data={data} t={t} dm={dm} navigate={navigate} />;
+      case "instructor": return <InstructorScreen data={data} auth={auth} t={t} dm={dm} navigate={navigate} />;
       default: return null;
     }
   };
@@ -155,7 +158,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v5.7</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>v5.8</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -240,7 +243,7 @@ export default function SurfApp() {
               )}
             </div>
             <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v5.7 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>v5.8 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>

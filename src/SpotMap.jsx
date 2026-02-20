@@ -25,7 +25,7 @@ const POI_ICONS = {
   shop: { emoji: "🛒", color: "#7986CB" },
 };
 
-export default function SpotMap({ spot, pois, dm }) {
+export default function SpotMap({ spot, pois, dm, navigate }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const [ready, setReady] = useState(false);
@@ -65,9 +65,22 @@ export default function SpotMap({ spot, pois, dm }) {
       pois.forEach(poi => {
         if (filter !== "all" && poi.type !== filter) return;
         const cfg = POI_ICONS[poi.type] || POI_ICONS.spot;
-        L.marker([poi.lat, poi.lng], { icon: makeIcon(cfg.emoji, cfg.color) })
-          .addTo(map)
-          .bindPopup(`<b>${cfg.emoji} ${poi.name}</b><br><span style="color:#666">${poi.desc}</span>${poi.url ? `<br><a href="${poi.url}" target="_blank" style="color:#1565C0">Website →</a>` : ""}`);
+        const marker = L.marker([poi.lat, poi.lng], { icon: makeIcon(cfg.emoji, cfg.color) })
+          .addTo(map);
+
+        // School POIs get enhanced popup with booking link
+        if (poi.type === "school" && poi.schoolId) {
+          const popupContent = document.createElement("div");
+          popupContent.innerHTML = `<b>${cfg.emoji} ${poi.name}</b><br><span style="color:#666">${poi.desc}</span><br>`;
+          const btn = document.createElement("button");
+          btn.textContent = "🏫 Profil ansehen →";
+          btn.style.cssText = "margin-top:6px;padding:4px 10px;border-radius:8px;border:1px solid #009688;background:#E0F2F1;color:#00695C;font-size:11px;font-weight:600;cursor:pointer;";
+          btn.addEventListener("click", () => { if (navigate) navigate("schools"); });
+          popupContent.appendChild(btn);
+          marker.bindPopup(popupContent);
+        } else {
+          marker.bindPopup(`<b>${cfg.emoji} ${poi.name}</b><br><span style="color:#666">${poi.desc}</span>${poi.url ? `<br><a href="${poi.url}" target="_blank" style="color:#1565C0">Website →</a>` : ""}`);
+        }
       });
     }
 

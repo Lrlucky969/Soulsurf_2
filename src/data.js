@@ -129,6 +129,34 @@ export const LOCAL_POIS = {
     { name: "Stimpy's", type: "spot", lat: 9.84, lng: 126.15, desc: "Anfängerfreundlicher Spot nahe General Luna" },
     { name: "Siargao Surf Shop", type: "shop", lat: 9.85, lng: 126.16, desc: "Board-Rental und Repairs in General Luna" },
   ],
+  peniche: [
+    { name: "Supertubos", type: "spot", lat: 39.35, lng: -9.38, desc: "Eine der besten Barrel-Wellen Europas – WSL-Location" },
+    { name: "Baleal Beach", type: "spot", lat: 39.37, lng: -9.34, desc: "Anfängerfreundlicher Beachbreak auf der Halbinsel" },
+    { name: "Molho Leste", type: "spot", lat: 39.35, lng: -9.37, desc: "Geschützter Spot bei Nordwind" },
+    { name: "Peniche Surf Shop", type: "shop", lat: 39.36, lng: -9.38, desc: "Boards, Wetsuits & Repair im Zentrum" },
+  ],
+  nazare: [
+    { name: "Praia do Norte", type: "spot", lat: 39.61, lng: -9.07, desc: "Größte Wellen der Welt – nur zuschauen!" },
+    { name: "Praia da Vila", type: "spot", lat: 39.60, lng: -9.07, desc: "Geschützter Stadtstrand, surfbar im Sommer" },
+    { name: "Nazaré Surf Shop", type: "shop", lat: 39.60, lng: -9.07, desc: "Souvenirs und Surf-Zubehör" },
+  ],
+  cascais: [
+    { name: "Carcavelos Beach", type: "spot", lat: 38.68, lng: -9.34, desc: "Lissabons beliebtester Surf-Strand, konsistent" },
+    { name: "Praia do Guincho", type: "spot", lat: 38.73, lng: -9.47, desc: "Windiger Beachbreak, besser für Erfahrene" },
+    { name: "Billabong Cascais", type: "shop", lat: 38.70, lng: -9.42, desc: "Surf-Shop mit Board-Rental" },
+  ],
+  ubatuba: [
+    { name: "Praia Vermelha do Norte", type: "spot", lat: -23.36, lng: -44.94, desc: "Konsistenter Beachbreak, weniger crowded" },
+    { name: "Itamambuca", type: "spot", lat: -23.38, lng: -44.95, desc: "Brasiliens bekanntester Surf-Strand, WSL-Events" },
+    { name: "Félix Beach", type: "spot", lat: -23.39, lng: -44.93, desc: "Kraftvoller Beachbreak für Intermediates" },
+    { name: "Ubatuba Surf Shop", type: "shop", lat: -23.43, lng: -45.07, desc: "Board-Rental und lokale Marken" },
+  ],
+  garopaba: [
+    { name: "Silveira Beach", type: "spot", lat: -28.04, lng: -48.63, desc: "Kraftvoller Beachbreak, hohl bei Südost-Swell" },
+    { name: "Ferrugem", type: "spot", lat: -28.09, lng: -48.63, desc: "Langer Beachbreak, gut für alle Levels" },
+    { name: "Rosa Beach", type: "spot", lat: -28.12, lng: -48.63, desc: "Schöner Strand mit guten Wellen und wenig Crowd" },
+    { name: "Garopaba Surf Shop", type: "shop", lat: -28.02, lng: -48.62, desc: "Lokaler Shop im Zentrum" },
+  ],
 };
 
 // Trip packing checklist
