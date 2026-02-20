@@ -320,8 +320,8 @@ function EmptyState({ icon, title, desc, cta, onCta, t, dm }) {
   return (
     <div style={{ paddingTop: 80, textAlign: "center", animation: "screenIn 0.4s ease both" }}>
       <div style={{ fontSize: 64, marginBottom: 16, animation: "float 4s ease-in-out infinite" }}>{icon}</div>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: th.text, marginBottom: 8 }}>{title}</h2>
-      <p style={{ fontSize: 15, color: th.text2, maxWidth: 320, margin: "0 auto 28px", lineHeight: 1.6 }}>{desc}</p>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 8 }}>{title}</h2>
+      <p style={{ fontSize: 15, color: t.text2, maxWidth: 320, margin: "0 auto 28px", lineHeight: 1.6 }}>{desc}</p>
       <button onClick={onCta} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "16px 36px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>{cta} →</button>
     </div>
   );
