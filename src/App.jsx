@@ -87,10 +87,10 @@ export default function SurfApp() {
   // Empty state handler – redirect lessons/diary to builder if no program
   const renderScreen = () => {
     if ((screen === "lessons" || screen === "diary") && !data.hasSaved) {
-      return <EmptyState icon={screen === "lessons" ? "📚" : "📓"} title={screen === "lessons" ? "Noch keine Lektionen" : "Noch kein Tagebuch"} desc="Erstelle zuerst ein Surf-Programm, um loszulegen." cta="Programm erstellen" onCta={() => navigate("builder")} t={th} dm={dm} i18n={i18n} />;
+      return <EmptyState icon={screen === "lessons" ? "📚" : "📓"} title={screen === "lessons" ? i18n.t("app.noLessons") : i18n.t("app.noDiary")} desc={i18n.t("app.emptyDesc")} cta={i18n.t("app.createProgram")} onCta={() => navigate("builder")} t={th} dm={dm} i18n={i18n} />;
     }
     if (screen === "progress" && !data.hasSaved) {
-      return <EmptyState icon="📊" title="Noch kein Fortschritt" desc="Starte ein Programm und schließe Lektionen ab, um Badges zu verdienen." cta="Programm erstellen" onCta={() => navigate("builder")} t={th} dm={dm} i18n={i18n} />;
+      return <EmptyState icon="📊" title={i18n.t("app.noProgress")} desc={i18n.t("app.emptyProgDesc")} cta={i18n.t("app.createProgram")} onCta={() => navigate("builder")} t={th} dm={dm} i18n={i18n} />;
     }
     switch (screen) {
       case "home": return <HomeScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} spotObj={spotObj} savedGoal={savedGoal} />;
@@ -205,7 +205,7 @@ export default function SurfApp() {
                 <div style={{ background: dm ? "rgba(255,255,255,0.1)" : "#E0E0E0", borderRadius: 6, height: 4, marginTop: 8, overflow: "hidden" }}>
                   <div style={{ background: "linear-gradient(90deg, #FFB74D, #FF7043)", height: "100%", borderRadius: 6, width: `${data.total > 0 ? (data.done / data.total) * 100 : 0}%`, transition: "width 0.5s ease" }} />
                 </div>
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3, marginTop: 4 }}>{data.done}/{data.total} erledigt</div>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3, marginTop: 4 }}>{data.done}/{data.total} {i18n.t("g.done")}</div>
               </div>
             )}
             {NAV_ITEMS.map((item, i) => {
@@ -241,7 +241,7 @@ export default function SurfApp() {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: th.text }}>{auth.displayName}</div>
                     <div style={{ fontSize: 10, color: sync.syncStatus === "syncing" ? "#FFB74D" : sync.syncStatus === "error" ? "#E53935" : "#4DB6AC" }}>
-                      {sync.syncStatus === "syncing" ? "⏳ Synchronisiere..." : sync.syncStatus === "error" ? "⚠️ Sync-Fehler" : "☁️ Cloud Sync aktiv"}
+                      {sync.syncStatus === "syncing" ? i18n.t("app.syncing") : sync.syncStatus === "error" ? i18n.t("app.syncError") : i18n.t("app.syncActive")}
                     </div>
                   </div>
                 </div>
