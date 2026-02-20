@@ -1,6 +1,6 @@
 // SoulSurf – TripScreen 2.0 (Multi-Trip)
 import React, { useState, useMemo } from "react";
-import { SURF_SPOTS, LOCAL_POIS, PACKING_LIST } from "../data.js";
+import { SURF_SPOTS, LOCAL_POIS, PACKING_LIST, SURF_SCHOOLS, EXTRA_SPOTS, getAllSpots, formatPrice } from "../data.js";
 import { useWeather, windDirLabel, weatherLabel, useSwell, swellRating } from "../weather.js";
 import SpotMap from "../SpotMap.jsx";
 
@@ -14,11 +14,12 @@ export default function TripScreen({ data, t, dm, spotObj, navigate }) {
   const [section, setSection] = useState("overview"); // overview | weather | packing
 
   // Determine current spot: trip spot > program spot > first spot
-  const tripSpot = currentTrip?.spot ? SURF_SPOTS.find(s => s.id === currentTrip.spot) : null;
-  const currentSpot = tripSpot || spotObj || SURF_SPOTS[0];
+  const allSpots = getAllSpots();
+  const tripSpot = currentTrip?.spot ? allSpots.find(s => s.id === currentTrip.spot) : null;
+  const currentSpot = tripSpot || spotObj || allSpots[0];
   const { weather, loading: weatherLoading } = useWeather(currentSpot);
   const { swell } = useSwell(currentSpot);
-  const filteredSpots = SURF_SPOTS.filter(s => s.name.toLowerCase().includes(spotSearch.toLowerCase()));
+  const filteredSpots = allSpots.filter(s => s.name.toLowerCase().includes(spotSearch.toLowerCase()));
 
   // Countdown
   const countdown = useMemo(() => {
@@ -53,7 +54,7 @@ export default function TripScreen({ data, t, dm, spotObj, navigate }) {
             color: activeTrip === tr.id ? t.accent : t.text2,
             border: `1.5px solid ${activeTrip === tr.id ? t.accent : t.inputBorder}`,
           }}>
-            {tr.spot ? (SURF_SPOTS.find(s => s.id === tr.spot)?.emoji || "✈️") : "✈️"} {tr.name}
+            {tr.spot ? (allSpots.find(s => s.id === tr.spot)?.emoji || "✈️") : "✈️"} {tr.name}
           </button>
         ))}
         <button onClick={() => setShowNewTrip(true)} style={{ padding: "8px 14px", borderRadius: 12, fontSize: 18, cursor: "pointer", background: t.inputBg, color: t.accent, border: `1.5px dashed ${t.accent}`, minWidth: 40 }}>+</button>
@@ -178,8 +179,39 @@ export default function TripScreen({ data, t, dm, spotObj, navigate }) {
                 </div>
               </div>
 
-              {/* Map */}
-              <SpotMap spot={currentSpot} pois={LOCAL_POIS[currentSpot.id] || []} dm={dm} />
+              {/* Map – merge LOCAL_POIS with SURF_SCHOOLS */}
+              <SpotMap spot={currentSpot} pois={[
+                ...(LOCAL_POIS[currentSpot.id] || []),
+                ...SURF_SCHOOLS.filter(s => s.spotId === currentSpot.id).map(s => ({
+                  name: s.name, type: "school", lat: s.location.lat, lng: s.location.lng,
+                  desc: `⭐ ${s.rating} (${s.reviewCount}) · ab ${formatPrice(s.priceRange.from, s.priceRange.currency)}`,
+                  schoolId: s.id,
+                })),
+              ]} dm={dm} navigate={navigate} />
+
+              {/* Surfschulen an diesem Spot */}
+              {(() => {
+                const spotSchools = SURF_SCHOOLS.filter(s => s.spotId === currentSpot.id);
+                if (spotSchools.length === 0) return null;
+                return (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>🏫 Surfschulen an diesem Spot</div>
+                    {spotSchools.map(school => (
+                      <button key={school.id} onClick={() => navigate("schools")} style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 14, marginBottom: 6, cursor: "pointer", textAlign: "left",
+                        background: dm ? "rgba(0,150,136,0.06)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.12)" : "#B2DFDB"}`,
+                      }}>
+                        <span style={{ fontSize: 22 }}>{school.logo}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{school.name} {school.verified ? "✓" : ""}</div>
+                          <div style={{ fontSize: 11, color: t.text2 }}>⭐ {school.rating} · ab {formatPrice(school.priceRange.from, school.priceRange.currency)}</div>
+                        </div>
+                        <span style={{ fontSize: 13, color: t.accent }}>→</span>
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
 
               {/* Spot Info */}
               {currentSpot.tips?.length > 0 && (
