@@ -75,32 +75,32 @@ export default function ForecastScreen({ data, t, dm, i18n }) {
 
   return (
     <div style={{ paddingTop: 24 }}>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("fc.title")}<</h2>
-      <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>{_("fc.subtitle")}<</p>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("fc.title")}</h2>
+      <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>{_("fc.subtitle")}</p>
 
       {showTip && (
         <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>{_("tip.forecastTitle")}<</div>
-            <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>{_("tip.forecast")}<</div>
-          <</div>
-          <button onClick={dismissTip} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4, marginLeft: 8, flexShrink: 0 }}>✕<</button>
-        <</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>{_("tip.forecastTitle")}</div>
+            <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>{_("tip.forecast")}</div>
+          </div>
+          <button onClick={dismissTip} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4, marginLeft: 8, flexShrink: 0 }}>✕</button>
+        </div>
       )}
 
       {/* Spot Selector */}
       <select value={selectedSpot} onChange={e => setSelectedSpot(e.target.value)} style={{ width: "100%", padding: "10px 14px", borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
-        {SURF_SPOTS.map(s => <option key={s.id} value={s.id}>{s.emoji} {s.name}<</option>)}
-      <</select>
+        {SURF_SPOTS.map(s => <option key={s.id} value={s.id}>{s.emoji} {s.name}</option>)}
+      </select>
 
-      {loading && <div style={{ textAlign: "center", padding: "30px", color: t.text3, fontSize: 13 }}>{_("fc.loading")}<</div>}
+      {loading && <div style={{ textAlign: "center", padding: "30px", color: t.text3, fontSize: 13 }}>{_("fc.loading")}</div>}
 
       {!loading && days.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 20px", background: t.card, borderRadius: 16, border: `1px solid ${t.cardBorder}` }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>📡<</div>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>📡</div>
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: t.text, marginBottom: 8 }}>{_("fc.offline")}</h3>
-          <p style={{ fontSize: 13, color: t.text2, lineHeight: 1.6 }}>Prüfe deine Internetverbindung. Der Forecast benötigt eine aktive Verbindung zur Open-Meteo API.<</p>
-        <</div>
+          <p style={{ fontSize: 13, color: t.text2, lineHeight: 1.6 }}>Prüfe deine Internetverbindung. Der Forecast benötigt eine aktive Verbindung zur Open-Meteo API.</p>
+        </div>
       )}
 
       {!loading && days.length > 0 && (
@@ -112,46 +112,46 @@ export default function ForecastScreen({ data, t, dm, i18n }) {
                 flex: 1, padding: "8px 6px", borderRadius: 10, fontSize: 12, fontWeight: selectedDay === i ? 700 : 500, cursor: "pointer",
                 background: selectedDay === i ? (dm ? t.accent : "#263238") : t.inputBg,
                 color: selectedDay === i ? "white" : t.text2, border: `1px solid ${selectedDay === i ? "transparent" : t.inputBorder}`,
-              }}>{i === 0 ? _("fc.today") : i === 1 ? _("fc.tomorrow") : d.label}<</button>
+              }}>{i === 0 ? _("fc.today") : i === 1 ? _("fc.tomorrow") : d.label}</button>
             ))}
-          <</div>
+          </div>
 
           {/* Best Time to Surf */}
           {bestWindows.length > 0 && (
             <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", borderRadius: 16, padding: "16px", marginBottom: 16, border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}` }}>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("fc.bestTimes")} {selectedDay === 0 ? _("fc.bestToday") : ""}<</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("fc.bestTimes")} {selectedDay === 0 ? _("fc.bestToday") : ""}</div>
               {bestWindows.map((w, i) => {
                 const sl = scoreLabel(w.avg);
                 return (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: dm ? "rgba(30,45,61,0.6)" : "white", borderRadius: 10, marginBottom: i < bestWindows.length - 1 ? 6 : 0 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: sl.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{sl.emoji}<</div>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: sl.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{sl.emoji}</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{formatHour(w.start)} – {formatHour(w.end)}<</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{formatHour(w.start)} – {formatHour(w.end)}</div>
                       <div style={{ fontSize: 11, color: t.text2 }}>
                         {w.hours[0]?.waveHeight != null && `${w.hours[0].waveHeight.toFixed(1)}m`}
                         {w.hours[0]?.wind != null && ` · ${Math.round(w.hours[0].wind)} km/h ${windArrow(w.hours[0].windDir)}`}
-                      <</div>
-                    <</div>
+                      </div>
+                    </div>
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 18, fontWeight: 700, color: sl.color }}>{w.avg}<</div>
-                      <div style={{ fontSize: 10, color: t.text3 }}>{sl.label}<</div>
-                    <</div>
-                  <</div>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 18, fontWeight: 700, color: sl.color }}>{w.avg}</div>
+                      <div style={{ fontSize: 10, color: t.text3 }}>{sl.label}</div>
+                    </div>
+                  </div>
                 );
               })}
-            <</div>
+            </div>
           )}
           {bestWindows.length === 0 && currentDay && (
             <div style={{ background: dm ? "rgba(229,57,53,0.08)" : "#FFEBEE", borderRadius: 14, padding: "14px 16px", marginBottom: 16, border: `1px solid ${dm ? "rgba(229,57,53,0.15)" : "#FFCDD2"}` }}>
-              <div style={{ fontSize: 13, color: "#E53935", fontWeight: 600 }}>😕 {_("fc.noGood")} {selectedDay === 0 ? _("fc.bestToday") : _("fc.noGoodDay")}<</div>
-              <div style={{ fontSize: 12, color: t.text2, marginTop: 4 }}>{_("fc.noGoodDesc")}<</div>
-            <</div>
+              <div style={{ fontSize: 13, color: "#E53935", fontWeight: 600 }}>😕 {_("fc.noGood")} {selectedDay === 0 ? _("fc.bestToday") : _("fc.noGoodDay")}</div>
+              <div style={{ fontSize: 12, color: t.text2, marginTop: 4 }}>{_("fc.noGoodDesc")}</div>
+            </div>
           )}
 
           {/* Hourly Timeline */}
           {currentDay && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("fc.hourly")}<</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("fc.hourly")}</div>
               <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 4 }}>
                 <div style={{ display: "flex", gap: 6, minWidth: "max-content" }}>
                   {currentDay.surfHours.map((h, i) => {
@@ -160,22 +160,22 @@ export default function ForecastScreen({ data, t, dm, i18n }) {
                     const wl = weatherLabel(h.code);
                     return (
                       <div key={i} style={{ width: 72, padding: "10px 6px", background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 12, textAlign: "center", flexShrink: 0 }}>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: t.text2, marginBottom: 4 }}>{formatHour(h.time)}<</div>
-                        <div style={{ fontSize: 16, marginBottom: 2 }}>{wl.emoji}<</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: t.text2, marginBottom: 4 }}>{formatHour(h.time)}</div>
+                        <div style={{ fontSize: 16, marginBottom: 2 }}>{wl.emoji}</div>
                         {/* Score bar */}
                         <div style={{ height: 4, borderRadius: 2, background: dm ? "rgba(255,255,255,0.08)" : "#ECEFF1", marginBottom: 4 }}>
                           <div style={{ height: "100%", borderRadius: 2, background: sl.color, width: `${score}%`, transition: "width 0.3s" }} />
-                        <</div>
-                        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700, color: sl.color, marginBottom: 2 }}>{score}<</div>
-                        {h.waveHeight != null && <div style={{ fontSize: 10, color: t.text2 }}>🌊 {h.waveHeight.toFixed(1)}m<</div>}
-                        <div style={{ fontSize: 10, color: t.text3 }}>💨 {Math.round(h.wind || 0)}{windArrow(h.windDir)}<</div>
-                        <div style={{ fontSize: 10, color: t.text3 }}>{Math.round(h.temp || 0)}°<</div>
-                      <</div>
+                        </div>
+                        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700, color: sl.color, marginBottom: 2 }}>{score}</div>
+                        {h.waveHeight != null && <div style={{ fontSize: 10, color: t.text2 }}>🌊 {h.waveHeight.toFixed(1)}m</div>}
+                        <div style={{ fontSize: 10, color: t.text3 }}>💨 {Math.round(h.wind || 0)}{windArrow(h.windDir)}</div>
+                        <div style={{ fontSize: 10, color: t.text3 }}>{Math.round(h.temp || 0)}°</div>
+                      </div>
                     );
                   })}
-                <</div>
-              <</div>
-            <</div>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Wind Rose Summary */}
@@ -191,15 +191,15 @@ export default function ForecastScreen({ data, t, dm, i18n }) {
                   const dominantDir = winds.length ? Math.round(winds.reduce((s, h) => s + (h.windDir || 0), 0) / winds.length) : 0;
                   return (
                     <>
-                      <div style={{ fontSize: 28, fontWeight: 800, color: t.text, fontFamily: "'Playfair Display', serif" }}>{avgWind}<span style={{ fontSize: 14, color: t.text2 }}> km/h<</span><</div>
+                      <div style={{ fontSize: 28, fontWeight: 800, color: t.text, fontFamily: "'Playfair Display', serif" }}>{avgWind}<span style={{ fontSize: 14, color: t.text2 }}> km/h</span></div>
                       <div style={{ fontSize: 12, color: t.text2, marginTop: 4 }}>
-                        <span style={{ fontSize: 18 }}>{windArrow(dominantDir)}<</span> {windDirLabel(dominantDir)}
-                      <</div>
-                      {maxGust > 0 && <div style={{ fontSize: 11, color: t.text3, marginTop: 2 }}>Böen bis {Math.round(maxGust)} km/h<</div>}
+                        <span style={{ fontSize: 18 }}>{windArrow(dominantDir)}</span> {windDirLabel(dominantDir)}
+                      </div>
+                      {maxGust > 0 && <div style={{ fontSize: 11, color: t.text3, marginTop: 2 }}>Böen bis {Math.round(maxGust)} km/h</div>}
                     </>
                   );
                 })()}
-              <</div>
+              </div>
               {/* Waves Card */}
               <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, padding: "14px" }}>
                 <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, textTransform: "uppercase", marginBottom: 8 }}>{_("fc.waves")}</div>
@@ -210,19 +210,19 @@ export default function ForecastScreen({ data, t, dm, i18n }) {
                   const sr = swellRating(maxH, Number(avgP));
                   return (
                     <>
-                      <div style={{ fontSize: 28, fontWeight: 800, color: t.text, fontFamily: "'Playfair Display', serif" }}>{maxH.toFixed(1)}<span style={{ fontSize: 14, color: t.text2 }}>m max<</span><</div>
-                      <div style={{ fontSize: 12, color: t.text2, marginTop: 4 }}>Periode: ~{avgP}s<</div>
-                      {sr && <div style={{ fontSize: 12, color: sr.color, fontWeight: 600, marginTop: 2 }}>{sr.emoji} {sr.label}<</div>}
+                      <div style={{ fontSize: 28, fontWeight: 800, color: t.text, fontFamily: "'Playfair Display', serif" }}>{maxH.toFixed(1)}<span style={{ fontSize: 14, color: t.text2 }}>m max</span></div>
+                      <div style={{ fontSize: 12, color: t.text2, marginTop: 4 }}>Periode: ~{avgP}s</div>
+                      {sr && <div style={{ fontSize: 12, color: sr.color, fontWeight: 600, marginTop: 2 }}>{sr.emoji} {sr.label}</div>}
                     </>
                   );
                 })()}
-              <</div>
-            <</div>
+              </div>
+            </div>
           )}
 
           {/* Surf Score Legend */}
           <div style={{ background: dm ? "rgba(30,45,61,0.5)" : "#F5F5F5", borderRadius: 14, padding: "12px 16px", marginBottom: 16 }}>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("fc.legend")}<</div>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("fc.legend")}</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {[
                 { emoji: "🟢", label: _("fc.perfect"), desc: _("fc.perfectD") },
@@ -230,12 +230,12 @@ export default function ForecastScreen({ data, t, dm, i18n }) {
                 { emoji: "🟠", label: _("fc.okay"), desc: _("fc.okayD") },
                 { emoji: "🔴", label: _("fc.hard"), desc: _("fc.hardD") },
               ].map(l => (
-                <div key={l.label} style={{ fontSize: 11, color: t.text2 }}>{l.emoji} <b>{l.label}</b> – {l.desc}<</div>
+                <div key={l.label} style={{ fontSize: 11, color: t.text2 }}>{l.emoji} <b>{l.label}</b> – {l.desc}</div>
               ))}
-            <</div>
-          <</div>
+            </div>
+          </div>
         </>
       )}
-    <</div>
+    </div>
   );
 }
