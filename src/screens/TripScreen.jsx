@@ -4,7 +4,8 @@ import { SURF_SPOTS, LOCAL_POIS, PACKING_LIST, SURF_SCHOOLS, EXTRA_SPOTS, getAll
 import { useWeather, windDirLabel, weatherLabel, useSwell, swellRating } from "../weather.js";
 import SpotMap from "../SpotMap.jsx";
 
-export default function TripScreen({ data, t, dm, spotObj, navigate }) {
+export default function TripScreen({ data, t, dm, i18n, spotObj, navigate }) {
+  const _ = i18n?.t || ((k, f) => f || k);
   const { trips, activeTrip, currentTrip, createTrip, updateTrip, deleteTrip, switchTrip, resetPackingList } = data;
   const [showNewTrip, setShowNewTrip] = useState(false);
   const [newTripName, setNewTripName] = useState("");
@@ -195,7 +196,7 @@ export default function TripScreen({ data, t, dm, spotObj, navigate }) {
                 if (spotSchools.length === 0) return null;
                 return (
                   <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>🏫 Surfschulen an diesem Spot</div>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("schools.schoolsAtSpot")}</div>
                     {spotSchools.map(school => (
                       <button key={school.id} onClick={() => navigate("schools")} style={{
                         width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 14, marginBottom: 6, cursor: "pointer", textAlign: "left",

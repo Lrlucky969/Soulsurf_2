@@ -4,7 +4,8 @@ import { SURF_SPOTS, GOALS } from "../data.js";
 
 const ONBOARDING_KEY = "soulsurf_onboarded";
 
-export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }) {
+export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, savedGoal }) {
+  const _ = i18n?.t || ((k, f) => f || k);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [onboarded, setOnboarded] = useState(true); // assume true until checked
   const [obStep, setObStep] = useState(0);
@@ -75,8 +76,8 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
         {obStep === 0 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 88, height: 88, borderRadius: 22, marginBottom: 16, animation: "float 4s ease-in-out infinite", boxShadow: "0 12px 40px rgba(0,150,136,0.2)" }} />
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 34, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 8 }}>Willkommen bei<br /><span style={{ color: t.accent }}>SoulSurf</span></h1>
-            <p style={{ fontSize: 15, color: t.text2, maxWidth: 360, margin: "0 auto 24px", lineHeight: 1.6 }}>Dein persönlicher Surf-Coach – lerne Surfen, plane Trips und tracke deinen Fortschritt.</p>
+            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 34, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 8 }}>{_("home.welcome")}<br /><span style={{ color: t.accent }}>SoulSurf</span></h1>
+            <p style={{ fontSize: 15, color: t.text2, maxWidth: 360, margin: "0 auto 24px", lineHeight: 1.6 }}>{_("home.subtitle")}</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, maxWidth: 320, margin: "0 auto 28px" }}>
               {features.map((f, i) => (
                 <div key={i} style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 12, padding: "12px 10px", animation: "slideUp 0.3s ease both", animationDelay: `${i * 80}ms` }}>
@@ -86,21 +87,21 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
                 </div>
               ))}
             </div>
-            <button onClick={() => setObStep(1)} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "16px 44px", fontSize: 17, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>Los geht's 🤙</button>
+            <button onClick={() => setObStep(1)} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "16px 44px", fontSize: 17, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>{_("home.getStarted")}</button>
           </div>
         )}
 
         {obStep === 1 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
             <div style={{ fontSize: 52, marginBottom: 12 }}>🎯</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 6 }}>Was willst du machen?</h2>
-            <p style={{ fontSize: 14, color: t.text2, marginBottom: 24 }}>Wähle deinen Einstieg – du kannst jederzeit alles nutzen.</p>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 6 }}>{_("home.whatToDo")}</h2>
+            <p style={{ fontSize: 14, color: t.text2, marginBottom: 24 }}>{_("home.chooseEntry")}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 380, margin: "0 auto" }}>
               {[
-                { icon: "📚", title: "Surfen lernen", desc: "Personalisiertes Programm mit Lektionen & Videos", route: "builder", color: "#009688" },
-                { icon: "🌊", title: "Forecast checken", desc: "Surf-Bedingungen für deinen Spot", route: "forecast", color: "#0288D1" },
-                { icon: "✈️", title: "Trip planen", desc: "Spots entdecken, Wetter, Packliste", route: "trip", color: "#5C6BC0" },
-                { icon: "🏄", title: "Board finden", desc: "Board-Berater für dein Level", route: "equipment", color: "#FF7043" },
+                { icon: "📚", title: _("home.learnSurf"), desc: _("home.learnSurfDesc"), route: "builder", color: "#009688" },
+                { icon: "🌊", title: _("home.checkForecast"), desc: _("home.checkForecastDesc"), route: "forecast", color: "#0288D1" },
+                { icon: "✈️", title: _("home.planTrip"), desc: _("home.planTripDesc"), route: "trip", color: "#5C6BC0" },
+                { icon: "🏄", title: _("home.findBoard"), desc: _("home.findBoardDesc"), route: "equipment", color: "#FF7043" },
               ].map((opt, i) => (
                 <button key={i} onClick={() => { setObStep(2); setObRoute(opt.route); }} style={{
                   display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16,
@@ -116,24 +117,24 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
                 </button>
               ))}
             </div>
-            <button onClick={() => setObStep(0)} style={{ marginTop: 16, background: "none", border: "none", color: t.text3, fontSize: 12, cursor: "pointer" }}>← Zurück</button>
+            <button onClick={() => setObStep(0)} style={{ marginTop: 16, background: "none", border: "none", color: t.text3, fontSize: 12, cursor: "pointer" }}>{_("home.back")}</button>
           </div>
         )}
 
         {obStep === 2 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
             <div style={{ fontSize: 52, marginBottom: 12 }}>✨</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 6 }}>Bereit?</h2>
-            <p style={{ fontSize: 14, color: t.text2, maxWidth: 340, margin: "0 auto 24px", lineHeight: 1.6 }}>Starte mit deinem persönlichen Programm oder erkunde die App frei.</p>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 6 }}>{_("home.ready")}</h2>
+            <p style={{ fontSize: 14, color: t.text2, maxWidth: 340, margin: "0 auto 24px", lineHeight: 1.6 }}>{_("home.readyDesc")}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 320, margin: "0 auto" }}>
               <button onClick={() => finishOnboarding(obRoute || "builder")} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 16, padding: "16px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 6px 20px rgba(0,150,136,0.3)" }}>
-                Jetzt starten 🚀
+                {_("home.startNow")}
               </button>
               <button onClick={() => finishOnboarding(null)} style={{ background: t.card, color: t.text, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-                Erstmal frei erkunden 🏖️
+                {_("home.exploreFree")}
               </button>
             </div>
-            <button onClick={() => setObStep(1)} style={{ marginTop: 16, background: "none", border: "none", color: t.text3, fontSize: 12, cursor: "pointer" }}>← Zurück</button>
+            <button onClick={() => setObStep(1)} style={{ marginTop: 16, background: "none", border: "none", color: t.text3, fontSize: 12, cursor: "pointer" }}>{_("home.back")}</button>
           </div>
         )}
 
@@ -149,14 +150,15 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
     const today = new Date().toISOString().slice(0, 10);
     const surfedToday = (data.surfDays || []).includes(today);
     const hour = new Date().getHours();
-    const timeGreeting = hour < 10 ? "Guten Morgen! ☀️" : hour < 14 ? "Moin! 🤙" : hour < 18 ? "Hey! 🌊" : "Guten Abend! 🌅";
+    const timeGreeting = hour < 10 ? _("home.morning") : hour < 14 ? _("home.midday") : hour < 18 ? _("home.afternoon") : _("home.evening");
+    const dateLang = i18n?.lang === "pt" ? "pt-BR" : i18n?.lang === "en" ? "en-US" : "de-DE";
     return (
       <div style={{ paddingTop: 20 }}>
         {/* Greeting */}
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>{new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}</div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>{new Date().toLocaleDateString(dateLang, { weekday: "long", day: "numeric", month: "long" })}</div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginTop: 4 }}>
-            {data.streak > 2 ? "Du bist on fire! 🔥" : progressPct >= 80 ? "Fast geschafft! 💪" : progressPct >= 50 ? "Weiter so! 🤙" : timeGreeting}
+            {data.streak > 2 ? _("home.onFire") : progressPct >= 80 ? _("home.almostDone") : progressPct >= 50 ? _("home.keepGoing") : timeGreeting}
           </h2>
         </div>
 
@@ -205,8 +207,8 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
           <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, animation: "slideUp 0.3s ease both" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: t.accent, marginBottom: 4 }}>💡 Tipp: Dein Dashboard</div>
-                <div style={{ fontSize: 12, color: t.text2, lineHeight: 1.5 }}>Hier siehst du deinen Fortschritt, tägliche Ziele und Wochen-Challenges. Logge jeden Surf-Tag für XP und Streak-Boni!</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: t.accent, marginBottom: 4 }}>{_("tip.dashboardTitle")}</div>
+                <div style={{ fontSize: 12, color: t.text2, lineHeight: 1.5 }}>{_("tip.dashboard")}</div>
               </div>
               <button onClick={() => dismissTooltip("dashboard-intro")} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4, marginLeft: 8, flexShrink: 0 }}>✕</button>
             </div>
@@ -226,7 +228,7 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
               </div>
               {data.gamification.nextLevel && (
                 <div style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 10, color: t.text3 }}>Nächstes Level</div>
+                  <div style={{ fontSize: 10, color: t.text3 }}>{_("home.nextLevel")}</div>
                   <div style={{ fontSize: 12, fontWeight: 600, color: t.text2 }}>{data.gamification.nextLevel.emoji} {data.gamification.nextLevel.name}</div>
                 </div>
               )}
@@ -241,7 +243,7 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
         {data.gamification && (
           <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>🎯 Tages-Ziele</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>{_("home.dailyGoals")}</div>
               <span style={{ fontSize: 11, fontWeight: 600, color: data.gamification.dailyDone === 3 ? "#4CAF50" : t.text3 }}>{data.gamification.dailyDone}/3 {data.gamification.dailyDone === 3 ? "✨ +20 Bonus-XP" : ""}</span>
             </div>
             {data.gamification.dailyGoals.map(g => (
@@ -257,7 +259,7 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
         {/* Weekly Challenges */}
         {data.gamification?.weeklyChallenges?.length > 0 && (
           <div style={{ background: dm ? "rgba(92,107,192,0.08)" : "#E8EAF6", border: `1px solid ${dm ? "rgba(92,107,192,0.15)" : "#C5CAE9"}`, borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#7986CB" : "#3949AB", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>🏆 Wochen-Challenge</div>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#7986CB" : "#3949AB", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("home.weeklyChallenge")}</div>
             {data.gamification.weeklyChallenges.map(c => (
               <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0" }}>
                 <span style={{ fontSize: 16 }}>{c.completed ? "🏆" : c.emoji}</span>
@@ -276,9 +278,9 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
         {/* Quick Stats Row */}
         <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" }}>
           {[
-            { emoji: "🔥", value: data.streak, label: "Streak", color: "#FFB74D" },
-            { emoji: "📓", value: data.diaryCount, label: "Einträge", color: "#7986CB" },
-            { emoji: "📚", value: data.total - data.done, label: "Offen", color: t.accent },
+            { emoji: "🔥", value: data.streak, label: _("home.streak"), color: "#FFB74D" },
+            { emoji: "📓", value: data.diaryCount, label: _("home.entries"), color: "#7986CB" },
+            { emoji: "📚", value: data.total - data.done, label: _("home.open"), color: t.accent },
           ].map((s, i) => (
             <div key={i} style={{ flex: 1, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, padding: "12px 10px", textAlign: "center" }}>
               <div style={{ fontSize: 20 }}>{s.emoji}</div>
@@ -310,8 +312,8 @@ export default function HomeScreen({ data, t, dm, navigate, spotObj, savedGoal }
         }}>
           <span style={{ fontSize: 24 }}>{surfedToday ? "🏄‍♂️" : "🏖️"}</span>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: surfedToday ? "#E65100" : t.text }}>{surfedToday ? "Heute gesurft! ✓" : "Heute gesurft?"}</div>
-            <div style={{ fontSize: 11, color: t.text2 }}>{surfedToday ? `Streak: ${data.streak} Tag${data.streak > 1 ? "e" : ""} 🔥` : "Tippe um deinen Surf-Tag zu loggen"}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: surfedToday ? "#E65100" : t.text }}>{surfedToday ? _("home.surfedToday") : _("home.surfedTodayQ")}</div>
+            <div style={{ fontSize: 11, color: t.text2 }}>{surfedToday ? `${_("home.streak")}: ${data.streak} ${data.streak > 1 ? _("general.days") : _("general.day")} 🔥` : _("home.tapToLog")}</div>
           </div>
         </button>
 

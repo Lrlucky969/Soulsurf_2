@@ -14,7 +14,8 @@ function formatDate(timeStr) {
   return `${days[d.getDay()]}, ${d.getDate()}.${d.getMonth() + 1}`;
 }
 
-export default function ForecastScreen({ data, t, dm }) {
+export default function ForecastScreen({ data, t, dm, i18n }) {
+  const _ = i18n?.t || ((k, f) => f || k);
   const [selectedSpot, setSelectedSpot] = useState(data.spot || SURF_SPOTS[0]?.id || "bali");
   const spot = SURF_SPOTS.find(s => s.id === selectedSpot) || SURF_SPOTS[0];
   const { hourly, loading } = useHourlyForecast(spot);
@@ -74,14 +75,14 @@ export default function ForecastScreen({ data, t, dm }) {
 
   return (
     <div style={{ paddingTop: 24 }}>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>🌊 Surf-Forecast</h2>
-      <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>Stündliche Bedingungen & beste Surf-Zeiten.</p>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("forecast.title")}</h2>
+      <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>{_("forecast.subtitle")}</p>
 
       {showTip && (
         <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>💡 So liest du den Forecast</div>
-            <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>Score 80+ = Perfekte Bedingungen. Scrolle durch die Stunden und finde das beste Zeitfenster. Offshore-Wind (🟢) macht die besten Wellen!</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>{_("tip.forecastTitle")}</div>
+            <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>{_("tip.forecast")}</div>
           </div>
           <button onClick={dismissTip} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4, marginLeft: 8, flexShrink: 0 }}>✕</button>
         </div>
@@ -92,7 +93,7 @@ export default function ForecastScreen({ data, t, dm }) {
         {SURF_SPOTS.map(s => <option key={s.id} value={s.id}>{s.emoji} {s.name}</option>)}
       </select>
 
-      {loading && <div style={{ textAlign: "center", padding: "30px", color: t.text3, fontSize: 13 }}>⏳ Forecast wird geladen...</div>}
+      {loading && <div style={{ textAlign: "center", padding: "30px", color: t.text3, fontSize: 13 }}>{_("forecast.loading")}</div>}
 
       {!loading && days.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 20px", background: t.card, borderRadius: 16, border: `1px solid ${t.cardBorder}` }}>
@@ -111,7 +112,7 @@ export default function ForecastScreen({ data, t, dm }) {
                 flex: 1, padding: "8px 6px", borderRadius: 10, fontSize: 12, fontWeight: selectedDay === i ? 700 : 500, cursor: "pointer",
                 background: selectedDay === i ? (dm ? t.accent : "#263238") : t.inputBg,
                 color: selectedDay === i ? "white" : t.text2, border: `1px solid ${selectedDay === i ? "transparent" : t.inputBorder}`,
-              }}>{i === 0 ? "Heute" : i === 1 ? "Morgen" : d.label}</button>
+              }}>{i === 0 ? _("forecast.today") : i === 1 ? _("forecast.tomorrow") : d.label}</button>
             ))}
           </div>
 

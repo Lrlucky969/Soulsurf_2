@@ -8,7 +8,8 @@ function StarRating({ rating, size = 14 }) {
   return <span style={{ fontSize: size, letterSpacing: 1 }}>{"★".repeat(full)}{half ? "½" : ""}{"☆".repeat(5 - full - (half ? 1 : 0))}</span>;
 }
 
-export default function SchoolsScreen({ data, t, dm, navigate }) {
+export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
+  const _ = i18n?.t || ((k, f) => f || k);
   const [selectedSpot, setSelectedSpot] = useState(data.spot || "portugal");
   const [selectedSchool, setSelectedSchool] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -45,7 +46,7 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
     return (
       <div style={{ paddingTop: 60, textAlign: "center" }}>
         <div style={{ fontSize: 64, marginBottom: 16, animation: "float 3s ease-in-out infinite" }}>✅</div>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 8 }}>Anfrage gesendet!</h2>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("schools.requestSent")}</h2>
         <p style={{ fontSize: 14, color: t.text2, maxWidth: 320, margin: "0 auto", lineHeight: 1.6 }}>
           {selectedSchool?.name} wurde benachrichtigt. Du erhältst eine Bestätigung per E-Mail.
         </p>
@@ -57,15 +58,15 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
   if (bookingStep === 3 && selectedSchool && selectedCourse) {
     return (
       <div style={{ paddingTop: 24 }}>
-        <button onClick={() => setBookingStep(1)} style={{ background: "none", border: "none", color: t.accent, fontSize: 13, cursor: "pointer", marginBottom: 16, fontWeight: 600 }}>← Zurück zum Profil</button>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 4 }}>📋 Buchungsanfrage</h2>
+        <button onClick={() => setBookingStep(1)} style={{ background: "none", border: "none", color: t.accent, fontSize: 13, cursor: "pointer", marginBottom: 16, fontWeight: 600 }}>{_("schools.backToProfile")}</button>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("schools.bookingRequest")}</h2>
         <p style={{ fontSize: 13, color: t.text2, marginBottom: 20 }}>{selectedSchool.name} · {selectedCourse.name}</p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {[
-            { key: "name", label: "Name", type: "text", placeholder: "Dein Name" },
-            { key: "email", label: "E-Mail", type: "email", placeholder: "name@email.com" },
-            { key: "date", label: "Wunschdatum", type: "date" },
+            { key: "name", label: _("schools.name"), type: "text", placeholder: "Dein Name" },
+            { key: "email", label: _("schools.email"), type: "email", placeholder: "name@email.com" },
+            { key: "date", label: _("schools.date"), type: "date" },
           ].map(f => (
             <div key={f.key}>
               <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>{f.label}</label>
@@ -73,7 +74,7 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
             </div>
           ))}
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>Personen</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>{_("schools.people")}/label>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <button onClick={() => setBookingForm({ ...bookingForm, people: Math.max(1, bookingForm.people - 1) })} style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 18, cursor: "pointer" }}>−</button>
               <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 18, fontWeight: 700, color: t.text, minWidth: 24, textAlign: "center" }}>{bookingForm.people}</span>
@@ -81,7 +82,7 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
             </div>
           </div>
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>Nachricht (optional)</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>{_("schools.message")}/label>
             <textarea value={bookingForm.message} onChange={e => setBookingForm({ ...bookingForm, message: e.target.value })} rows={3} placeholder="Level, Wünsche, Fragen..." style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, resize: "vertical" }} />
           </div>
         </div>
@@ -92,14 +93,14 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
             <span style={{ fontSize: 13, color: t.text2 }}>{selectedCourse.name} × {bookingForm.people}</span>
             <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 800, color: t.accent }}>{formatPrice(selectedCourse.price * bookingForm.people, selectedSchool.priceRange.currency)}</span>
           </div>
-          <div style={{ fontSize: 11, color: t.text3, marginTop: 4 }}>Unverbindliche Anfrage – Bezahlung vor Ort</div>
+          <div style={{ fontSize: 11, color: t.text3, marginTop: 4 }}>{_("schools.payOnSite")}</div>
         </div>
 
         <button onClick={sendBookingRequest} disabled={!bookingForm.name || !bookingForm.email || !bookingForm.date} style={{
           width: "100%", padding: "16px", borderRadius: 16, fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif",
           background: (bookingForm.name && bookingForm.email && bookingForm.date) ? "linear-gradient(135deg, #009688, #4DB6AC)" : "#BDBDBD",
           color: "white", border: "none", boxShadow: (bookingForm.name && bookingForm.email && bookingForm.date) ? "0 6px 20px rgba(0,150,136,0.3)" : "none",
-        }}>Anfrage senden 📨</button>
+        }}>{_("schools.sendRequest")}</button>
       </div>
     );
   }
@@ -109,7 +110,7 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
     const school = selectedSchool;
     return (
       <div style={{ paddingTop: 24 }}>
-        <button onClick={() => { setBookingStep(0); setSelectedSchool(null); }} style={{ background: "none", border: "none", color: t.accent, fontSize: 13, cursor: "pointer", marginBottom: 16, fontWeight: 600 }}>← Alle Surfschulen</button>
+        <button onClick={() => { setBookingStep(0); setSelectedSchool(null); }} style={{ background: "none", border: "none", color: t.accent, fontSize: 13, cursor: "pointer", marginBottom: 16, fontWeight: 600 }}>{_("schools.allSchools")}</button>
 
         {/* Cover */}
         <div style={{ background: "linear-gradient(135deg, #004D40, #00695C, #00897B)", borderRadius: 20, padding: "24px 20px", color: "white", position: "relative", overflow: "hidden", marginBottom: 16 }}>
@@ -124,13 +125,13 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <span style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 10px", fontSize: 11 }}>⭐ {school.rating} ({school.reviewCount})</span>
             <span style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 10px", fontSize: 11 }}>{formatPrice(school.priceRange.from, school.priceRange.currency)}–{formatPrice(school.priceRange.to, school.priceRange.currency)}</span>
-            {school.verified && <span style={{ background: "rgba(255,255,255,0.2)", borderRadius: 20, padding: "4px 10px", fontSize: 11 }}>✓ Verifiziert</span>}
+            {school.verified && <span style={{ background: "rgba(255,255,255,0.2)", borderRadius: 20, padding: "4px 10px", fontSize: 11 }}>{_("schools.verified")}</span>}
           </div>
         </div>
 
         {/* About */}
         <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "16px", marginBottom: 12 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Über uns</div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("schools.about")}/div>
           <p style={{ fontSize: 13, color: t.text2, lineHeight: 1.6 }}>{school.about}</p>
         </div>
 
@@ -149,7 +150,7 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
         </div>
 
         {/* Courses */}
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>🏄 Kursangebote</div>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("schools.courses")}/div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
           {school.courses.map(course => (
             <button key={course.id} onClick={() => { setSelectedCourse(course); setBookingStep(3); }} style={{
@@ -163,7 +164,7 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
               </div>
               <div style={{ textAlign: "right", flexShrink: 0 }}>
                 <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 800, color: t.accent }}>{formatPrice(course.price, school.priceRange.currency)}</div>
-                <div style={{ fontSize: 10, color: t.text3 }}>Buchen →</div>
+                <div style={{ fontSize: 10, color: t.text3 }}>{_("schools.book")}</div>
               </div>
             </button>
           ))}
@@ -171,7 +172,7 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
 
         {/* Contact */}
         <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "16px", marginBottom: 12 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>📞 Kontakt</div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("schools.contact")}/div>
           {school.contact.phone && <div style={{ fontSize: 13, color: t.text2, marginBottom: 4 }}>📱 {school.contact.phone}</div>}
           {school.contact.email && <div style={{ fontSize: 13, color: t.text2, marginBottom: 4 }}>✉️ {school.contact.email}</div>}
           {school.contact.instagram && <div style={{ fontSize: 13, color: t.accent, fontWeight: 600 }}>📸 {school.contact.instagram}</div>}
@@ -183,14 +184,14 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
   // === SCHOOL FINDER (Browse) ===
   return (
     <div style={{ paddingTop: 24 }}>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>🏫 Surfschulen</h2>
-      <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>Finde und buche Surfschulen an deinem Spot.</p>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("schools.title")}</h2>
+      <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>{_("schools.subtitle")}</p>
 
       {showTip && (
         <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>💡 Surfschule buchen</div>
-            <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>Wähle deinen Spot, vergleiche Schulen und buche direkt über die App. Alle Schulen sind von uns geprüft.</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>{_("tip.schoolsTitle")}/div>
+            <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>{_("tip.schools")}</div>
           </div>
           <button onClick={dismissTip} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4, marginLeft: 8, flexShrink: 0 }}>✕</button>
         </div>
@@ -216,7 +217,7 @@ export default function SchoolsScreen({ data, t, dm, navigate }) {
       {schools.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 20px", background: t.card, borderRadius: 16, border: `1px solid ${t.cardBorder}` }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
-          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: t.text, marginBottom: 8 }}>Noch keine Surfschulen</h3>
+          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: t.text, marginBottom: 8 }}>{_("schools.noSchools")}</h3>
           <p style={{ fontSize: 12, color: t.text2 }}>Für diesen Spot gibt es noch keine registrierten Schulen. Bald kommen mehr!</p>
         </div>
       )}
