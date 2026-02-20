@@ -21,7 +21,8 @@ function timeAgo(dateStr) {
   return `vor ${Math.floor(hrs / 24)}d`;
 }
 
-export default function CommunityScreen({ data, auth, t, dm }) {
+export default function CommunityScreen({ data, auth, t, dm, i18n }) {
+  const _ = i18n?.t || ((k, f) => f || k);
   const [tab, setTab] = useState("board"); // board | announce
   const [spotFilter, setSpotFilter] = useState("all");
   const [posts, setPosts] = useState([]);
@@ -114,48 +115,48 @@ export default function CommunityScreen({ data, auth, t, dm }) {
 
   return (
     <div style={{ paddingTop: 24 }}>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>🤝 Community</h2>
-      <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>Teile Spot-Tipps und finde Surf-Buddies.</p>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("comm.title")}</h2>
+      <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>Teile Spot-Tipps und finde Surf-Buddies.<</p>
 
       {/* Live/Demo Banner */}
       {!isLive && (
         <div style={{ background: dm ? "rgba(92,107,192,0.1)" : "linear-gradient(135deg, #E8EAF6, #EDE7F6)", border: `1px solid ${dm ? "rgba(92,107,192,0.2)" : "#C5CAE9"}`, borderRadius: 14, padding: "10px 16px", marginBottom: 14, display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 18 }}>🔒</span>
+          <span style={{ fontSize: 18 }}>🔒<</span>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: dm ? "#7986CB" : "#3949AB" }}>Demo-Modus</div>
-            <div style={{ fontSize: 11, color: t.text2 }}>Logge dich ein um eigene Posts zu schreiben und Beiträge zu liken.</div>
-          </div>
-        </div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: dm ? "#7986CB" : "#3949AB" }}>Demo-Modus<</div>
+            <div style={{ fontSize: 11, color: t.text2 }}>Logge dich ein um eigene Posts zu schreiben und Beiträge zu liken.<</div>
+          <</div>
+        <</div>
       )}
 
       {/* Tabs */}
       <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
-        {[{ id: "board", label: "💬 Board" }, { id: "announce", label: "📢 Posten" }].map(tb => (
+        {[{ id: "board", label: _("comm.board") }, { id: "announce", label: _("comm.post") }].map(tb => (
           <button key={tb.id} onClick={() => setTab(tb.id)} style={{
             flex: 1, padding: "10px 8px", borderRadius: 12, fontSize: 12, fontWeight: tab === tb.id ? 700 : 500, cursor: "pointer",
             background: tab === tb.id ? (dm ? t.accent : "#263238") : t.inputBg,
             color: tab === tb.id ? "white" : t.text2, border: `1px solid ${tab === tb.id ? "transparent" : t.inputBorder}`,
-          }}>{tb.label}</button>
+          }}>{tb.label}<</button>
         ))}
-      </div>
+      <</div>
 
       {/* Spot Filter */}
       <div style={{ marginBottom: 14 }}>
         <select value={spotFilter} onChange={e => setSpotFilter(e.target.value)} style={{ padding: "6px 10px", borderRadius: 8, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 12 }}>
-          <option value="all">🌍 Alle Spots</option>
-          {SURF_SPOTS.map(s => <option key={s.id} value={s.id}>{s.emoji} {s.name.split(",")[0]}</option>)}
-        </select>
-      </div>
+          <option value="all">{_("comm.allSpots")}</option>
+          {SURF_SPOTS.map(s => <option key={s.id} value={s.id}>{s.emoji} {s.name.split(",")[0]}<</option>)}
+        <</select>
+      <</div>
 
       {/* Tab: Board */}
       {tab === "board" && (
         <div style={{ animation: "screenIn 0.25s ease both" }}>
-          {loadingPosts && <div style={{ textAlign: "center", padding: "20px", color: t.text3, fontSize: 13 }}>⏳ Lade Posts...</div>}
+          {loadingPosts && <div style={{ textAlign: "center", padding: "20px", color: t.text3, fontSize: 13 }}>⏳ Lade Posts...<</div>}
           {!loadingPosts && filteredPosts.length === 0 && (
             <div style={{ textAlign: "center", padding: "30px", color: t.text3 }}>
-              <span style={{ fontSize: 36 }}>🌊</span>
-              <p style={{ fontSize: 13, marginTop: 8 }}>Noch keine Posts {spotFilter !== "all" ? "für diesen Spot" : ""}. Sei der Erste!</p>
-            </div>
+              <span style={{ fontSize: 36 }}>🌊<</span>
+              <p style={{ fontSize: 13, marginTop: 8 }}>{_("comm.noPosts")} {spotFilter !== "all" ? _("comm.forSpot") : ""}. {_("comm.beFirst")}<</p>
+            <</div>
           )}
           {filteredPosts.map(post => {
             const spot = SURF_SPOTS.find(s => s.id === post.spot);
@@ -165,25 +166,25 @@ export default function CommunityScreen({ data, auth, t, dm }) {
               <div key={post.id} style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px 16px", marginBottom: 10 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, #009688, #4DB6AC)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "white" }}>{(post.author_name || "S").charAt(0).toUpperCase()}</div>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, #009688, #4DB6AC)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "white" }}>{(post.author_name || "S").charAt(0).toUpperCase()}<</div>
                     <div>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{post.author_name || "Surfer"}</span>
-                      {spot && <span style={{ fontSize: 11, color: t.text3, marginLeft: 6 }}>{spot.emoji} {spot.name.split(",")[0]}</span>}
-                    </div>
-                  </div>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{post.author_name || "Surfer"}<</span>
+                      {spot && <span style={{ fontSize: 11, color: t.text3, marginLeft: 6 }}>{spot.emoji} {spot.name.split(",")[0]}<</span>}
+                    <</div>
+                  <</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>{timeAgo(post.created_at)}</span>
-                    {isOwn && <button onClick={() => deletePost(post.id)} style={{ background: "none", border: "none", fontSize: 12, cursor: "pointer", color: t.text3, padding: "2px 4px" }}>🗑</button>}
-                  </div>
-                </div>
-                <p style={{ fontSize: 14, color: t.text, lineHeight: 1.6, margin: "0 0 10px" }}>{post.text}</p>
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>{timeAgo(post.created_at)}<</span>
+                    {isOwn && <button onClick={() => deletePost(post.id)} style={{ background: "none", border: "none", fontSize: 12, cursor: "pointer", color: t.text3, padding: "2px 4px" }}>🗑<</button>}
+                  <</div>
+                <</div>
+                <p style={{ fontSize: 14, color: t.text, lineHeight: 1.6, margin: "0 0 10px" }}>{post.text}<</p>
                 <button onClick={() => toggleLike(post.id)} style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 12px", borderRadius: 8, fontSize: 12, cursor: "pointer", background: liked ? (dm ? "rgba(229,57,53,0.1)" : "#FFEBEE") : t.inputBg, color: liked ? "#E53935" : t.text3, border: `1px solid ${liked ? "#FFCDD2" : t.inputBorder}`, fontWeight: liked ? 600 : 400, transition: "all 0.15s ease" }}>
                   {liked ? "❤️" : "🤍"} {(post.likes_count || 0) + (liked && !post.id.startsWith("d") ? 0 : liked ? 1 : 0)}
-                </button>
-              </div>
+                <</button>
+              <</div>
             );
           })}
-        </div>
+        <</div>
       )}
 
       {/* Tab: Post */}
@@ -191,30 +192,30 @@ export default function CommunityScreen({ data, auth, t, dm }) {
         <div style={{ animation: "screenIn 0.25s ease both" }}>
           {!isLive ? (
             <div style={{ textAlign: "center", padding: "40px 20px" }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>🔐</div>
-              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, color: t.text, marginBottom: 8 }}>Login erforderlich</h3>
-              <p style={{ fontSize: 14, color: t.text2 }}>Logge dich ein um eigene Posts zu schreiben.</p>
-            </div>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>🔐<</div>
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, color: t.text, marginBottom: 8 }}>Login erforderlich<</h3>
+              <p style={{ fontSize: 14, color: t.text2 }}>Logge dich ein um eigene Posts zu schreiben.<</p>
+            <</div>
           ) : (
             <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "18px", marginBottom: 16 }}>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", marginBottom: 12 }}>💬 Neuer Post</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", marginBottom: 12 }}>{_("comm.newPost")}</div>
               <div style={{ marginBottom: 10 }}>
                 <select value={newPost.spot} onChange={e => setNewPost(p => ({ ...p, spot: e.target.value }))} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 13 }}>
-                  <option value="">🌍 Spot wählen...</option>
-                  {SURF_SPOTS.map(s => <option key={s.id} value={s.id}>{s.emoji} {s.name}</option>)}
-                </select>
-              </div>
+                  <option value="">{_("comm.chooseSpot")}</option>
+                  {SURF_SPOTS.map(s => <option key={s.id} value={s.id}>{s.emoji} {s.name}<</option>)}
+                <</select>
+              <</div>
               <div style={{ marginBottom: 12 }}>
-                <textarea value={newPost.text} onChange={e => setNewPost(p => ({ ...p, text: e.target.value }))} placeholder="Wie waren die Wellen? Tipps für andere Surfer? 🌊" rows={3} maxLength={500} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: "vertical" }} />
-                <div style={{ fontSize: 10, color: t.text3, textAlign: "right", marginTop: 2 }}>{newPost.text.length}/500</div>
-              </div>
+                <textarea value={newPost.text} onChange={e => setNewPost(p => ({ ...p, text: e.target.value }))} placeholder="{_("comm.placeholder")}" rows={3} maxLength={500} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: "vertical" }} />
+                <div style={{ fontSize: 10, color: t.text3, textAlign: "right", marginTop: 2 }}>{newPost.text.length}/500<</div>
+              <</div>
               <button onClick={handlePost} disabled={!newPost.text.trim() || !newPost.spot || posting} style={{ width: "100%", padding: "12px", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: newPost.text.trim() && newPost.spot && !posting ? "pointer" : "not-allowed", background: newPost.text.trim() && newPost.spot && !posting ? "linear-gradient(135deg, #009688, #4DB6AC)" : "#E0E0E0", color: newPost.text.trim() && newPost.spot && !posting ? "white" : "#9E9E9E", border: "none" }}>
-                {posting ? "⏳ Wird gepostet..." : "💬 Posten"}
-              </button>
-            </div>
+                {posting ? _("comm.posting") : _("comm.postBtn")}
+              <</button>
+            <</div>
           )}
-        </div>
+        <</div>
       )}
-    </div>
+    <</div>
   );
 }
