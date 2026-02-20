@@ -1,4 +1,4 @@
-// SoulSurf – SchoolsScreen (Sprint 26 – Surfschul-Marketplace)
+// SoulSurf – SchoolsScreen (Sprint 26+28 – Surfschul-Marketplace + i18n)
 import React, { useState, useMemo } from "react";
 import { SURF_SCHOOLS, EXTRA_SPOTS, SURF_SPOTS, getSchoolsBySpot, getAllSpots, formatPrice, LANG_LABELS } from "../data.js";
 
@@ -13,7 +13,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
   const [selectedSpot, setSelectedSpot] = useState(data.spot || "portugal");
   const [selectedSchool, setSelectedSchool] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [bookingStep, setBookingStep] = useState(0); // 0=browse, 1=profile, 2=course, 3=request
+  const [bookingStep, setBookingStep] = useState(0);
   const [bookingForm, setBookingForm] = useState({ name: "", email: "", date: "", people: 1, message: "" });
   const [bookingSent, setBookingSent] = useState(false);
   const [showTip, setShowTip] = useState(() => {
@@ -21,7 +21,6 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
   });
 
   const allSpots = useMemo(() => getAllSpots(), []);
-  // Only spots that have schools
   const spotsWithSchools = useMemo(() => {
     const schoolSpotIds = new Set(SURF_SCHOOLS.map(s => s.spotId));
     return allSpots.filter(s => schoolSpotIds.has(s.id));
@@ -36,7 +35,6 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
   };
 
   const sendBookingRequest = () => {
-    // In real app: send to Supabase → notify school
     setBookingSent(true);
     setTimeout(() => { setBookingSent(false); setBookingStep(0); setSelectedSchool(null); setSelectedCourse(null); setBookingForm({ name: "", email: "", date: "", people: 1, message: "" }); }, 3000);
   };
@@ -45,10 +43,10 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
   if (bookingSent) {
     return (
       <div style={{ paddingTop: 60, textAlign: "center" }}>
-        <div style={{ fontSize: 64, marginBottom: 16, animation: "float 3s ease-in-out infinite" }}>✅</div>
+        <div style={{ fontSize: 64, marginBottom: 16 }}>✅</div>
         <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("schools.requestSent")}</h2>
         <p style={{ fontSize: 14, color: t.text2, maxWidth: 320, margin: "0 auto", lineHeight: 1.6 }}>
-          {selectedSchool?.name} wurde benachrichtigt. Du erhältst eine Bestätigung per E-Mail.
+          {selectedSchool?.name} wurde benachrichtigt.
         </p>
       </div>
     );
@@ -64,7 +62,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {[
-            { key: "name", label: _("schools.name"), type: "text", placeholder: "Dein Name" },
+            { key: "name", label: _("schools.name"), type: "text", placeholder: "Your name" },
             { key: "email", label: _("schools.email"), type: "email", placeholder: "name@email.com" },
             { key: "date", label: _("schools.date"), type: "date" },
           ].map(f => (
@@ -83,11 +81,10 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
           </div>
           <div>
             <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>{_("schools.message")}</label>
-            <textarea value={bookingForm.message} onChange={e => setBookingForm({ ...bookingForm, message: e.target.value })} rows={3} placeholder="Level, Wünsche, Fragen..." style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, resize: "vertical" }} />
+            <textarea value={bookingForm.message} onChange={e => setBookingForm({ ...bookingForm, message: e.target.value })} rows={3} placeholder="..." style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, resize: "vertical" }} />
           </div>
         </div>
 
-        {/* Price Summary */}
         <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", borderRadius: 14, padding: "14px 16px", marginTop: 16, marginBottom: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 13, color: t.text2 }}>{selectedCourse.name} × {bookingForm.people}</span>
@@ -112,7 +109,6 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
       <div style={{ paddingTop: 24 }}>
         <button onClick={() => { setBookingStep(0); setSelectedSchool(null); }} style={{ background: "none", border: "none", color: t.accent, fontSize: 13, cursor: "pointer", marginBottom: 16, fontWeight: 600 }}>{_("schools.allSchools")}</button>
 
-        {/* Cover */}
         <div style={{ background: "linear-gradient(135deg, #004D40, #00695C, #00897B)", borderRadius: 20, padding: "24px 20px", color: "white", position: "relative", overflow: "hidden", marginBottom: 16 }}>
           <div style={{ position: "absolute", top: -15, right: -15, fontSize: 80, opacity: 0.1 }}>{school.coverEmoji}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
@@ -129,28 +125,24 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
           </div>
         </div>
 
-        {/* About */}
         <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "16px", marginBottom: 12 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("schools.about")}/div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("schools.about")}</div>
           <p style={{ fontSize: 13, color: t.text2, lineHeight: 1.6 }}>{school.about}</p>
         </div>
 
-        {/* Highlights */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
           {school.highlights.map(h => (
             <span key={h} style={{ background: dm ? "rgba(0,150,136,0.08)" : "#E0F2F1", color: t.accent, padding: "6px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>✓ {h}</span>
           ))}
         </div>
 
-        {/* Languages */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
           {school.languages.map(l => (
             <span key={l} style={{ background: t.inputBg, padding: "4px 10px", borderRadius: 8, fontSize: 11, color: t.text2 }}>{LANG_LABELS[l] || l}</span>
           ))}
         </div>
 
-        {/* Courses */}
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("schools.courses")}/div>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("schools.courses")}</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
           {school.courses.map(course => (
             <button key={course.id} onClick={() => { setSelectedCourse(course); setBookingStep(3); }} style={{
@@ -170,9 +162,8 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
           ))}
         </div>
 
-        {/* Contact */}
         <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "16px", marginBottom: 12 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("schools.contact")}/div>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("schools.contact")}</div>
           {school.contact.phone && <div style={{ fontSize: 13, color: t.text2, marginBottom: 4 }}>📱 {school.contact.phone}</div>}
           {school.contact.email && <div style={{ fontSize: 13, color: t.text2, marginBottom: 4 }}>✉️ {school.contact.email}</div>}
           {school.contact.instagram && <div style={{ fontSize: 13, color: t.accent, fontWeight: 600 }}>📸 {school.contact.instagram}</div>}
@@ -190,35 +181,32 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
       {showTip && (
         <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>{_("tip.schoolsTitle")}/div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: t.accent, marginBottom: 3 }}>{_("tip.schoolsTitle")}</div>
             <div style={{ fontSize: 11, color: t.text2, lineHeight: 1.5 }}>{_("tip.schools")}</div>
           </div>
           <button onClick={dismissTip} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4, marginLeft: 8, flexShrink: 0 }}>✕</button>
         </div>
       )}
 
-      {/* Spot Filter */}
       <select value={selectedSpot} onChange={e => setSelectedSpot(e.target.value)} style={{ width: "100%", padding: "10px 14px", borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
         {spotsWithSchools.map(s => <option key={s.id} value={s.id}>{s.emoji} {s.name}</option>)}
       </select>
 
-      {/* Spot Info */}
       {spot && (
         <div style={{ background: dm ? "rgba(30,45,61,0.6)" : "#F5F5F5", borderRadius: 14, padding: "12px 16px", marginBottom: 16, display: "flex", gap: 12, alignItems: "center" }}>
           <span style={{ fontSize: 28 }}>{spot.emoji}</span>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{spot.name}</div>
-            <div style={{ fontSize: 11, color: t.text2 }}>{spot.waveType} · {spot.season} · {spot.water} · {spot.wetsuit === "none" ? "Kein Neo" : spot.wetsuit}</div>
+            <div style={{ fontSize: 11, color: t.text2 }}>{spot.waveType} · {spot.season} · {spot.water} · {spot.wetsuit === "none" ? "No wetsuit" : spot.wetsuit}</div>
           </div>
         </div>
       )}
 
-      {/* School Cards */}
       {schools.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 20px", background: t.card, borderRadius: 16, border: `1px solid ${t.cardBorder}` }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: t.text, marginBottom: 8 }}>{_("schools.noSchools")}</h3>
-          <p style={{ fontSize: 12, color: t.text2 }}>Für diesen Spot gibt es noch keine registrierten Schulen. Bald kommen mehr!</p>
+          <p style={{ fontSize: 12, color: t.text2 }}>Coming soon!</p>
         </div>
       )}
 
