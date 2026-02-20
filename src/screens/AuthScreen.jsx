@@ -1,3 +1,4 @@
+#SoulSurf – AuthScreen v2 (Email + Google + Apple)
 import React, { useState } from "react";
 
 export default function AuthScreen({ auth, t, dm, i18n, onClose }) {
