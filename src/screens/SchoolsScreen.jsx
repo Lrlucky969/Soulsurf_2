@@ -74,7 +74,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
             </div>
           ))}
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>{_("schools.people")}/label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>{_("schools.people")}</label>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <button onClick={() => setBookingForm({ ...bookingForm, people: Math.max(1, bookingForm.people - 1) })} style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 18, cursor: "pointer" }}>−</button>
               <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 18, fontWeight: 700, color: t.text, minWidth: 24, textAlign: "center" }}>{bookingForm.people}</span>
@@ -82,7 +82,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate }) {
             </div>
           </div>
           <div>
-            <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>{_("schools.message")}/label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: t.text2, display: "block", marginBottom: 4 }}>{_("schools.message")}</label>
             <textarea value={bookingForm.message} onChange={e => setBookingForm({ ...bookingForm, message: e.target.value })} rows={3} placeholder="Level, Wünsche, Fragen..." style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, resize: "vertical" }} />
           </div>
         </div>
