@@ -83,7 +83,7 @@ export default function InstructorScreen({ data, auth, t, dm, i18n, navigate }) 
             onChange={e => setEditNotes(e.target.value)}
             onBlur={() => { if (editNotes) { updateSession(s.id, { notes: editNotes }); setEditNotes(""); } }}
             rows={4}
-            placeholder="{_("inst.notesPlaceholder")}"
+            placeholder={_("inst.notesPlaceholder")}
             style={{ width: "100%", padding: "12px", borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 13, resize: "vertical" }}
           />
           {s.notesTranslated && (
@@ -102,7 +102,7 @@ export default function InstructorScreen({ data, auth, t, dm, i18n, navigate }) 
             value={editVideo || s.videoUrl}
             onChange={e => setEditVideo(e.target.value)}
             onBlur={() => { if (editVideo) { updateSession(s.id, { videoUrl: editVideo }); setEditVideo(""); } }}
-            placeholder="{_("inst.videoPlaceholder")}"
+            placeholder={_("inst.videoPlaceholder")}
             style={{ width: "100%", padding: "12px", borderRadius: 12, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 13 }}
           />
           {s.videoUrl && (
