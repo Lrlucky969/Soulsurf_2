@@ -84,8 +84,8 @@ export default async function handler(req, res) {
         commissionAmount: String(commissionAmount),
         source: "soulsurf",
       },
-      success_url: `${returnUrl || "https://surf-app-4j47.vercel.app"}?booking=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${returnUrl || "https://surf-app-4j47.vercel.app"}?booking=cancelled`,
+      success_url: `${returnUrl || "https://soulsurf-2.vercel.app"}?booking=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${returnUrl || "https://soulsurf-2.vercel.app"}?booking=cancelled`,
     });
 
     return res.status(200).json({
