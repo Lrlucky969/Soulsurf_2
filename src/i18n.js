@@ -204,6 +204,22 @@ const T = {
   "schools.schoolsAtSpot": { de: "🏫 Surfschulen an diesem Spot", en: "🏫 Surf schools at this spot", pt: "🏫 Escolas de surf neste pico" },
 
   // ══════════════════════════════════════════
+  // PAYMENT (Sprint 29)
+  // ══════════════════════════════════════════
+  "pay.checkout": { de: "Kurs buchen & bezahlen", en: "Book & Pay", pt: "Reservar & Pagar" },
+  "pay.payNow": { de: "Jetzt bezahlen", en: "Pay now", pt: "Pagar agora" },
+  "pay.processing": { de: "⏳ Weiterleitung zu Stripe...", en: "⏳ Redirecting to Stripe...", pt: "⏳ Redirecionando para Stripe..." },
+  "pay.secureStripe": { de: "Sichere Zahlung via Stripe · Alle Karten akzeptiert", en: "Secure payment via Stripe · All cards accepted", pt: "Pagamento seguro via Stripe · Todos os cartões aceitos" },
+  "pay.requestOnly": { de: "Nur unverbindliche Anfrage senden", en: "Send non-binding request only", pt: "Enviar apenas solicitação sem compromisso" },
+  "pay.success": { de: "Buchung bestätigt!", en: "Booking confirmed!", pt: "Reserva confirmada!" },
+  "pay.successDesc": { de: "Deine Buchung wurde erfolgreich bezahlt. Die Surfschule wurde benachrichtigt und meldet sich bei dir.", en: "Your booking was successfully paid. The surf school has been notified and will contact you.", pt: "Sua reserva foi paga com sucesso. A escola de surf foi notificada e entrará em contato." },
+  "pay.confirmEmail": { de: "📧 Bestätigung wurde an deine E-Mail gesendet", en: "📧 Confirmation sent to your email", pt: "📧 Confirmação enviada para seu e-mail" },
+  "pay.cancelled": { de: "Zahlung abgebrochen", en: "Payment cancelled", pt: "Pagamento cancelado" },
+  "pay.cancelledDesc": { de: "Die Zahlung wurde nicht abgeschlossen. Du kannst es erneut versuchen.", en: "The payment was not completed. You can try again.", pt: "O pagamento não foi concluído. Você pode tentar novamente." },
+  "pay.tryAgain": { de: "Erneut versuchen", en: "Try again", pt: "Tentar novamente" },
+  "pay.cancellationNote": { de: "Kostenlose Stornierung bis 24h vor Kursbeginn", en: "Free cancellation up to 24h before the course", pt: "Cancelamento gratuito até 24h antes do curso" },
+
+  // ══════════════════════════════════════════
   // DIARY
   // ══════════════════════════════════════════
   "diary.title": { de: "📓 Surf-Tagebuch", en: "📓 Surf Diary", pt: "📓 Diário de Surf" },
