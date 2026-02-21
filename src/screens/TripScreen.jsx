@@ -143,7 +143,7 @@ export default function TripScreen({ data, t, dm, i18n, spotObj, navigate }) {
               {/* Spot Switcher */}
               <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px 18px", marginBottom: 16 }}>
                 <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", marginBottom: 8 }}>{_("trip.changeSpot")}</div>
-                <input type="text" value={spotSearch} onChange={e => setSpotSearch(e.target.value)} placeholder="{_("trip.searchSpot")}" style={{ width: "100%", padding: "8px 12px", borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 13, marginBottom: 8 }} />
+                <input type="text" value={spotSearch} onChange={e => setSpotSearch(e.target.value)} placeholder={_("trip.searchSpot")} style={{ width: "100%", padding: "8px 12px", borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 13, marginBottom: 8 }} />
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", maxHeight: 120, overflowY: "auto" }}>
                   {filteredSpots.map(s => (
                     <button key={s.id} onClick={() => updateTrip(currentTrip.id, { spot: s.id })} style={{
