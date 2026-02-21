@@ -98,7 +98,7 @@ export default function BuilderScreen({ data, t, dm, i18n, navigate }) {
         <div style={{ animation: "slideUp 0.4s ease forwards", opacity: 0 }}>
           <div style={{ marginBottom: 28 }}>
             <label style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: t.text2, display: "block", marginBottom: 10 }}>{_("builder.spot")}</label>
-            <input type="text" placeholder="{_("builder.searchSpot")}" value={spotSearch} onChange={e => setSpotSearch(e.target.value)} style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: `2px solid ${t.inputBorder}`, fontSize: 14, fontFamily: "'DM Sans', sans-serif", marginBottom: 12, background: t.inputBg, color: t.text }} />
+            <input type="text" placeholder={_("builder.searchSpot")} value={spotSearch} onChange={e => setSpotSearch(e.target.value)} style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: `2px solid ${t.inputBorder}`, fontSize: 14, fontFamily: "'DM Sans', sans-serif", marginBottom: 12, background: t.inputBg, color: t.text }} />
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, maxHeight: 340, overflowY: "auto" }}>
               {spots.map(s => (
                 <button key={s.id} onClick={() => data.setSpot(s.id)} style={{ background: data.spot === s.id ? "linear-gradient(135deg, #5C6BC0, #7986CB)" : t.inputBg, color: data.spot === s.id ? "white" : t.text, border: data.spot === s.id ? "2px solid #5C6BC0" : `2px solid ${t.inputBorder}`, borderRadius: 14, padding: "12px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer", textAlign: "left" }}>
