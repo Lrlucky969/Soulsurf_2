@@ -206,7 +206,7 @@ export default function CommunityScreen({ data, auth, t, dm, i18n }) {
                 </select>
               </div>
               <div style={{ marginBottom: 12 }}>
-                <textarea value={newPost.text} onChange={e => setNewPost(p => ({ ...p, text: e.target.value }))} placeholder="{_("comm.placeholder")}" rows={3} maxLength={500} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: "vertical" }} />
+                <textarea value={newPost.text} onChange={e => setNewPost(p => ({ ...p, text: e.target.value }))} placeholder={_("comm.placeholder")} rows={3} maxLength={500} style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 14, fontFamily: "'DM Sans', sans-serif", resize: "vertical" }} />
                 <div style={{ fontSize: 10, color: t.text3, textAlign: "right", marginTop: 2 }}>{newPost.text.length}/500</div>
               </div>
               <button onClick={handlePost} disabled={!newPost.text.trim() || !newPost.spot || posting} style={{ width: "100%", padding: "12px", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: newPost.text.trim() && newPost.spot && !posting ? "pointer" : "not-allowed", background: newPost.text.trim() && newPost.spot && !posting ? "linear-gradient(135deg, #009688, #4DB6AC)" : "#E0E0E0", color: newPost.text.trim() && newPost.spot && !posting ? "white" : "#9E9E9E", border: "none" }}>
