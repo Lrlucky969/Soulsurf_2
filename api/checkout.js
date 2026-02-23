@@ -1,52 +1,51 @@
-// SoulSurf – Stripe Checkout API (Sprint 29)
-// Vercel Serverless Function: POST /api/checkout
-// Creates a Stripe Checkout Session for surf school bookings
-
+// SoulSurf – Stripe Checkout API (Sprint 30 - FIXED)
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-// Commission model: SoulSurf takes 15% from school
 const COMMISSION_RATE = 0.15;
 
 export default async function handler(req, res) {
-  // CORS headers
+  // CORS Preflight
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
   try {
+    console.log("🔵 Checkout API called");
+    console.log("🔵 Body:", JSON.stringify(req.body).slice(0, 200));
+
     const {
-      schoolName,
-      schoolId,
-      courseName,
-      courseId,
-      pricePerPerson, // in cents (e.g. 4500 = €45.00)
-      currency,       // "eur", "brl", "usd"
-      people,
-      date,
-      customerName,
-      customerEmail,
-      message,
-      locale,         // "de", "en", "pt"
-      returnUrl,      // URL to redirect after payment
+      schoolName, schoolId, courseName, courseId,
+      pricePerPerson, currency, people, date,
+      customerName, customerEmail, message, locale, returnUrl
     } = req.body;
 
-    // Validate required fields
+    // Validation
     if (!schoolId || !courseId || !pricePerPerson || !people || !date || !customerEmail) {
+      console.error("❌ Missing fields:", { schoolId, courseId, pricePerPerson, people, date, customerEmail });
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const totalAmount = pricePerPerson * people; // in cents
+    const totalAmount = pricePerPerson * people;
     const commissionAmount = Math.round(totalAmount * COMMISSION_RATE);
-
-    // Map locale to Stripe locale
     const stripeLocale = locale === "pt" ? "pt-BR" : locale === "de" ? "de" : "en";
 
-    // Create Checkout Session
+    console.log("🔵 Creating Stripe session:", {
+      totalAmount,
+      currency: currency || "eur",
+      people,
+      locale: stripeLocale
+    });
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -59,12 +58,6 @@ export default async function handler(req, res) {
             product_data: {
               name: courseName,
               description: `${schoolName} · ${date} · ${people} ${people === 1 ? "person" : "people"}`,
-              metadata: {
-                schoolId,
-                courseId,
-                date,
-                people: String(people),
-              },
             },
             unit_amount: pricePerPerson,
           },
@@ -72,28 +65,31 @@ export default async function handler(req, res) {
         },
       ],
       metadata: {
-        schoolId,
-        schoolName,
-        courseId,
-        courseName,
-        date,
-        people: String(people),
+        schoolId, schoolName, courseId, courseName,
+        date, people: String(people),
         customerName: customerName || "",
         customerEmail,
         message: (message || "").slice(0, 500),
         commissionAmount: String(commissionAmount),
         source: "soulsurf",
       },
-      success_url: `${returnUrl || "https://soulsurf-2.vercel.app"}?booking=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${returnUrl || "https://soulsurf-2.vercel.app"}?booking=cancelled`,
+      success_url: `${returnUrl}?booking=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${returnUrl}?booking=cancelled`,
     });
+
+    console.log("✅ Session created:", session.id);
 
     return res.status(200).json({
       sessionId: session.id,
       url: session.url,
     });
+    
   } catch (err) {
-    console.error("Stripe checkout error:", err);
-    return res.status(500).json({ error: err.message || "Payment error" });
+    console.error("❌ Stripe checkout error:", err);
+    return res.status(500).json({ 
+      error: err.message || "Payment error",
+      type: err.type,
+      code: err.code
+    });
   }
 }
