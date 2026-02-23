@@ -1,4 +1,4 @@
-// SoulSurf v5.9 – App Shell with Auth + i18n
+// SoulSurf v6.0 – App Shell with Auth + i18n + Stripe
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -170,7 +170,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v5.9</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.0</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -180,15 +180,13 @@ export default function SurfApp() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {data.gamification?.currentLevel && <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: th.accent }}>{data.gamification.currentLevel.emoji} {data.gamification.totalXP}</span>}
           {data.streak > 0 && <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#FFB74D" }}>🔥 {data.streak}</span>}
-          {auth.isConfigured && (
-            auth.isLoggedIn ? (
+          {auth.isLoggedIn ? (
               <button onClick={() => setMenuOpen(true)} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", border: "none", borderRadius: "50%", width: 30, height: 30, fontSize: 12, fontWeight: 700, color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {auth.displayName?.charAt(0).toUpperCase() || "U"}
               </button>
             ) : (
               <button onClick={() => setShowAuth(true)} style={{ background: dm ? "rgba(77,182,172,0.12)" : "#E0F2F1", border: `1px solid ${th.accent}`, borderRadius: 8, padding: "4px 10px", fontSize: 11, fontWeight: 600, color: th.accent, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>Login</button>
-            )
-          )}
+            )}
           <button onClick={data.toggleDark} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", padding: 4, transition: "transform 0.3s ease" }} onMouseEnter={e => e.currentTarget.style.transform = "rotate(30deg)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>{dm ? "☀️" : "🌙"}</button>
         </div>
       </header>
@@ -235,7 +233,22 @@ export default function SurfApp() {
               );
             })}
             <div style={{ padding: "16px 24px", borderTop: `1px solid ${th.cardBorder}`, marginTop: 8 }}>
-              {auth.isConfigured && auth.isLoggedIn && (
+              {/* Language Switcher – always visible at top of footer */}
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>🌐 {i18n.t("nav.home") === "Home" ? "Language" : i18n.t("nav.home") === "Início" ? "Idioma" : "Sprache"}</div>
+                <div style={{ display: "flex", gap: 4 }}>
+                  {LANGUAGES.map(l => (
+                    <button key={l.code} onClick={() => i18n.setLang(l.code)} style={{
+                      flex: 1, padding: "8px 4px", borderRadius: 8, fontSize: 11, fontWeight: i18n.lang === l.code ? 700 : 500, cursor: "pointer",
+                      background: i18n.lang === l.code ? th.accent : th.inputBg,
+                      color: i18n.lang === l.code ? "white" : th.text2,
+                      border: `1px solid ${i18n.lang === l.code ? th.accent : th.inputBorder}`,
+                    }}>{l.short}</button>
+                  ))}
+                </div>
+              </div>
+              {/* Auth section */}
+              {auth.isLoggedIn && (
                 <div style={{ marginBottom: 12, padding: "10px 12px", background: dm ? "rgba(77,182,172,0.08)" : "#E0F2F1", borderRadius: 10, display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 32, height: 32, borderRadius: "50%", background: "linear-gradient(135deg, #009688, #4DB6AC)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 14, fontWeight: 700 }}>{auth.displayName?.charAt(0).toUpperCase() || "U"}</div>
                   <div style={{ flex: 1 }}>
@@ -246,27 +259,16 @@ export default function SurfApp() {
                   </div>
                 </div>
               )}
-              {auth.isConfigured && !auth.isLoggedIn && (
+              {!auth.isLoggedIn && (
                 <button onClick={() => { setShowAuth(true); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: "linear-gradient(135deg, #009688, #4DB6AC)", border: "none", borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: "pointer", color: "white", fontFamily: "'Space Mono', monospace", marginBottom: 8 }}>🔐 {i18n.t("auth.login")}</button>
               )}
               <button onClick={() => { data.exportData(); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: th.inputBg, border: `1px solid ${th.inputBorder}`, borderRadius: 10, fontSize: 12, cursor: "pointer", color: th.text2, fontFamily: "'Space Mono', monospace", marginBottom: 8 }}>💾 Backup</button>
-              {/* Language Switcher */}
-              <div style={{ display: "flex", gap: 4, marginBottom: auth.isLoggedIn ? 8 : 0 }}>
-                {LANGUAGES.map(l => (
-                  <button key={l.code} onClick={() => i18n.setLang(l.code)} style={{
-                    flex: 1, padding: "8px 4px", borderRadius: 8, fontSize: 11, fontWeight: i18n.lang === l.code ? 700 : 500, cursor: "pointer",
-                    background: i18n.lang === l.code ? th.accent : th.inputBg,
-                    color: i18n.lang === l.code ? "white" : th.text2,
-                    border: `1px solid ${i18n.lang === l.code ? th.accent : th.inputBorder}`,
-                  }}>{l.short}</button>
-                ))}
-              </div>
-              {auth.isConfigured && auth.isLoggedIn && (
+              {auth.isLoggedIn && (
                 <button onClick={() => { auth.logout(); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: dm ? "rgba(229,57,53,0.08)" : "#FFEBEE", border: `1px solid ${dm ? "rgba(229,57,53,0.2)" : "#FFCDD2"}`, borderRadius: 10, fontSize: 12, cursor: "pointer", color: "#E53935", fontFamily: "'Space Mono', monospace" }}>🚪 {i18n.t("auth.logout")}</button>
               )}
             </div>
             <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v5.9 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.0 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
