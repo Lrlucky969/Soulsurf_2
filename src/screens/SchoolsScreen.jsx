@@ -1,4 +1,4 @@
-// SoulSurf – SchoolsScreen v6.1 (Sprint 30 – Production Ready)
+// SoulSurf – SchoolsScreen v6.1 (Sprint 30 – Production Ready) 
 import React, { useState, useMemo, useEffect } from "react";
 import { SURF_SCHOOLS, SURF_SPOTS, getSchoolsBySpot, getAllSpots, formatPrice, LANG_LABELS } from "../data.js";
 import { redirectToCheckout, priceToCents, checkBookingReturn } from "../stripeClient.js"; // ← FIX: stripeClient.js (nicht stripe.js)
