@@ -8,44 +8,76 @@ const API_BASE = typeof window !== "undefined" ? window.location.origin : "";
  * @param {Object} booking - Booking details
  * @returns {Promise<{url: string, sessionId: string}>}
  */
+// SoulSurf – Stripe Client Helper (Sprint 30 - FIXED)
+const API_BASE = typeof window !== "undefined" 
+  ? (import.meta.env.VITE_APP_URL || window.location.origin)
+  : "";
+
 export async function createCheckoutSession(booking) {
-  const res = await fetch(`${API_BASE}/api/checkout`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      schoolName: booking.schoolName,
-      schoolId: booking.schoolId,
-      courseName: booking.courseName,
-      courseId: booking.courseId,
-      pricePerPerson: booking.pricePerPerson, // cents
-      currency: booking.currency || "eur",
-      people: booking.people,
-      date: booking.date,
-      customerName: booking.customerName,
-      customerEmail: booking.customerEmail,
-      message: booking.message || "",
-      locale: booking.locale || "de",
-      returnUrl: window.location.origin,
-    }),
-  });
+  try {
+    console.log("🔵 Creating checkout session:", API_BASE + "/api/checkout");
+    
+    const res = await fetch(`${API_BASE}/api/checkout`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        schoolName: booking.schoolName,
+        schoolId: booking.schoolId,
+        courseName: booking.courseName,
+        courseId: booking.courseId,
+        pricePerPerson: booking.pricePerPerson,
+        currency: booking.currency || "eur",
+        people: booking.people,
+        date: booking.date,
+        customerName: booking.customerName,
+        customerEmail: booking.customerEmail,
+        message: booking.message || "",
+        locale: booking.locale || "de",
+        returnUrl: window.location.origin,
+      }),
+    });
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Payment service unavailable" }));
-    throw new Error(err.error || "Checkout failed");
+    console.log("🔵 Response status:", res.status);
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("❌ Checkout error:", res.status, errorText);
+      
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        throw new Error(`Payment service error (${res.status}): ${errorText}`);
+      }
+      
+      throw new Error(errorData.error || "Checkout failed");
+    }
+
+    const data = await res.json();
+    console.log("✅ Checkout session created:", data.sessionId);
+    return data;
+    
+  } catch (error) {
+    console.error("❌ Stripe client error:", error);
+    throw error;
   }
-
-  return res.json();
 }
 
-/**
- * Redirect to Stripe Checkout
- */
 export async function redirectToCheckout(booking) {
-  const { url } = await createCheckoutSession(booking);
-  if (url) {
-    window.location.href = url;
-  } else {
-    throw new Error("No checkout URL received");
+  try {
+    const { url } = await createCheckoutSession(booking);
+    if (url) {
+      console.log("🔵 Redirecting to Stripe:", url);
+      window.location.href = url;
+    } else {
+      throw new Error("No checkout URL received");
+    }
+  } catch (error) {
+    console.error("❌ Redirect failed:", error);
+    throw error;
   }
 }
 
