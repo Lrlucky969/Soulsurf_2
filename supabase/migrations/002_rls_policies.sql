@@ -1,7 +1,35 @@
 -- =============================================================================
--- SoulSurf Sprint 30: Complete RLS Policies
--- Run after initial bookings.sql migration
+-- SoulSurf Sprint 30: Complete RLS Policies (IDEMPOTENT VERSION)
+-- Safe to run multiple times - will not error if policies already exist
 -- =============================================================================
+
+-- Helper: Drop all existing policies before recreating (idempotent)
+DO $$ 
+BEGIN
+  -- Drop existing policies if they exist (silently ignore if not)
+  DROP POLICY IF EXISTS "Users can view own data" ON user_data;
+  DROP POLICY IF EXISTS "Users can insert own data" ON user_data;
+  DROP POLICY IF EXISTS "Users can update own data" ON user_data;
+  DROP POLICY IF EXISTS "Users can delete own data" ON user_data;
+  
+  DROP POLICY IF EXISTS "Users can view own trips" ON user_trips;
+  DROP POLICY IF EXISTS "Users can insert own trips" ON user_trips;
+  DROP POLICY IF EXISTS "Users can update own trips" ON user_trips;
+  DROP POLICY IF EXISTS "Users can delete own trips" ON user_trips;
+  
+  DROP POLICY IF EXISTS "Anyone can view posts" ON community_posts;
+  DROP POLICY IF EXISTS "Authenticated users can create posts" ON community_posts;
+  DROP POLICY IF EXISTS "Users can update own posts" ON community_posts;
+  DROP POLICY IF EXISTS "Users can delete own posts" ON community_posts;
+  
+  DROP POLICY IF EXISTS "Anyone can view likes" ON community_likes;
+  DROP POLICY IF EXISTS "Users can insert own likes" ON community_likes;
+  DROP POLICY IF EXISTS "Users can delete own likes" ON community_likes;
+  
+  DROP POLICY IF EXISTS "Users can view own bookings" ON bookings;
+  DROP POLICY IF EXISTS "Service role can insert" ON bookings;
+  DROP POLICY IF EXISTS "Service role can update" ON bookings;
+END $$;
 
 -- ============================================
 -- 1. USER_DATA Table (Program & Progress)
@@ -15,7 +43,7 @@ CREATE TABLE IF NOT EXISTS user_data (
 
 ALTER TABLE user_data ENABLE ROW LEVEL SECURITY;
 
--- Users can only access their own data
+-- Recreate policies (fresh)
 CREATE POLICY "Users can view own data"
   ON user_data FOR SELECT
   USING (auth.uid() = user_id);
@@ -80,10 +108,9 @@ CREATE INDEX IF NOT EXISTS idx_community_posts_created ON community_posts(create
 
 ALTER TABLE community_posts ENABLE ROW LEVEL SECURITY;
 
--- Everyone can read posts
+-- Everyone can read posts (including anonymous)
 CREATE POLICY "Anyone can view posts"
   ON community_posts FOR SELECT
-  TO authenticated, anon
   USING (true);
 
 -- Only authenticated users can create posts
@@ -121,7 +148,6 @@ ALTER TABLE community_likes ENABLE ROW LEVEL SECURITY;
 -- Users can view all likes (for UI display)
 CREATE POLICY "Anyone can view likes"
   ON community_likes FOR SELECT
-  TO authenticated, anon
   USING (true);
 
 -- Users can only manage their own likes
@@ -154,14 +180,15 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================
--- 6. BOOKINGS Table (already created, add missing policies)
+-- 6. BOOKINGS Table (Stripe Payments)
 -- ============================================
 
--- Extend bookings table with missing policies
+-- Table should already exist from 003_bookings.sql
+-- We just add/update policies here
+
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 
 -- Users can view their own bookings
-DROP POLICY IF EXISTS "Users can view own bookings" ON bookings;
 CREATE POLICY "Users can view own bookings"
   ON bookings FOR SELECT
   TO authenticated
@@ -170,14 +197,12 @@ CREATE POLICY "Users can view own bookings"
   );
 
 -- Service role (webhook) can insert
-DROP POLICY IF EXISTS "Service role can insert" ON bookings;
 CREATE POLICY "Service role can insert"
   ON bookings FOR INSERT
   TO service_role
   WITH CHECK (true);
 
 -- Service role can update
-DROP POLICY IF EXISTS "Service role can update" ON bookings;
 CREATE POLICY "Service role can update"
   ON bookings FOR UPDATE
   TO service_role
@@ -192,7 +217,15 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('surf-photos', 'surf-photos', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Storage policies
+-- Drop existing storage policies first
+DO $$ 
+BEGIN
+  DROP POLICY IF EXISTS "Users can view own photos" ON storage.objects;
+  DROP POLICY IF EXISTS "Users can upload own photos" ON storage.objects;
+  DROP POLICY IF EXISTS "Users can delete own photos" ON storage.objects;
+END $$;
+
+-- Recreate storage policies
 CREATE POLICY "Users can view own photos"
   ON storage.objects FOR SELECT
   TO authenticated
@@ -220,6 +253,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop existing triggers first (idempotent)
+DROP TRIGGER IF EXISTS update_user_data_updated_at ON user_data;
+DROP TRIGGER IF EXISTS update_user_trips_updated_at ON user_trips;
+DROP TRIGGER IF EXISTS update_community_posts_updated_at ON community_posts;
+DROP TRIGGER IF EXISTS update_bookings_updated_at ON bookings;
+
+-- Recreate triggers
 CREATE TRIGGER update_user_data_updated_at
   BEFORE UPDATE ON user_data
   FOR EACH ROW
@@ -239,3 +279,19 @@ CREATE TRIGGER update_bookings_updated_at
   BEFORE UPDATE ON bookings
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================
+-- DONE! All policies are now in place
+-- ============================================
+
+-- Verify setup (optional - shows all policies)
+SELECT 
+  schemaname,
+  tablename,
+  policyname,
+  permissive,
+  roles,
+  cmd
+FROM pg_policies
+WHERE schemaname = 'public'
+ORDER BY tablename, policyname;
