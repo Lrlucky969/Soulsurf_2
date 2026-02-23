@@ -1,7 +1,6 @@
-// SoulSurf – Stripe Webhook Handler (Sprint 29)
+// SoulSurf – Stripe Webhook Handler (Sprint 30)
 // Vercel Serverless Function: POST /api/webhook
-// Receives Stripe webhook events (payment_intent.succeeded, checkout.session.completed)
-
+// Receives Stripe webhook events (checkout.session.completed)
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
@@ -9,8 +8,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 // Supabase admin client (service role for server-side writes)
-const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
-  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+const supabase = process.env.VITE_SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
+  ? createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
   : null;
 
 // Vercel requires raw body for webhook verification
