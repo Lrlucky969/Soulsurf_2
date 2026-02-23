@@ -1,4 +1,4 @@
-// SoulSurf – Stripe Checkout API (Sprint 30 - FIXED)
+// SoulSurf – Stripe Checkout API (Sprint 30 - ENHANCED DEBUG)
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -20,8 +20,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log("🔵 Checkout API called");
-    console.log("🔵 Body:", JSON.stringify(req.body).slice(0, 200));
+    console.log("🔵 [API] Checkout API called");
+    console.log("🔵 [API] Body:", JSON.stringify(req.body, null, 2));
 
     const {
       schoolName, schoolId, courseName, courseId,
@@ -31,19 +31,32 @@ export default async function handler(req, res) {
 
     // Validation
     if (!schoolId || !courseId || !pricePerPerson || !people || !date || !customerEmail) {
-      console.error("❌ Missing fields:", { schoolId, courseId, pricePerPerson, people, date, customerEmail });
-      return res.status(400).json({ error: "Missing required fields" });
+      const missing = [];
+      if (!schoolId) missing.push("schoolId");
+      if (!courseId) missing.push("courseId");
+      if (!pricePerPerson) missing.push("pricePerPerson");
+      if (!people) missing.push("people");
+      if (!date) missing.push("date");
+      if (!customerEmail) missing.push("customerEmail");
+      
+      console.error("❌ [API] Missing fields:", missing);
+      return res.status(400).json({ 
+        error: "Missing required fields",
+        missing: missing
+      });
     }
 
     const totalAmount = pricePerPerson * people;
     const commissionAmount = Math.round(totalAmount * COMMISSION_RATE);
     const stripeLocale = locale === "pt" ? "pt-BR" : locale === "de" ? "de" : "en";
 
-    console.log("🔵 Creating Stripe session:", {
+    console.log("🔵 [API] Creating Stripe session:", {
       totalAmount,
+      pricePerPerson,
       currency: currency || "eur",
       people,
-      locale: stripeLocale
+      locale: stripeLocale,
+      returnUrl
     });
 
     const session = await stripe.checkout.sessions.create({
@@ -54,7 +67,7 @@ export default async function handler(req, res) {
       line_items: [
         {
           price_data: {
-            currency: currency || "eur",
+            currency: (currency || "eur").toLowerCase(),
             product_data: {
               name: courseName,
               description: `${schoolName} · ${date} · ${people} ${people === 1 ? "person" : "people"}`,
@@ -65,8 +78,12 @@ export default async function handler(req, res) {
         },
       ],
       metadata: {
-        schoolId, schoolName, courseId, courseName,
-        date, people: String(people),
+        schoolId, 
+        schoolName, 
+        courseId, 
+        courseName,
+        date, 
+        people: String(people),
         customerName: customerName || "",
         customerEmail,
         message: (message || "").slice(0, 500),
@@ -77,19 +94,21 @@ export default async function handler(req, res) {
       cancel_url: `${returnUrl}?booking=cancelled`,
     });
 
-    console.log("✅ Session created:", session.id);
+    console.log("✅ [API] Session created:", session.id);
+    console.log("✅ [API] Checkout URL:", session.url);
 
     return res.status(200).json({
       sessionId: session.id,
       url: session.url,
     });
-    
+
   } catch (err) {
-    console.error("❌ Stripe checkout error:", err);
-    return res.status(500).json({ 
+    console.error("❌ [API] Stripe checkout error:", err);
+    return res.status(500).json({
       error: err.message || "Payment error",
       type: err.type,
-      code: err.code
+      code: err.code,
+      details: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
 }
