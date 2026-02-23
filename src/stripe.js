@@ -1,6 +1,5 @@
-// SoulSurf – Stripe Client Helper (Sprint 30 - PRODUCTION READY)
-
-const API_BASE = typeof window !== "undefined" 
+// SoulSurf – Stripe Client Helper (Sprint 30 - PRODUCTION READY + DEBUG)
+const API_BASE = typeof window !== "undefined"
   ? (import.meta.env.VITE_APP_URL || window.location.origin)
   : "";
 
@@ -12,14 +11,16 @@ const API_BASE = typeof window !== "undefined"
 export async function createCheckoutSession(booking) {
   try {
     const endpoint = `${API_BASE}/api/checkout`;
+    
     console.log("🔵 [Stripe] Creating checkout session:", endpoint);
     console.log("🔵 [Stripe] Booking:", {
       school: booking.schoolName,
       course: booking.courseName,
       amount: booking.pricePerPerson,
-      people: booking.people
+      people: booking.people,
+      currency: booking.currency
     });
-    
+
     const res = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -39,12 +40,13 @@ export async function createCheckoutSession(booking) {
         customerEmail: booking.customerEmail,
         message: booking.message || "",
         locale: booking.locale || "de",
-        returnUrl: booking.returnUrl || window.location.origin, // ← FIX
+        returnUrl: booking.returnUrl || window.location.origin + window.location.pathname,
       }),
     });
 
     console.log("🔵 [Stripe] Response status:", res.status);
-    
+    console.log("🔵 [Stripe] Response headers:", Object.fromEntries(res.headers.entries()));
+
     if (!res.ok) {
       const errorText = await res.text();
       console.error("❌ [Stripe] Checkout error:", res.status, errorText);
@@ -61,8 +63,9 @@ export async function createCheckoutSession(booking) {
 
     const data = await res.json();
     console.log("✅ [Stripe] Session created:", data.sessionId);
-    return data;
+    console.log("✅ [Stripe] Checkout URL:", data.url);
     
+    return data;
   } catch (error) {
     console.error("❌ [Stripe] Client error:", error);
     
@@ -80,19 +83,19 @@ export async function createCheckoutSession(booking) {
  */
 export async function redirectToCheckout(booking) {
   try {
-    const { url } = await createCheckoutSession(booking);
+    const { url, sessionId } = await createCheckoutSession(booking);
     
     if (!url) {
       throw new Error("No checkout URL received from server");
     }
-    
+
+    console.log("🔵 [Stripe] Session ID:", sessionId);
     console.log("🔵 [Stripe] Redirecting to:", url);
     
     // Small delay to ensure console logs are visible
     await new Promise(resolve => setTimeout(resolve, 100));
     
     window.location.href = url;
-    
   } catch (error) {
     console.error("❌ [Stripe] Redirect failed:", error);
     throw error;
@@ -105,7 +108,7 @@ export async function redirectToCheckout(booking) {
  */
 export function checkBookingReturn() {
   if (typeof window === "undefined") return null;
-  
+
   const params = new URLSearchParams(window.location.search);
   const status = params.get("booking");
   const sessionId = params.get("session_id");
@@ -122,12 +125,12 @@ export function checkBookingReturn() {
     console.log("✅ [Stripe] Payment successful:", sessionId);
     return { status: "success", sessionId };
   }
-  
+
   if (status === "cancelled") {
     console.log("⚠️ [Stripe] Payment cancelled");
     return { status: "cancelled" };
   }
-  
+
   return null;
 }
 
@@ -137,7 +140,9 @@ export function checkBookingReturn() {
  * @returns {number} Price in cents (e.g. 4500)
  */
 export function priceToCents(price) {
-  return Math.round(parseFloat(price) * 100);
+  const cents = Math.round(parseFloat(price) * 100);
+  console.log(`💰 [Stripe] Converting ${price} → ${cents} cents`);
+  return cents;
 }
 
 /**
