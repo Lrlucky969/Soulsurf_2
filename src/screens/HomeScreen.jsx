@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen 2.0 (Onboarding + Dashboard)
+// SoulSurf – HomeScreen 2.0 (Onboarding + Dashboard) – v6.1 Streak System
 import React, { useState, useEffect, useMemo } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 
@@ -7,9 +7,12 @@ const ONBOARDING_KEY = "soulsurf_onboarded";
 export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, savedGoal }) {
   const _ = i18n?.t || ((k, f) => f || k);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [onboarded, setOnboarded] = useState(true); // assume true until checked
+  const [onboarded, setOnboarded] = useState(true);
   const [obStep, setObStep] = useState(0);
   const [obRoute, setObRoute] = useState(null);
+  
+  // v6.1: Streak Freeze UI state
+  const [showFreezeConfirm, setShowFreezeConfirm] = useState(false);
 
   useEffect(() => {
     try { const v = localStorage.getItem(ONBOARDING_KEY); if (!v) setOnboarded(false); } catch {}
@@ -44,26 +47,44 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   const [seenTooltips, setSeenTooltips] = useState(() => {
     try { return JSON.parse(localStorage.getItem("soulsurf_tooltips") || "{}"); } catch { return {}; }
   });
+
   const dismissTooltip = (id) => {
     const next = { ...seenTooltips, [id]: true };
     setSeenTooltips(next);
     try { localStorage.setItem("soulsurf_tooltips", JSON.stringify(next)); } catch {}
   };
 
-  // Milestone nudge
+  // Milestone nudge (v6.1: Enhanced with new streak milestones)
   const milestone = useMemo(() => {
     if (data.done === 1) return { emoji: "🎉", text: _("home.ms.first") };
     if (data.done === 10) return { emoji: "📗", text: _("home.ms.10") };
     if (data.done === 25) return { emoji: "📘", text: _("home.ms.25") };
+    
+    // v6.1: New Streak Milestones
+    if (data.streak === 2) return { emoji: "🔥", text: "Hot Start! 2 Tage Streak!" };
+    if (data.streak === 5) return { emoji: "💪", text: "Committed! 5 Tage am Stück!" };
+    if (data.streak === 7) return { emoji: "⚡", text: "On Fire! 1 Woche non-stop!" };
+    if (data.streak === 14) return { emoji: "🌊", text: "Unstoppable! 2 Wochen Streak!" };
+    if (data.streak === 30) return { emoji: "🏆", text: "Legend! 30 Tage Streak!" };
+    
+    // Old milestones (kept for backward compat)
     if (data.streak === 3) return { emoji: "🔥", text: _("home.ms.streak3") };
-    if (data.streak === 7) return { emoji: "💎", text: _("home.ms.streak7") };
+    
     if (data.diaryCount === 1) return { emoji: "✏️", text: _("home.ms.diary1") };
     if (progressPct >= 50 && progressPct < 55) return { emoji: "🏅", text: _("home.ms.half") };
     if (progressPct === 100) return { emoji: "🏆", text: _("home.ms.complete") };
     return null;
   }, [data.done, data.streak, data.diaryCount, progressPct]);
 
-  // === ONBOARDING FLOW (first-time users) ===
+  // v6.1: Streak Freeze Handler
+  const handleFreezeStreak = () => {
+    if (data.freezeStreak && data.freezeStreak()) {
+      setShowFreezeConfirm(false);
+      // Show success toast (you could add a toast state here)
+    }
+  };
+
+  // === ONBOARDING FLOW (unchanged) ===
   if (!onboarded && !data.hasSaved) {
     const features = [
       { emoji: "📚", title: _("home.feat1"), desc: _("home.feat1d") },
@@ -90,7 +111,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <button onClick={() => setObStep(1)} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "16px 44px", fontSize: 17, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>{_("home.getStarted")}</button>
           </div>
         )}
-
         {obStep === 1 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
             <div style={{ fontSize: 52, marginBottom: 12 }}>🎯</div>
@@ -120,7 +140,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <button onClick={() => setObStep(0)} style={{ marginTop: 16, background: "none", border: "none", color: t.text3, fontSize: 12, cursor: "pointer" }}>{_("home.back")}</button>
           </div>
         )}
-
         {obStep === 2 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
             <div style={{ fontSize: 52, marginBottom: 12 }}>✨</div>
@@ -137,7 +156,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <button onClick={() => setObStep(1)} style={{ marginTop: 16, background: "none", border: "none", color: t.text3, fontSize: 12, cursor: "pointer" }}>{_("home.back")}</button>
           </div>
         )}
-
         <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 24 }}>
           {[0, 1, 2].map(s => <div key={s} style={{ width: s === obStep ? 24 : 8, height: 8, borderRadius: 4, background: s <= obStep ? t.accent : (dm ? "#2d3f50" : "#E0E0E0"), transition: "all 0.3s ease", cursor: s < obStep ? "pointer" : "default" }} onClick={() => { if (s < obStep) setObStep(s); }} />)}
         </div>
@@ -152,6 +170,10 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
     const hour = new Date().getHours();
     const timeGreeting = hour < 10 ? _("home.morning") : hour < 14 ? _("home.midday") : hour < 18 ? _("home.afternoon") : _("home.evening");
     const dateLang = i18n?.lang === "pt" ? "pt-BR" : i18n?.lang === "en" ? "en-US" : "de-DE";
+
+    // v6.1: Streak Milestone data
+    const streakMilestones = data.streakMilestones || { achieved: [], current: null, next: null, progress: 0 };
+
     return (
       <div style={{ paddingTop: 20 }}>
         {/* Greeting */}
@@ -183,12 +205,88 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <button onClick={() => setShowResetConfirm(true)} style={{ background: "rgba(255,255,255,0.15)", color: "white", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 12, padding: "12px 16px", fontSize: 14, cursor: "pointer" }}>🗑</button>
           </div>
         </div>
+
         {showResetConfirm && (
           <div style={{ background: dm ? "#2d2010" : "#FFF3E0", border: "2px solid #FFB74D", borderRadius: 14, padding: "16px", marginBottom: 16, textAlign: "center" }}>
             <p style={{ fontSize: 14, color: dm ? "#e8eaed" : "#4E342E", marginBottom: 12 }}>Programm und Fortschritt löschen?</p>
             <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
               <button onClick={() => { data.resetProgram(); setShowResetConfirm(false); }} style={{ background: "#E53935", color: "white", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Löschen</button>
               <button onClick={() => setShowResetConfirm(false)} style={{ background: "#ECEFF1", color: "#546E7A", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, cursor: "pointer" }}>Abbrechen</button>
+            </div>
+          </div>
+        )}
+
+        {/* v6.1: Streak Milestone Card (NEW!) */}
+        {data.streak >= 2 && streakMilestones.current && (
+          <div style={{ 
+            background: "linear-gradient(135deg, #FFB74D, #FF7043)", 
+            borderRadius: 16, 
+            padding: "16px 18px", 
+            marginBottom: 12, 
+            color: "white",
+            position: "relative",
+            overflow: "hidden",
+            animation: "slideUp 0.4s ease both"
+          }}>
+            <div style={{ position: "absolute", top: -10, right: -10, fontSize: 60, opacity: 0.15 }}>🔥</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <div>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, textTransform: "uppercase", opacity: 0.9 }}>Streak Milestone</div>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 800, marginTop: 2 }}>
+                  {streakMilestones.current.badge} {streakMilestones.current.title}
+                </div>
+                <div style={{ fontSize: 11, opacity: 0.9, marginTop: 2 }}>{streakMilestones.current.desc}</div>
+              </div>
+              <div style={{ fontSize: 36, fontWeight: 900 }}>{data.streak}</div>
+            </div>
+            {streakMilestones.next && (
+              <>
+                <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 6, height: 6, overflow: "hidden", marginBottom: 6 }}>
+                  <div style={{ background: "white", height: "100%", borderRadius: 6, width: `${Math.round(streakMilestones.progress * 100)}%`, transition: "width 0.5s ease" }} />
+                </div>
+                <div style={{ fontSize: 10, opacity: 0.9, textAlign: "right" }}>
+                  Nächster: {streakMilestones.next.badge} {streakMilestones.next.title} ({streakMilestones.next.day - data.streak} Tage)
+                </div>
+              </>
+            )}
+            {/* v6.1: Streak Freeze Button */}
+            {data.canFreezeStreak && data.streak >= 3 && (
+              <button 
+                onClick={() => setShowFreezeConfirm(true)} 
+                style={{ 
+                  marginTop: 10, 
+                  width: "100%", 
+                  background: "rgba(255,255,255,0.2)", 
+                  border: "1px solid rgba(255,255,255,0.4)", 
+                  borderRadius: 10, 
+                  padding: "10px", 
+                  fontSize: 12, 
+                  fontWeight: 700, 
+                  color: "white", 
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6
+                }}
+              >
+                🧊 Streak Freeze verfügbar (1x pro Monat)
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Streak Freeze Confirmation Dialog */}
+        {showFreezeConfirm && (
+          <div style={{ background: dm ? "rgba(92,107,192,0.1)" : "#E8EAF6", border: `1px solid ${dm ? "rgba(92,107,192,0.2)" : "#C5CAE9"}`, borderRadius: 14, padding: "16px", marginBottom: 16, textAlign: "center" }}>
+            <div style={{ fontSize: 32, marginBottom: 8 }}>🧊</div>
+            <p style={{ fontSize: 14, color: t.text, marginBottom: 4, fontWeight: 700 }}>Streak Freeze aktivieren?</p>
+            <p style={{ fontSize: 12, color: t.text2, marginBottom: 12, lineHeight: 1.5 }}>
+              Dein Streak bleibt 1 Tag erhalten, auch wenn du nicht surfst. Du kannst dies 1x pro Monat nutzen.
+            </p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <button onClick={handleFreezeStreak} style={{ background: "#7986CB", color: "white", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Aktivieren</button>
+              <button onClick={() => setShowFreezeConfirm(false)} style={{ background: "#ECEFF1", color: "#546E7A", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, cursor: "pointer" }}>Abbrechen</button>
             </div>
           </div>
         )}
@@ -357,9 +455,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
       <div style={{ fontSize: 70, marginBottom: 12, animation: "float 4s ease-in-out infinite" }}>🌊</div>
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 10 }}>Lerne Surfen.<br /><span style={{ color: t.accent }}>Finde deinen Flow.</span></h2>
       <p style={{ fontSize: 16, color: t.text2, maxWidth: 400, margin: "0 auto 32px", lineHeight: 1.6 }}>Erstelle dein persönliches Surf-Programm oder plane deinen nächsten Trip.</p>
-
       <button onClick={() => navigate("builder")} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "18px 44px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)", marginBottom: 32 }}>Programm erstellen 🤙</button>
-
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 32 }}>
         {[
           { icon: "✈️", title: "Trip planen", desc: "Spots & Packliste", screen: "trip" },
@@ -376,7 +472,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </button>
         ))}
       </div>
-
       <div style={{ padding: 20, background: t.card, borderRadius: 16, border: `1px dashed ${dm ? "#2d3f50" : "#CFD8DC"}` }}>
         <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.text3, fontStyle: "italic" }}>☮ "The best surfer is the one having the most fun." — Phil Edwards</p>
       </div>
