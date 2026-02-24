@@ -14,35 +14,6 @@
 - 🌍 **Multi-language** – German, English, Portuguese
 - 📱 **PWA** – Works offline, installable
 - ☁️ **Cloud Sync** – Supabase backend
-  
-## 🚀 Quick Start
-  
-### Prerequisites
-  
-- Node.js 18+
-- Supabase account (free tier works)
-- Stripe account (for school bookings)
-  
-### Installation
-  
-```bash
-# Clone the repo
-git clone https://github.com/yourusername/soulsurf.git
-cd soulsurf
-  
-# Install dependencies
-npm install
-  
-# Copy environment variables
-cp .env.example .env
-  
-# Edit .env with your keys
-nano .env
-  
-# Run dev server
-npm run dev```
-
-# 🏗️ SoulSurf – Projektarchitektur
 
 ## 📁 Dateistruktur & Funktionen
 
@@ -178,3 +149,31 @@ npm run dev```
 - **Stripe** – Payment Processing
 - **Vite** – Build Tool & Dev Server
 - **Vite PWA Plugin** – Progressive Web App Support
+
+  
+## 🚀 Quick Start
+  
+### Prerequisites
+  
+- Node.js 18+
+- Supabase account (free tier works)
+- Stripe account (for school bookings)
+  
+### Installation
+  
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/soulsurf.git
+cd soulsurf
+  
+# Install dependencies
+npm install
+  
+# Copy environment variables
+cp .env.example .env
+  
+# Edit .env with your keys
+nano .env
+  
+# Run dev server
+npm run dev```
