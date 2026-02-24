@@ -1,10 +1,10 @@
-// SoulSurf – HomeScreen 2.0 (Onboarding + Dashboard) – v6.1 Streak System
+// SoulSurf – HomeScreen 2.0 (Onboarding + Dashboard) – v6.2 Notifications
 import React, { useState, useEffect, useMemo } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 
 const ONBOARDING_KEY = "soulsurf_onboarded";
 
-export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, savedGoal }) {
+export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, savedGoal, notifications }) { // ← v6.2: Added notifications prop
   const _ = i18n?.t || ((k, f) => f || k);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [onboarded, setOnboarded] = useState(true);
@@ -13,6 +13,9 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   
   // v6.1: Streak Freeze UI state
   const [showFreezeConfirm, setShowFreezeConfirm] = useState(false);
+  
+  // v6.2: Notification Settings UI state
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
 
   useEffect(() => {
     try { const v = localStorage.getItem(ONBOARDING_KEY); if (!v) setOnboarded(false); } catch {}
@@ -74,17 +77,16 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
     if (progressPct >= 50 && progressPct < 55) return { emoji: "🏅", text: _("home.ms.half") };
     if (progressPct === 100) return { emoji: "🏆", text: _("home.ms.complete") };
     return null;
-  }, [data.done, data.streak, data.diaryCount, progressPct]);
+  }, [data.done, data.streak, data.diaryCount, progressPct, _]);
 
   // v6.1: Streak Freeze Handler
   const handleFreezeStreak = () => {
     if (data.freezeStreak && data.freezeStreak()) {
       setShowFreezeConfirm(false);
-      // Show success toast (you could add a toast state here)
     }
   };
 
-  // === ONBOARDING FLOW (unchanged) ===
+  // === ONBOARDING FLOW ===
   if (!onboarded && !data.hasSaved) {
     const features = [
       { emoji: "📚", title: _("home.feat1"), desc: _("home.feat1d") },
@@ -184,6 +186,178 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </h2>
         </div>
 
+        {/* v6.2: Notification Settings Card (NEW!) */}
+        {notifications && notifications.isSupported && (
+          <div style={{
+            background: notifications.isGranted
+              ? (dm ? "rgba(77,182,172,0.08)" : "#E0F2F1")
+              : (dm ? "rgba(255,183,77,0.08)" : "#FFF8E1"),
+            border: `1px solid ${notifications.isGranted ? (dm ? "rgba(77,182,172,0.15)" : "#B2DFDB") : (dm ? "rgba(255,183,77,0.15)" : "#FFE0B2")}`,
+            borderRadius: 16,
+            padding: "14px 16px",
+            marginBottom: 12,
+            cursor: "pointer",
+          }}
+          onClick={() => setShowNotificationSettings(!showNotificationSettings)}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 24 }}>🔔</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>
+                  {notifications.isGranted ? "Benachrichtigungen aktiv" : "Benachrichtigungen aktivieren"}
+                </div>
+                <div style={{ fontSize: 11, color: t.text2, marginTop: 2 }}>
+                  {notifications.isGranted
+                    ? "Täglich um 22 Uhr • Forecast-Alerts"
+                    : "Verpasse nie wieder deinen Streak"}
+                </div>
+              </div>
+              <span style={{ fontSize: 14, color: t.text3 }}>
+                {showNotificationSettings ? "▼" : "▶"}
+              </span>
+            </div>
+
+            {/* Expanded Notification Settings */}
+            {showNotificationSettings && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  marginTop: 12,
+                  paddingTop: 12,
+                  borderTop: `1px dashed ${dm ? "#2d3f50" : "#CFD8DC"}`,
+                  animation: "slideUp 0.3s ease both",
+                }}
+              >
+                {!notifications.isGranted ? (
+                  <>
+                    <p style={{ fontSize: 12, color: t.text2, marginBottom: 12, lineHeight: 1.5 }}>
+                      Aktiviere Benachrichtigungen und erhalte:
+                    </p>
+                    <ul style={{ fontSize: 12, color: t.text2, marginBottom: 12, paddingLeft: 20, lineHeight: 1.6 }}>
+                      <li>🔥 Tägliche Streak-Erinnerung (22 Uhr)</li>
+                      <li>🌊 Forecast-Alerts bei guten Bedingungen</li>
+                      <li>🏆 Milestone-Benachrichtigungen</li>
+                      <li>✅ Buchungsbestätigungen</li>
+                    </ul>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await notifications.requestPermission();
+                        setShowNotificationSettings(false);
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "12px",
+                        background: "linear-gradient(135deg, #009688, #4DB6AC)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: 12,
+                        fontSize: 14,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Jetzt aktivieren
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 11, color: t.text3, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      Aktive Benachrichtigungen
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
+                      {[
+                        { emoji: "🔥", label: "Streak-Reminder", desc: "Täglich um 22 Uhr" },
+                        { emoji: "🌊", label: "Forecast-Alerts", desc: "Bei guten Bedingungen" },
+                        { emoji: "🏆", label: "Milestones", desc: "Wenn du ein Ziel erreichst" },
+                      ].map((item, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            padding: "8px 12px",
+                            background: dm ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                            borderRadius: 10,
+                          }}
+                        >
+                          <span style={{ fontSize: 18 }}>{item.emoji}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{item.label}</div>
+                            <div style={{ fontSize: 10, color: t.text3 }}>{item.desc}</div>
+                          </div>
+                          <span style={{ fontSize: 16, color: "#4CAF50" }}>✓</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Notification History */}
+                    {notifications.history && notifications.history.length > 0 && (
+                      <>
+                        <div style={{ fontSize: 11, color: t.text3, marginBottom: 8, marginTop: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Letzte Benachrichtigungen
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          {notifications.history.slice(0, 3).map((notif, i) => (
+                            <div
+                              key={i}
+                              style={{
+                                padding: "8px 10px",
+                                background: dm ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                                borderRadius: 8,
+                                fontSize: 11,
+                              }}
+                            >
+                              <div style={{ fontWeight: 600, color: t.text, marginBottom: 2 }}>
+                                {notif.title}
+                              </div>
+                              <div style={{ color: t.text3, fontSize: 10 }}>
+                                {new Date(notif.timestamp).toLocaleString(dateLang, {
+                                  month: "short",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Disable Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm("Benachrichtigungen wirklich deaktivieren? Du kannst sie jederzeit wieder aktivieren.")) {
+                          if (notifications.clearScheduledNotifications) {
+                            notifications.clearScheduledNotifications();
+                          }
+                          alert("Benachrichtigungen deaktiviert. Du kannst sie in den Browser-Einstellungen wieder aktivieren.");
+                        }
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "10px",
+                        marginTop: 12,
+                        background: "transparent",
+                        color: "#E53935",
+                        border: `1px solid ${dm ? "rgba(229,57,53,0.2)" : "#FFCDD2"}`,
+                        borderRadius: 10,
+                        fontSize: 12,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Benachrichtigungen deaktivieren
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Progress Card */}
         <div style={{ background: "linear-gradient(135deg, #004D40, #00695C)", borderRadius: 20, padding: "20px", color: "white", marginBottom: 16, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -20, right: -20, fontSize: 80, opacity: 0.08 }}>🏄</div>
@@ -216,7 +390,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         )}
 
-        {/* v6.1: Streak Milestone Card (NEW!) */}
+        {/* v6.1: Streak Milestone Card */}
         {data.streak >= 2 && streakMilestones.current && (
           <div style={{ 
             background: "linear-gradient(135deg, #FFB74D, #FF7043)", 
@@ -249,7 +423,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 </div>
               </>
             )}
-            {/* v6.1: Streak Freeze Button */}
             {data.canFreezeStreak && data.streak >= 3 && (
               <button 
                 onClick={() => setShowFreezeConfirm(true)} 
@@ -276,7 +449,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         )}
 
-        {/* Streak Freeze Confirmation Dialog */}
         {showFreezeConfirm && (
           <div style={{ background: dm ? "rgba(92,107,192,0.1)" : "#E8EAF6", border: `1px solid ${dm ? "rgba(92,107,192,0.2)" : "#C5CAE9"}`, borderRadius: 14, padding: "16px", marginBottom: 16, textAlign: "center" }}>
             <div style={{ fontSize: 32, marginBottom: 8 }}>🧊</div>
@@ -291,7 +463,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         )}
 
-        {/* Milestone Nudge */}
         {milestone && !seenTooltips[`ms-${data.done}-${data.streak}`] && (
           <div style={{ background: dm ? "rgba(255,183,77,0.1)" : "#FFF8E1", border: `1px solid ${dm ? "rgba(255,183,77,0.2)" : "#FFE0B2"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, animation: "slideUp 0.4s ease both" }}>
             <span style={{ fontSize: 28 }}>{milestone.emoji}</span>
@@ -300,7 +471,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         )}
 
-        {/* First-visit Dashboard Tooltip */}
         {!seenTooltips["dashboard-intro"] && (
           <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(0,150,136,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, animation: "slideUp 0.3s ease both" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
@@ -313,7 +483,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         )}
 
-        {/* XP Level Bar */}
         {data.gamification && (
           <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -337,7 +506,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         )}
 
-        {/* Daily Goals */}
         {data.gamification && (
           <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
@@ -354,7 +522,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         )}
 
-        {/* Weekly Challenges */}
         {data.gamification?.weeklyChallenges?.length > 0 && (
           <div style={{ background: dm ? "rgba(92,107,192,0.08)" : "#E8EAF6", border: `1px solid ${dm ? "rgba(92,107,192,0.15)" : "#C5CAE9"}`, borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#7986CB" : "#3949AB", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("home.weeklyChallenge")}</div>
@@ -373,7 +540,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         )}
 
-        {/* Quick Stats Row */}
         <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto" }}>
           {[
             { emoji: "🔥", value: data.streak, label: _("home.streak"), color: "#FFB74D" },
@@ -388,7 +554,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           ))}
         </div>
 
-        {/* Next Badge */}
         {nextBadge && (
           <button onClick={() => navigate("progress")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: dm ? "rgba(255,183,77,0.08)" : "#FFF8E1", border: `1px solid ${dm ? "rgba(255,183,77,0.15)" : "#FFE0B2"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12, cursor: "pointer", textAlign: "left" }}>
             <span style={{ fontSize: 28 }}>{nextBadge.emoji}</span>
@@ -402,7 +567,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </button>
         )}
 
-        {/* Surf Today Toggle on Dashboard */}
         <button onClick={data.toggleSurfDay} style={{
           width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", marginBottom: 12, borderRadius: 14, cursor: "pointer", textAlign: "left",
           background: surfedToday ? (dm ? "rgba(255,183,77,0.12)" : "#FFF8E1") : t.card,
@@ -415,7 +579,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         </button>
 
-        {/* Coaching Tip */}
         {coachingTip && (
           <button onClick={() => navigate("progress")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: dm ? "rgba(102,187,106,0.08)" : "#E8F5E9", border: `1px solid ${dm ? "rgba(102,187,106,0.15)" : "#C8E6C9"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12, cursor: "pointer", textAlign: "left" }}>
             <span style={{ fontSize: 24 }}>{coachingTip.icon}</span>
@@ -427,7 +590,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </button>
         )}
 
-        {/* Quick Nav */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 24 }}>
           {[
             { icon: "🌊", label: "Forecast", screen: "forecast" },
