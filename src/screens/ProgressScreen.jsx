@@ -1,4 +1,4 @@
-// SoulSurf – ProgressScreen (Badges, Skill Tree, Coaching)
+// SoulSurf – ProgressScreen (Badges, Skill Tree, Coaching) – v6.1 Streak System
 import React from "react";
 import { CONTENT_POOL, SKILL_TREE } from "../data.js";
 
@@ -11,11 +11,26 @@ const BADGES = [
   { id: "diary-14", emoji: "📖", name: "Soul Surfer", desc: "14 Einträge", cat: "diary", threshold: 14 },
 ];
 
+// v6.1: Streak Badges (NEW!)
+const STREAK_BADGES = [
+  { id: "streak-2", emoji: "🔥", name: "Hot Start", desc: "2 Tage Streak", threshold: 2 },
+  { id: "streak-5", emoji: "💪", name: "Committed", desc: "5 Tage Streak", threshold: 5 },
+  { id: "streak-7", emoji: "⚡", name: "On Fire", desc: "7 Tage Streak", threshold: 7 },
+  { id: "streak-14", emoji: "🌊", name: "Unstoppable", desc: "14 Tage Streak", threshold: 14 },
+  { id: "streak-30", emoji: "🏆", name: "Legend", desc: "30 Tage Streak", threshold: 30 },
+];
+
 export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
   const _ = i18n?.t || ((k, f) => f || k);
-  const { done, diaryCount, coaching, completed, program, gamification } = data;
+  const { done, diaryCount, coaching, completed, program, gamification, streak } = data;
+  
   const earned = BADGES.filter(b => b.cat === "lessons" ? done >= b.threshold : diaryCount >= b.threshold);
   const nextBadge = BADGES.find(b => b.cat === "lessons" ? done < b.threshold : diaryCount < b.threshold);
+  
+  // v6.1: Streak Badges
+  const earnedStreakBadges = STREAK_BADGES.filter(b => streak >= b.threshold);
+  const nextStreakBadge = STREAK_BADGES.find(b => streak < b.threshold);
+  
   const gm = gamification || {};
 
   return (
@@ -66,7 +81,55 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
         </div>
       )}
 
-      {/* Badges */}
+      {/* v6.1: Streak Badges Section (NEW!) */}
+      {streak >= 2 && (
+        <div style={{ background: "linear-gradient(135deg, #FFB74D, #FF7043)", borderRadius: 16, padding: "16px 18px", marginBottom: 20 }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.9)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>🔥 Streak Badges</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: nextStreakBadge ? 12 : 0 }}>
+            {STREAK_BADGES.map(b => {
+              const isEarned = earnedStreakBadges.includes(b);
+              const progress = streak / b.threshold;
+              return (
+                <div key={b.id} style={{ 
+                  display: "flex", alignItems: "center", gap: 6, 
+                  background: isEarned ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)", 
+                  borderRadius: 10, padding: "8px 12px", 
+                  border: isEarned ? "1px solid rgba(255,255,255,0.4)" : "1px dashed rgba(255,255,255,0.2)", 
+                  opacity: isEarned ? 1 : 0.6 
+                }}>
+                  <span style={{ fontSize: 20, filter: isEarned ? "none" : "grayscale(1)" }}>{b.emoji}</span>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "white" }}>{b.name}</div>
+                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.8)" }}>{isEarned ? "Erreicht!" : `${Math.round(progress * 100)}%`}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {nextStreakBadge && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.3)" }}>
+              <span style={{ fontSize: 12 }}>🎯</span>
+              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.9)" }}>
+                Nächstes: <strong>{nextStreakBadge.name}</strong> – noch {nextStreakBadge.threshold - streak} Tage
+              </span>
+            </div>
+          )}
+          {/* Streak Stats */}
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px dashed rgba(255,255,255,0.3)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "rgba(255,255,255,0.9)" }}>
+              <span>Aktueller Streak:</span>
+              <span style={{ fontWeight: 700 }}>🔥 {streak} Tage</span>
+            </div>
+            {data.canFreezeStreak && (
+              <div style={{ marginTop: 6, fontSize: 10, color: "rgba(255,255,255,0.8)" }}>
+                🧊 Streak Freeze verfügbar
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Standard Badges */}
       <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #FFF8E1, #FFF3E0)", border: `1px solid ${dm ? "rgba(255,183,77,0.15)" : "#FFE0B2"}`, borderRadius: 16, padding: "16px 18px", marginBottom: 24 }}>
         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#FFB74D" : "#E65100", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>{_("prog.badges")}</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: nextBadge ? 12 : 0 }}>
