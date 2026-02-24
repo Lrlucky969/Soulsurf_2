@@ -40,7 +40,7 @@ cp .env.example .env
 nano .env
   
 # Run dev server
-npm run dev
+npm run dev```
 
 # 🏗️ SoulSurf – Projektarchitektur
 
