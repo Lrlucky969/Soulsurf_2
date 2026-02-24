@@ -58,6 +58,13 @@ export default defineConfig({
             },
           },
         ],
+        // v6.2: Enable notification handling in Service Worker
+        skipWaiting: true,
+        clientsClaim: true,
+      },
+      // v6.2: Custom Service Worker for notifications
+      devOptions: {
+        enabled: true, // Enable in dev mode for testing
       },
     }),
   ],
