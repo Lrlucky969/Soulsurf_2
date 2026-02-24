@@ -1,10 +1,20 @@
-// SoulSurf – Central State Hook (v4.8 – Cloud Sync)
+// SoulSurf – Central State Hook (v6.1 – Streak System Relaunch)
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { CONTENT_POOL, analyzeDiary } from "./data.js";
 import { generateProgram } from "./generator.js";
 
 const STORAGE_KEY = "soulsurf_data";
 const TRIP_KEY = "soulsurf_trips";
+const STREAK_KEY = "soulsurf_streak";
+
+// Streak Milestones (Sprint 30)
+const STREAK_MILESTONES = {
+  2: { badge: "🔥", title: "Hot Start", desc: "2 Tage am Stück!" },
+  5: { badge: "💪", title: "Committed", desc: "5 Tage Streak!" },
+  7: { badge: "⚡", title: "On Fire", desc: "1 Woche non-stop!" },
+  14: { badge: "🌊", title: "Unstoppable", desc: "2 Wochen Streak!" },
+  30: { badge: "🏆", title: "Legend", desc: "30 Tage Streak!" },
+};
 
 // Debounce helper for diary saves
 function useDebounce(fn, delay = 500) {
@@ -20,6 +30,22 @@ function saveData(data) { try { if (typeof localStorage === "undefined") return;
 function clearData() { try { if (typeof localStorage === "undefined") return; localStorage.removeItem(STORAGE_KEY); } catch {} }
 function loadTrips() { try { const d = localStorage.getItem(TRIP_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
 function saveTrips(data) { try { localStorage.setItem(TRIP_KEY, JSON.stringify(data)); } catch {} }
+
+// Streak Freeze System (Sprint 30)
+function loadStreakData() { 
+  try { 
+    const d = localStorage.getItem(STREAK_KEY); 
+    return d ? JSON.parse(d) : { lastFreeze: null, freezeCount: 0 }; 
+  } catch { 
+    return { lastFreeze: null, freezeCount: 0 }; 
+  } 
+}
+
+function saveStreakData(data) { 
+  try { 
+    localStorage.setItem(STREAK_KEY, JSON.stringify(data)); 
+  } catch {} 
+}
 
 // Migrate old single-trip to new format
 function migrateOldTrip() {
@@ -53,14 +79,18 @@ export default function useSurfData(sync) {
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-
+  
   // Multi-trip state
   const [trips, setTrips] = useState([]);
   const [activeTrip, setActiveTrip] = useState(null);
+  
+  // Streak freeze state (Sprint 30)
+  const [streakData, setStreakData] = useState({ lastFreeze: null, freezeCount: 0 });
 
   useEffect(() => {
     try { const saved = localStorage.getItem("soulsurf_dark"); if (saved === "true") setDarkMode(true); } catch {}
   }, []);
+
   const toggleDark = () => { const next = !darkMode; setDarkMode(next); try { localStorage.setItem("soulsurf_dark", String(next)); } catch {} };
 
   useEffect(() => {
@@ -81,6 +111,7 @@ export default function useSurfData(sync) {
         setProgram(generateProgram(saved.days, saved.goal, saved.spot, eq));
       }
     }
+    
     // Load trips (with migration from old format)
     let tripData = loadTrips();
     if (!tripData) tripData = migrateOldTrip();
@@ -88,6 +119,11 @@ export default function useSurfData(sync) {
       if (tripData.trips) setTrips(tripData.trips);
       if (tripData.activeTrip) setActiveTrip(tripData.activeTrip);
     }
+    
+    // Load streak data (Sprint 30)
+    const sd = loadStreakData();
+    setStreakData(sd);
+    
     setHydrated(true);
   }, []);
 
@@ -149,18 +185,19 @@ export default function useSurfData(sync) {
     updateTrip(activeTrip, { checked: next });
   }, [activeTrip, currentTrip, updateTrip]);
 
-  // Streak
+  // Streak Calculation (Enhanced for Sprint 30)
   const streak = useMemo(() => {
     if (!surfDays || surfDays.length === 0) return 0;
     const sorted = [...new Set(surfDays)].sort((a, b) => b.localeCompare(a)); // dedupe + sort newest first
     const today = new Date().toISOString().slice(0, 10);
     const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    
     // Streak must start from today or yesterday
     if (sorted[0] !== today && sorted[0] !== yesterday) return 0;
+    
     let count = 1;
     for (let i = 1; i < sorted.length; i++) {
-      // Check if previous day in sorted list is exactly 1 calendar day before
-      const prevDate = new Date(sorted[i - 1] + "T12:00:00"); // noon to avoid timezone issues
+      const prevDate = new Date(sorted[i - 1] + "T12:00:00");
       const expectedPrev = new Date(prevDate);
       expectedPrev.setDate(expectedPrev.getDate() - 1);
       const expectedStr = expectedPrev.toISOString().slice(0, 10);
@@ -170,16 +207,67 @@ export default function useSurfData(sync) {
     return count;
   }, [surfDays]);
 
+  // Streak Freeze (Sprint 30 – 1x per month)
+  const canFreezeStreak = useMemo(() => {
+    if (!streakData.lastFreeze) return true;
+    const lastFreeze = new Date(streakData.lastFreeze);
+    const now = new Date();
+    const daysSinceFreeze = Math.floor((now - lastFreeze) / (24 * 60 * 60 * 1000));
+    return daysSinceFreeze >= 30;
+  }, [streakData.lastFreeze]);
+
+  const freezeStreak = useCallback(() => {
+    if (!canFreezeStreak) return false;
+    const newData = {
+      lastFreeze: new Date().toISOString(),
+      freezeCount: (streakData.freezeCount || 0) + 1
+    };
+    setStreakData(newData);
+    saveStreakData(newData);
+    return true;
+  }, [canFreezeStreak, streakData]);
+
+  // Streak Milestones (Sprint 30)
+  const streakMilestones = useMemo(() => {
+    const achieved = [];
+    const next = null;
+    
+    Object.entries(STREAK_MILESTONES).forEach(([day, milestone]) => {
+      const d = parseInt(day);
+      if (streak >= d) {
+        achieved.push({ day: d, ...milestone });
+      }
+    });
+    
+    // Find next milestone
+    const allMilestones = Object.entries(STREAK_MILESTONES)
+      .map(([day, m]) => ({ day: parseInt(day), ...m }))
+      .sort((a, b) => a.day - b.day);
+    
+    const nextMilestone = allMilestones.find(m => m.day > streak);
+    
+    return {
+      achieved,
+      current: achieved[achieved.length - 1] || null,
+      next: nextMilestone || null,
+      progress: nextMilestone ? (streak / nextMilestone.day) : 1
+    };
+  }, [streak]);
+
   const toggleSurfDay = useCallback(() => {
     const today = new Date().toISOString().slice(0, 10);
-    setSurfDays(prev => { const next = prev.includes(today) ? prev.filter(d => d !== today) : [...prev, today]; saveAll({ surfDays: next }); return next; });
+    setSurfDays(prev => { 
+      const next = prev.includes(today) ? prev.filter(d => d !== today) : [...prev, today]; 
+      saveAll({ surfDays: next }); 
+      return next; 
+    });
   }, [saveAll]);
 
   const toggle = useCallback((id) => {
     setCompleted(p => { const next = { ...p, [id]: !p[id] }; saveAll({ completed: next }); return next; });
   }, [saveAll]);
 
-  // Debounced save for diary (avoids excessive localStorage writes while typing)
+  // Debounced save for diary
   const debouncedSave = useDebounce((diaryData) => {
     saveAll({ diary: diaryData });
   }, 600);
@@ -210,13 +298,13 @@ export default function useSurfData(sync) {
 
   const exportData = useCallback(() => {
     try {
-      const data = { days, goal, spot, board, experience, completed, diary, activeDay, surfDays, trips, exportedAt: new Date().toISOString(), version: "4.1" };
+      const data = { days, goal, spot, board, experience, completed, diary, activeDay, surfDays, trips, streakData, exportedAt: new Date().toISOString(), version: "6.1" };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url;
       a.download = `soulsurf-backup-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     } catch (e) { console.error("Export failed:", e); }
-  }, [days, goal, spot, board, experience, completed, diary, activeDay, surfDays, trips]);
+  }, [days, goal, spot, board, experience, completed, diary, activeDay, surfDays, trips, streakData]);
 
   const total = program?.program?.reduce((s, d) => s + d.lessons.length, 0) || 0;
   const done = Object.values(completed).filter(Boolean).length;
@@ -224,7 +312,7 @@ export default function useSurfData(sync) {
   const hasSaved = hydrated && program !== null && days && goal && spot;
   const coaching = useMemo(() => analyzeDiary(diary, CONTENT_POOL), [diary]);
 
-  // Restore data from cloud (called after login if cloud has newer data)
+  // Restore data from cloud
   const restoreFromCloud = useCallback((cloudData) => {
     if (!cloudData) return;
     if (cloudData.program) {
@@ -263,11 +351,20 @@ export default function useSurfData(sync) {
 
   // === GAMIFICATION: XP, Levels, Daily Goals, Weekly Challenges ===
   const gamification = useMemo(() => {
-    // XP calculation
+    // XP calculation (enhanced streak bonus for Sprint 30)
     const lessonXP = done * 25;
     const diaryXP = diaryCount * 15;
     const surfDayXP = (surfDays?.length || 0) * 20;
-    const streakBonus = streak >= 7 ? 100 : streak >= 3 ? 30 : 0;
+    
+    // Enhanced Streak Bonus (Sprint 30)
+    let streakBonus = 0;
+    if (streak >= 30) streakBonus = 500;
+    else if (streak >= 14) streakBonus = 200;
+    else if (streak >= 7) streakBonus = 100;
+    else if (streak >= 5) streakBonus = 50;
+    else if (streak >= 3) streakBonus = 30;
+    else if (streak >= 2) streakBonus = 10;
+    
     const tripXP = (trips?.length || 0) * 10;
     const totalXP = lessonXP + diaryXP + surfDayXP + streakBonus + tripXP;
 
@@ -282,29 +379,26 @@ export default function useSurfData(sync) {
       { name: "Pro", emoji: "🏆", minXP: 2500 },
       { name: "Legend", emoji: "👑", minXP: 4000 },
     ];
+    
     const currentLevel = [...LEVELS].reverse().find(l => totalXP >= l.minXP) || LEVELS[0];
     const nextLevel = LEVELS[LEVELS.indexOf(currentLevel) + 1] || null;
     const levelProgress = nextLevel ? (totalXP - currentLevel.minXP) / (nextLevel.minXP - currentLevel.minXP) : 1;
 
-    // Daily Goals (reset daily, based on what user hasn't done today)
+    // Daily Goals
     const today = new Date().toISOString().slice(0, 10);
     const surfedToday = (surfDays || []).includes(today);
-    const diaryToday = diary[program?.program?.findIndex?.((d, i) => {
-      const todayEntry = diary[i + 1];
-      return todayEntry && (todayEntry.whatWorked || todayEntry.whatFailed || todayEntry.notes || todayEntry.mood);
-    }) + 1] != null;
-    // Simplified: check if any diary entry was updated today
     const hasDiaryToday = Object.values(diary).some(e => e?.lastEdited === today);
-
+    
     const dailyGoals = [
       { id: "lesson", label: "1 Lektion abschließen", emoji: "📚", xp: 25, done: done > 0 && Object.entries(completed).some(([k, v]) => v) },
       { id: "surf", label: "Heute gesurft loggen", emoji: "🏄", xp: 20, done: surfedToday },
       { id: "diary", label: "Tagebuch-Eintrag schreiben", emoji: "📓", xp: 15, done: hasDiaryToday || diaryCount > 0 },
     ];
+    
     const dailyDone = dailyGoals.filter(g => g.done).length;
-    const dailyBonusXP = dailyDone === 3 ? 20 : 0; // Bonus for completing all 3
+    const dailyBonusXP = dailyDone === 3 ? 20 : 0;
 
-    // Weekly Challenges (deterministic per week using week number)
+    // Weekly Challenges
     const weekNum = Math.floor((Date.now() - new Date("2026-01-01").getTime()) / (7 * 86400000));
     const ALL_CHALLENGES = [
       { id: "surf3", label: "3 Tage diese Woche surfen", emoji: "🏄", target: 3, check: () => { const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); const ws = weekStart.toISOString().slice(0, 10); return (surfDays || []).filter(d => d >= ws).length; } },
@@ -314,7 +408,7 @@ export default function useSurfData(sync) {
       { id: "lessons10", label: "10 Lektionen schaffen", emoji: "💪", target: 10, check: () => done },
       { id: "surf5", label: "5 Tage diese Woche surfen", emoji: "🌊", target: 5, check: () => { const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); const ws = weekStart.toISOString().slice(0, 10); return (surfDays || []).filter(d => d >= ws).length; } },
     ];
-    // Pick 2 challenges per week (deterministic)
+    
     const c1 = ALL_CHALLENGES[weekNum % ALL_CHALLENGES.length];
     const c2 = ALL_CHALLENGES[(weekNum + 3) % ALL_CHALLENGES.length];
     const weeklyChallenges = [c1, c2].map(c => ({
@@ -340,14 +434,25 @@ export default function useSurfData(sync) {
     days, setDays, goal, setGoal, spot, setSpot, board, setBoard,
     experience, setExperience, program, activeDay, setActiveDay,
     completed, diary, surfDays, hydrated, savedAt, darkMode, toggleDark,
+    
     // Multi-trip API
     trips, activeTrip, currentTrip, createTrip, updateTrip, deleteTrip, switchTrip, resetPackingList,
+    
     // Legacy compat
     tripDates, updateTripDates, tripChecked, updateTripChecked,
+    
     toggle, toggleSurfDay, updateDiary, build, resetProgram, saveAll,
     exportData, total, done, diaryCount, hasSaved, streak, coaching,
+    
     // Gamification
     gamification,
+    
+    // Streak System v6.1 (Sprint 30)
+    streakMilestones,
+    canFreezeStreak,
+    freezeStreak,
+    streakData,
+    
     // Cloud sync helpers
     restoreFromCloud, getProgramSnapshot, getTripsSnapshot,
   };
