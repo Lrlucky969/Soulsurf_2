@@ -1,10 +1,10 @@
-// SoulSurf v6.2 – App Shell with Auth + i18n + Stripe + Push Notifications
+// SoulSurf v6.2.1 – App Shell with Auth + i18n + Stripe + Push Notifications + Fixed Language Selector
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
 import useSync from "./useSync.js";
 import usePhotoSync from "./usePhotoSync.js";
-import useNotifications from "./useNotifications.js"; // ← v6.2: NEW
+import useNotifications from "./useNotifications.js";
 import { useI18n, LANGUAGES } from "./i18n.js";
 import { SURF_SPOTS, GOALS } from "./data.js";
 import { WaveBackground, LessonModal } from "./components.jsx";
@@ -47,7 +47,7 @@ export default function SurfApp() {
   const sync = useSync(auth.user?.id);
   const photoSync = usePhotoSync(auth.user?.id);
   const data = useSurfData(sync);
-  const notifications = useNotifications(data); // ← v6.2: NEW
+  const notifications = useNotifications(data);
   
   const [screen, setScreen] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -65,7 +65,6 @@ export default function SurfApp() {
   const savedGoal = useMemo(() => data.hasSaved ? GOALS.find(g => g.id === data.goal) : null, [data.hasSaved, data.goal]);
   const remaining = data.total - data.done;
 
-  // Instructor mode
   const isInstructor = useMemo(() => {
     try { return localStorage.getItem("soulsurf_instructor") === "true"; } catch { return false; }
   }, []);
@@ -86,7 +85,6 @@ export default function SurfApp() {
     }, 150);
   }, [screen]);
 
-  // Empty state handler
   const renderScreen = () => {
     if ((screen === "lessons" || screen === "diary") && !data.hasSaved) {
       return <EmptyState icon={screen === "lessons" ? "📚" : "📓"} title={screen === "lessons" ? i18n.t("app.noLessons") : i18n.t("app.noDiary")} desc={i18n.t("app.emptyDesc")} cta={i18n.t("app.createProgram")} onCta={() => navigate("builder")} t={th} dm={dm} i18n={i18n} />;
@@ -95,7 +93,7 @@ export default function SurfApp() {
       return <EmptyState icon="📊" title={i18n.t("app.noProgress")} desc={i18n.t("app.emptyProgDesc")} cta={i18n.t("app.createProgram")} onCta={() => navigate("builder")} t={th} dm={dm} i18n={i18n} />;
     }
     switch (screen) {
-      case "home": return <HomeScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} spotObj={spotObj} savedGoal={savedGoal} notifications={notifications} />; // ← v6.2: Pass notifications
+      case "home": return <HomeScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} spotObj={spotObj} savedGoal={savedGoal} notifications={notifications} />;
       case "builder": return <BuilderScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} />;
       case "lessons": return <LessonsScreen data={data} t={th} dm={dm} i18n={i18n} spotObj={spotObj} setOpenLesson={setOpenLesson} navigate={navigate} />;
       case "trip": return <TripScreen data={data} t={th} dm={dm} i18n={i18n} spotObj={spotObj} navigate={navigate} />;
@@ -120,7 +118,6 @@ export default function SurfApp() {
     } catch {}
   }, []);
 
-  // Auto-sync on login
   useEffect(() => {
     if (!auth.isLoggedIn || !sync.isEnabled || hasAutoSynced.current || !data.hydrated) return;
     hasAutoSynced.current = true;
@@ -234,7 +231,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.2</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.2.1</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -244,10 +241,9 @@ export default function SurfApp() {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {data.gamification?.currentLevel && <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: th.accent }}>{data.gamification.currentLevel.emoji} {data.gamification.totalXP}</span>}
           {data.streak > 0 && <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#FFB74D" }}>🔥 {data.streak}</span>}
-          {/* v6.2: Notification Bell Icon */}
           {notifications.isGranted && (
             <button
-              onClick={() => navigate("home")} // Will show notification settings on HomeScreen
+              onClick={() => navigate("home")}
               style={{
                 background: "none",
                 border: "none",
@@ -283,51 +279,78 @@ export default function SurfApp() {
         </div>
       </header>
 
-      {/* Slide-out Menu */}
+      {/* Slide-out Menu (v6.2.1: Scrollable + Fixed Footer) */}
       {menuOpen && (
         <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.4)", animation: "overlayIn 0.2s ease" }}>
-          <nav onClick={e => e.stopPropagation()} style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 280, background: dm ? "#1a2332" : "#FFFDF7", borderRight: `1px solid ${th.cardBorder}`, paddingTop: 70, boxShadow: "4px 0 24px rgba(0,0,0,0.15)", animation: "menuSlideIn 0.25s ease" }}>
-            {data.hasSaved && spotObj && (
-              <div style={{ padding: "0 20px 16px", borderBottom: `1px solid ${th.cardBorder}`, marginBottom: 8 }}>
-                <div style={{ fontSize: 12, color: th.text3, fontFamily: "'Space Mono', monospace", marginBottom: 4 }}>{i18n.t("lessons.yourProgram")}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: th.text }}>{data.days} {i18n.t("general.days")} · {savedGoal?.emoji} {savedGoal?.name}</div>
-                <div style={{ fontSize: 12, color: th.accent }}>{spotObj?.emoji} {spotObj?.name}</div>
-                <div style={{ background: dm ? "rgba(255,255,255,0.1)" : "#E0E0E0", borderRadius: 6, height: 4, marginTop: 8, overflow: "hidden" }}>
-                  <div style={{ background: "linear-gradient(90deg, #FFB74D, #FF7043)", height: "100%", borderRadius: 6, width: `${data.total > 0 ? (data.done / data.total) * 100 : 0}%`, transition: "width 0.5s ease" }} />
+          <nav onClick={e => e.stopPropagation()} style={{ 
+            position: "absolute", 
+            top: 0, 
+            left: 0, 
+            bottom: 0, 
+            width: 280, 
+            background: dm ? "#1a2332" : "#FFFDF7", 
+            borderRight: `1px solid ${th.cardBorder}`, 
+            paddingTop: 70, 
+            boxShadow: "4px 0 24px rgba(0,0,0,0.15)", 
+            animation: "menuSlideIn 0.25s ease",
+            display: "flex",
+            flexDirection: "column"
+          }}>
+            {/* Scrollable Content (Top) */}
+            <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
+              {/* Program Progress Card */}
+              {data.hasSaved && spotObj && (
+                <div style={{ padding: "0 20px 16px", borderBottom: `1px solid ${th.cardBorder}`, marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: th.text3, fontFamily: "'Space Mono', monospace", marginBottom: 4 }}>{i18n.t("lessons.yourProgram")}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: th.text }}>{data.days} {i18n.t("general.days")} · {savedGoal?.emoji} {savedGoal?.name}</div>
+                  <div style={{ fontSize: 12, color: th.accent }}>{spotObj?.emoji} {spotObj?.name}</div>
+                  <div style={{ background: dm ? "rgba(255,255,255,0.1)" : "#E0E0E0", borderRadius: 6, height: 4, marginTop: 8, overflow: "hidden" }}>
+                    <div style={{ background: "linear-gradient(90deg, #FFB74D, #FF7043)", height: "100%", borderRadius: 6, width: `${data.total > 0 ? (data.done / data.total) * 100 : 0}%`, transition: "width 0.5s ease" }} />
+                  </div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3, marginTop: 4 }}>{data.done}/{data.total} {i18n.t("g.done")}</div>
                 </div>
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3, marginTop: 4 }}>{data.done}/{data.total} {i18n.t("g.done")}</div>
-              </div>
-            )}
-            {NAV_ITEMS.map((item, i) => {
-              const isActive = screen === item.id;
-              const needsProgram = ["lessons", "diary"].includes(item.id);
-              const disabled = needsProgram && !data.hasSaved;
-              return (
-                <button key={item.id} onClick={() => !disabled && navigate(item.id)} style={{
-                  display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "14px 24px",
-                  background: isActive ? (dm ? "rgba(77,182,172,0.12)" : "#E0F2F1") : "transparent",
-                  border: "none", borderLeft: isActive ? "3px solid #009688" : "3px solid transparent",
-                  cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1,
-                  fontSize: 15, fontWeight: isActive ? 700 : 500, color: isActive ? th.accent : th.text,
-                  fontFamily: "'DM Sans', sans-serif", textAlign: "left",
-                  animation: `slideUp 0.3s ease both`, animationDelay: `${i * 40}ms`,
-                }}>
-                  <span style={{ fontSize: 18 }}>{item.icon}</span>
-                  <span style={{ flex: 1 }}>{item.label}</span>
-                  {disabled && <span style={{ fontSize: 9, color: th.text3 }}>🔒</span>}
-                  {item.id === "lessons" && remaining > 0 && !disabled && (
-                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.accent, background: dm ? "rgba(77,182,172,0.15)" : "#E0F2F1", padding: "2px 8px", borderRadius: 10 }}>{remaining}</span>
-                  )}
-                  {item.id === "diary" && data.diaryCount > 0 && !disabled && (
-                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>{data.diaryCount}</span>
-                  )}
-                </button>
-              );
-            })}
-            <div style={{ padding: "16px 24px", borderTop: `1px solid ${th.cardBorder}`, marginTop: 8 }}>
-              {/* Language Switcher */}
+              )}
+
+              {/* Navigation Items */}
+              {NAV_ITEMS.map((item, i) => {
+                const isActive = screen === item.id;
+                const needsProgram = ["lessons", "diary"].includes(item.id);
+                const disabled = needsProgram && !data.hasSaved;
+                return (
+                  <button key={item.id} onClick={() => !disabled && navigate(item.id)} style={{
+                    display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "14px 24px",
+                    background: isActive ? (dm ? "rgba(77,182,172,0.12)" : "#E0F2F1") : "transparent",
+                    border: "none", borderLeft: isActive ? "3px solid #009688" : "3px solid transparent",
+                    cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1,
+                    fontSize: 15, fontWeight: isActive ? 700 : 500, color: isActive ? th.accent : th.text,
+                    fontFamily: "'DM Sans', sans-serif", textAlign: "left",
+                    animation: `slideUp 0.3s ease both`, animationDelay: `${i * 40}ms`,
+                  }}>
+                    <span style={{ fontSize: 18 }}>{item.icon}</span>
+                    <span style={{ flex: 1 }}>{item.label}</span>
+                    {disabled && <span style={{ fontSize: 9, color: th.text3 }}>🔒</span>}
+                    {item.id === "lessons" && remaining > 0 && !disabled && (
+                      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.accent, background: dm ? "rgba(77,182,172,0.15)" : "#E0F2F1", padding: "2px 8px", borderRadius: 10 }}>{remaining}</span>
+                    )}
+                    {item.id === "diary" && data.diaryCount > 0 && !disabled && (
+                      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>{data.diaryCount}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Fixed Footer (Bottom) */}
+            <div style={{ 
+              borderTop: `1px solid ${th.cardBorder}`, 
+              padding: "16px 24px",
+              background: dm ? "#1a2332" : "#FFFDF7",
+            }}>
+              {/* Language Switcher - ALWAYS VISIBLE */}
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>🌐 {i18n.t("nav.home") === "Home" ? "Language" : i18n.t("nav.home") === "Início" ? "Idioma" : "Sprache"}</div>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>
+                  🌐 {i18n.t("nav.home") === "Home" ? "Language" : i18n.t("nav.home") === "Início" ? "Idioma" : "Sprache"}
+                </div>
                 <div style={{ display: "flex", gap: 4 }}>
                   {LANGUAGES.map(l => (
                     <button key={l.code} onClick={() => i18n.setLang(l.code)} style={{
@@ -339,6 +362,7 @@ export default function SurfApp() {
                   ))}
                 </div>
               </div>
+
               {/* Auth section */}
               {auth.isLoggedIn && (
                 <div style={{ marginBottom: 12, padding: "10px 12px", background: dm ? "rgba(77,182,172,0.08)" : "#E0F2F1", borderRadius: 10, display: "flex", alignItems: "center", gap: 10 }}>
@@ -359,8 +383,10 @@ export default function SurfApp() {
                 <button onClick={() => { auth.logout(); setMenuOpen(false); }} style={{ width: "100%", padding: "10px", background: dm ? "rgba(229,57,53,0.08)" : "#FFEBEE", border: `1px solid ${dm ? "rgba(229,57,53,0.2)" : "#FFCDD2"}`, borderRadius: 10, fontSize: 12, cursor: "pointer", color: "#E53935", fontFamily: "'Space Mono', monospace" }}>🚪 {i18n.t("auth.logout")}</button>
               )}
             </div>
-            <div style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center" }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.2 · ride the vibe ☮</span>
+
+            {/* Version Badge */}
+            <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.2.1 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
@@ -409,7 +435,6 @@ export default function SurfApp() {
   );
 }
 
-// Shared Empty State component
 function EmptyState({ icon, title, desc, cta, onCta, t, dm }) {
   return (
     <div style={{ paddingTop: 80, textAlign: "center", animation: "screenIn 0.4s ease both" }}>
@@ -421,7 +446,6 @@ function EmptyState({ icon, title, desc, cta, onCta, t, dm }) {
   );
 }
 
-// Skeleton loading placeholder
 function ScreenSkeleton({ t, dm }) {
   const bg = dm ? "rgba(255,255,255,0.05)" : "#F0F0F0";
   return (
