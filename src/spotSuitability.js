@@ -1,4 +1,4 @@
-// SoulSurf – Spot Suitability v6.5 (Sprint 34: Unified Surf Screen)
+// SoulSurf – Spot Suitability v6.5.1 (Sprint 34: Bugfix)
 // Matches spots to user skill level: difficulty + breakType + hazards → suitability
 import { getSchoolsBySpot } from "./data.js";
 
@@ -17,7 +17,8 @@ export function getSpotSuitability(spot, skillLevel = "beginner") {
   // ─── Difficulty match ───
   const diffMap = { beginner: 0, intermediate: 1, advanced: 2 };
   const spotDiff = diffMap[spot.difficulty] ?? 1;
-  const userDiff = sl === "beginner" ? 0 : sl === "lower_intermediate" ? 0.5 : 1;
+  // v6.5.1: lower_intermediate at 0.7 → intermediate spots are only -5 (suitable)
+  const userDiff = sl === "beginner" ? 0 : sl === "lower_intermediate" ? 0.7 : 1;
 
   if (spotDiff > userDiff + 0.5) {
     score -= 40;
@@ -52,10 +53,15 @@ export function getSpotSuitability(spot, skillLevel = "beginner") {
     if (spot.crowd === "low") { score += 5; }
   }
 
-  // ─── Schools available = bonus for beginners ───
-  if (sl === "beginner" || sl === "lower_intermediate") {
-    const schools = getSchoolsBySpot(spot.id);
-    if (schools.length > 0) { score += 10; reasons.push("suit.schoolsAvail"); }
+  // ─── Schools available = bonus ───
+  const schools = getSchoolsBySpot(spot.id);
+  if (schools.length > 0) {
+    if (sl === "beginner" || sl === "lower_intermediate") {
+      score += 10; reasons.push("suit.schoolsAvail");
+    } else if (spot.difficulty === "advanced" || hazards.length > 1) {
+      // v6.5.1: Intermediates benefit from schools at challenging spots
+      score += 5; reasons.push("suit.schoolsAvail");
+    }
   }
 
   // Clamp

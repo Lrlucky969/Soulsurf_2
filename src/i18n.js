@@ -332,6 +332,7 @@ const T = {
   "surf.tips": { de: "Tipps", en: "Tips", pt: "Dicas" },
   "surf.schoolsHere": { de: "Schulen hier", en: "Schools here", pt: "Escolas aqui" },
   "surf.allSpots": { de: "Alle Spots", en: "All spots", pt: "Todos os spots" },
+  "surf.noConditions": { de: "Keine Daten verfügbar", en: "No data available", pt: "Sem dados disponíveis" },
   "suit.perfect": { de: "Perfekt für dich", en: "Perfect for you", pt: "Perfeito para você" },
   "suit.suitable": { de: "Geeignet", en: "Suitable", pt: "Adequado" },
   "suit.challenging": { de: "Anspruchsvoll", en: "Challenging", pt: "Desafiador" },
