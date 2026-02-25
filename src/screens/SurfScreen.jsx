@@ -1,4 +1,4 @@
-// SoulSurf – SurfScreen v6.5.1 (Sprint 34: Bugfix)
+// SoulSurf – SurfScreen v6.6 (V1: Decision → Booking Flow)
 // Replaces ForecastScreen as "Surf" tab target
 // 3 Views: Spots | Schools | Forecast (toggle)
 import React, { useState, useMemo } from "react";
@@ -6,6 +6,7 @@ import { SURF_SPOTS, SURF_SCHOOLS, getSchoolsBySpot } from "../data.js";
 import { sortSpotsBySuitability, getSpotSuitability } from "../spotSuitability.js";
 import useForecast from "../useForecast.js";
 import { scoreLabel, windDirLabel, swellRating } from "../weather.js";
+import { trackEvent } from "../analytics.js";
 
 export default function SurfScreen({ data, t, dm, i18n, navigate }) {
   const _ = i18n?.t || ((k, f) => f || k);
@@ -127,7 +128,10 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
       <div style={sectionLabel}>{allSchools.length} {_("surf.schools", "Surfschulen")}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {allSchools.map((school, i) => (
-          <button key={school.id} onClick={() => navigate("schools")} style={{
+          <button key={school.id} onClick={() => {
+            trackEvent("decision_cta_clicked", { action: "browse_school", spot: school.spotId, source: "surf_schools_view" });
+            navigate("schools", { spot: school.spotId });
+          }} style={{
             ...card, display: "flex", alignItems: "center", gap: 12, padding: "14px 16px",
             cursor: "pointer", textAlign: "left", width: "100%",
             animation: "slideUp 0.3s ease both", animationDelay: `${i * 50}ms`,
@@ -252,7 +256,10 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
           <div style={{ ...card, padding: "14px 16px", marginBottom: 12 }}>
             <div style={sectionLabel}>🏫 {spotSchools.length} {_("surf.schoolsHere", "Schulen hier")}</div>
             {spotSchools.map(school => (
-              <button key={school.id} onClick={() => navigate("schools")} style={{
+              <button key={school.id} onClick={() => {
+                trackEvent("decision_cta_clicked", { action: "browse_school", spot: selectedSpot, source: "surf_forecast_view" });
+                navigate("schools", { spot: selectedSpot });
+              }} style={{
                 width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 0",
                 background: "none", border: "none", borderBottom: `1px solid ${t.cardBorder}`,
                 cursor: "pointer", textAlign: "left",

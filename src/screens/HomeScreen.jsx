@@ -1,8 +1,9 @@
-// SoulSurf – HomeScreen v6.4.1 (Sprint 33: Decision Engine + Bugfixes)
-import React, { useState, useEffect, useMemo } from "react";
+// SoulSurf – HomeScreen v6.6 (V1: Decision → Booking Flow)
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
 import { getTodayRecommendation, confidenceDisplay, actionDisplay } from "../decisionEngine.js";
+import { trackEvent } from "../analytics.js";
 
 const ONBOARDING_KEY = "soulsurf_onboarded";
 
@@ -45,6 +46,19 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   const recommendation = useMemo(() => {
     return getTodayRecommendation(userData, conditions, spotObj);
   }, [userData, conditions, spotObj]);
+
+  // v6.6: Track decision shown (once per recommendation change)
+  const lastTrackedRef = useRef(null);
+  useEffect(() => {
+    if (recommendation.action !== "check_later" && recommendation.action !== lastTrackedRef.current) {
+      lastTrackedRef.current = recommendation.action;
+      trackEvent("decision_shown", {
+        action: recommendation.action,
+        confidence: recommendation.confidence,
+        spot: spotObj?.id,
+      });
+    }
+  }, [recommendation.action, recommendation.confidence, spotObj?.id]);
 
   useEffect(() => {
     try { const v = localStorage.getItem(ONBOARDING_KEY); if (!v) setOnboarded(false); } catch {}
@@ -361,7 +375,25 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
 
               {/* CTA Button */}
               {recommendation.cta && (
-                <button onClick={() => navigate(recommendation.cta.screen)} style={{
+                <button onClick={() => {
+                  trackEvent("decision_cta_clicked", {
+                    action: recommendation.action,
+                    confidence: recommendation.confidence,
+                    spot: spotObj?.id,
+                    ctaScreen: recommendation.cta.screen,
+                  });
+                  // v6.6: Navigate with context for schools
+                  if (recommendation.cta.screen === "schools") {
+                    navigate("schools", {
+                      fromDecision: true,
+                      spot: spotObj?.id,
+                      reason: recommendation.reasonKey,
+                      action: recommendation.action,
+                    });
+                  } else {
+                    navigate(recommendation.cta.screen);
+                  }
+                }} style={{
                   width: "100%", padding: "14px", borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: "pointer",
                   fontFamily: "'Playfair Display', serif",
                   background: recommendation.action === "book_lesson" ? "linear-gradient(135deg, #FF9800, #FF7043)" : "linear-gradient(135deg, #009688, #4DB6AC)",
@@ -515,7 +547,10 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <div style={{ fontSize: 10, color: conf2.color, fontWeight: 700 }}>{conf2.emoji}</div>
           </div>
           {recommendation.cta && recommendation.action === "book_lesson" && (
-            <button onClick={() => navigate("schools")} style={{ width: "100%", padding: "10px", background: "linear-gradient(135deg, #FF9800, #FF7043)", color: "white", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            <button onClick={() => {
+              trackEvent("decision_cta_clicked", { action: "book_lesson", spot: spotObj?.id, source: "mini_card" });
+              navigate("schools", { fromDecision: true, spot: spotObj?.id, reason: recommendation.reasonKey, action: "book_lesson" });
+            }} style={{ width: "100%", padding: "10px", background: "linear-gradient(135deg, #FF9800, #FF7043)", color: "white", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
               {_("decision.cta.findCoach")} →
             </button>
           )}
