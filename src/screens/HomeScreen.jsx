@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v6.3.1 (Sprint 32: New Strategic Onboarding)
+// SoulSurf – HomeScreen v6.3.4 (Sprint 32: Strategic Onboarding + Bugfixes)
 import React, { useState, useEffect, useMemo } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 
@@ -12,10 +12,10 @@ const SKILL_LEVELS = [
 ];
 
 const SURF_GOALS = [
-  { id: "first_waves", emoji: "🌊", key: "goal.firstWaves", color: "#009688" },
-  { id: "improve_takeoff", emoji: "⚡", key: "goal.improveTakeoff", color: "#FF9800" },
-  { id: "learn_turns", emoji: "🔄", key: "goal.learnTurns", color: "#5C6BC0" },
-  { id: "surf_independently", emoji: "🏄", key: "goal.surfIndependently", color: "#E91E63" },
+  { id: "first_waves", emoji: "🌊", key: "goal.firstWaves", descKey: "goal.firstWavesDesc", color: "#009688" },
+  { id: "improve_takeoff", emoji: "⚡", key: "goal.improveTakeoff", descKey: "goal.improveTakeoffDesc", color: "#FF9800" },
+  { id: "learn_turns", emoji: "🔄", key: "goal.learnTurns", descKey: "goal.learnTurnsDesc", color: "#5C6BC0" },
+  { id: "surf_independently", emoji: "🏄", key: "goal.surfIndependently", descKey: "goal.surfIndependentlyDesc", color: "#E91E63" },
 ];
 
 export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, savedGoal, notifications }) {
@@ -160,6 +160,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: `${goal.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{goal.emoji}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: obGoal === goal.id ? goal.color : t.text }}>{_(goal.key)}</div>
+                    {goal.descKey && <div style={{ fontSize: 12, color: t.text2, marginTop: 2 }}>{_(goal.descKey)}</div>}
                   </div>
                   {obGoal === goal.id && <span style={{ fontSize: 18, color: goal.color }}>✓</span>}
                 </button>

@@ -1,4 +1,4 @@
-// SoulSurf – ProfileScreen v6.3.2 (Sprint 32: Strategic Refocus)
+// SoulSurf – ProfileScreen v6.3.4 (Sprint 32: Strategic Refocus)
 // New "Profile" tab combining: User Profile, Settings, Progress, Equipment, Instructor links
 import React, { useState, useMemo } from "react";
 import { SURF_SPOTS } from "../data.js";
@@ -231,24 +231,26 @@ export default function ProfileScreen({ data, auth, t, dm, i18n, navigate, notif
         )}
       </div>
 
-      {/* Badges */}
-      {allEarned.length > 0 && (
-        <div style={card}>
-          <div style={sectionLabel}>{_("profile.badges", "Badges")} ({allEarned.length})</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {allEarned.map(b => (
+      {/* Badges – always visible (earned + locked) */}
+      <div style={card}>
+        <div style={sectionLabel}>{_("profile.badges", "Badges")} ({allEarned.length}/{BADGES.length + STREAK_BADGES.length})</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {[...BADGES, ...STREAK_BADGES].map(b => {
+            const isEarned = allEarned.some(e => e.id === b.id);
+            return (
               <div key={b.id} style={{
                 display: "flex", alignItems: "center", gap: 6, padding: "8px 12px", borderRadius: 10,
-                background: dm ? "rgba(255,183,77,0.08)" : "#FFF8E1",
-                border: `1px solid ${dm ? "rgba(255,183,77,0.15)" : "#FFE0B2"}`,
+                background: isEarned ? (dm ? "rgba(255,183,77,0.08)" : "#FFF8E1") : (dm ? "rgba(255,255,255,0.03)" : "#F5F5F5"),
+                border: `1px solid ${isEarned ? (dm ? "rgba(255,183,77,0.15)" : "#FFE0B2") : (dm ? "rgba(255,255,255,0.06)" : "#E0E0E0")}`,
+                opacity: isEarned ? 1 : 0.5,
               }}>
-                <span style={{ fontSize: 16 }}>{b.emoji}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: dm ? "#FFB74D" : "#E65100" }}>{b.name}</span>
+                <span style={{ fontSize: 16, filter: isEarned ? "none" : "grayscale(1)" }}>{b.emoji}</span>
+                <span style={{ fontSize: 11, fontWeight: isEarned ? 700 : 500, color: isEarned ? (dm ? "#FFB74D" : "#E65100") : t.text3 }}>{b.name}</span>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      )}
+      </div>
 
       {/* Navigation Links */}
       <div style={{ marginTop: 8 }}>
@@ -262,7 +264,7 @@ export default function ProfileScreen({ data, auth, t, dm, i18n, navigate, notif
       {/* App Info */}
       <div style={{ marginTop: 20, padding: 16, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, textAlign: "center" }}>
         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>
-          SoulSurf v6.3 · {_("profile.madeWith", "Made with")} ☮ & 🌊
+          SoulSurf v6.3.4 · {_("profile.madeWith", "Made with")} ☮ & 🌊
         </div>
         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, marginTop: 4 }}>
           {data.done} {_("profile.lessons", "Lektionen")} · {data.diaryCount} {_("profile.entries", "Einträge")} · {data.streak} {_("home.streak", "Streak")}
