@@ -276,10 +276,7 @@ const T = {
   "profile.communityDesc": { de: "Spots & Leute", en: "Spots & people", pt: "Spots & pessoas" },
   "profile.instructorDesc": { de: "Surfschul-Dashboard", en: "Surf school dashboard", pt: "Painel da escola" },
   "profile.madeWith": { de: "Made with", en: "Made with", pt: "Feito com" },
-  "g.save": { de: "Speichern", en: "Save", pt: "Salvar" },
   "g.edit": { de: "Bearbeiten", en: "Edit", pt: "Editar" },
-  "g.delete": { de: "Löschen", en: "Delete", pt: "Excluir" },
-  "g.cancel": { de: "Abbrechen", en: "Cancel", pt: "Cancelar" },
   "g.activate": { de: "Aktivieren", en: "Activate", pt: "Ativar" },
 
   // ══════════════════════════════════════════
@@ -322,7 +319,30 @@ const T = {
   "decision.waves": { de: "Wellen", en: "Waves", pt: "Ondas" },
   "decision.wind": { de: "Wind", en: "Wind", pt: "Vento" },
   "decision.noWaveData": { de: "Keine Wellendaten verfügbar", en: "No wave data available", pt: "Sem dados de ondas" },
-  "decision.betterThen": { de: "Dann besser!", en: "Better then!", pt: "Melhor então!" },
+
+  // ══════════════════════════════════════════
+  // SURF SCREEN + SPOT SUITABILITY v6.5 (Sprint 34)
+  // ══════════════════════════════════════════
+  "surf.title": { de: "Surf", en: "Surf", pt: "Surf" },
+  "surf.subtitle": { de: "Spots, Schulen & Bedingungen", en: "Spots, schools & conditions", pt: "Spots, escolas & condições" },
+  "surf.spots": { de: "Spots", en: "Spots", pt: "Spots" },
+  "surf.schools": { de: "Schulen", en: "Schools", pt: "Escolas" },
+  "surf.forecast": { de: "Forecast", en: "Forecast", pt: "Previsão" },
+  "surf.all": { de: "Alle", en: "All", pt: "Todos" },
+  "surf.tips": { de: "Tipps", en: "Tips", pt: "Dicas" },
+  "surf.schoolsHere": { de: "Schulen hier", en: "Schools here", pt: "Escolas aqui" },
+  "surf.allSpots": { de: "Alle Spots", en: "All spots", pt: "Todos os spots" },
+  "suit.perfect": { de: "Perfekt für dich", en: "Perfect for you", pt: "Perfeito para você" },
+  "suit.suitable": { de: "Geeignet", en: "Suitable", pt: "Adequado" },
+  "suit.challenging": { de: "Anspruchsvoll", en: "Challenging", pt: "Desafiador" },
+  "suit.unknown": { de: "Unbekannt", en: "Unknown", pt: "Desconhecido" },
+  "suit.tooAdvanced": { de: "Zu anspruchsvoll", en: "Too advanced", pt: "Muito avançado" },
+  "suit.reefRisk": { de: "Riff-Spot – Vorsicht", en: "Reef – caution", pt: "Recife – cautela" },
+  "suit.reef": { de: "Riff-Gefahr", en: "Reef hazard", pt: "Risco de recife" },
+  "suit.current": { de: "Strömungen", en: "Currents", pt: "Correntes" },
+  "suit.locals": { de: "Lineup-Hierarchie", en: "Local hierarchy", pt: "Hierarquia local" },
+  "suit.crowded": { de: "Oft überlaufen", en: "Often crowded", pt: "Frequentemente lotado" },
+  "suit.schoolsAvail": { de: "Surfschulen verfügbar", en: "Schools available", pt: "Escolas disponíveis" },
 
   // ══════════════════════════════════════════
   // DIARY
