@@ -1,4 +1,4 @@
-// SoulSurf v6.2.1 – App Shell with Auth + i18n + Stripe + Push Notifications + Fixed Language Selector
+// SoulSurf v6.3 – App Shell (Sprint 32: Strategic Refocus)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -17,6 +17,7 @@ const LessonsScreen = lazy(() => import("./screens/LessonsScreen.jsx"));
 const TripScreen = lazy(() => import("./screens/TripScreen.jsx"));
 const DiaryScreen = lazy(() => import("./screens/DiaryScreen.jsx"));
 const ProgressScreen = lazy(() => import("./screens/ProgressScreen.jsx"));
+const ProfileScreen = lazy(() => import("./screens/ProfileScreen.jsx"));
 const EquipmentScreen = lazy(() => import("./screens/EquipmentScreen.jsx"));
 const CommunityScreen = lazy(() => import("./screens/CommunityScreen.jsx"));
 const ForecastScreen = lazy(() => import("./screens/ForecastScreen.jsx"));
@@ -28,17 +29,33 @@ const THEMES = {
   dark: { bg: "#0d1820", text: "#e8eaed", text2: "#9aa0a6", text3: "#5f6368", accent: "#4DB6AC", card: "rgba(30,45,61,0.8)", cardBorder: "rgba(255,255,255,0.06)", inputBg: "rgba(255,255,255,0.05)", inputBorder: "#2d3f50" },
 };
 
-const NAV_KEYS = [
+// ═══════════════════════════════════════════════════════
+// v6.3: NEW 5-TAB NAVIGATION (Strategic Refocus)
+// Old screens remain accessible via burger menu
+// ═══════════════════════════════════════════════════════
+const PRIMARY_TABS = [
   { id: "home", icon: "🏠", key: "nav.home" },
-  { id: "lessons", icon: "📚", key: "nav.lessons" },
-  { id: "forecast", icon: "🌊", key: "nav.forecast" },
-  { id: "schools", icon: "🏫", key: "nav.schools" },
-  { id: "trip", icon: "✈️", key: "nav.trip" },
-  { id: "diary", icon: "📓", key: "nav.diary" },
-  { id: "progress", icon: "📊", key: "nav.progress" },
-  { id: "equipment", icon: "🏄", key: "nav.equipment" },
-  { id: "instructor", icon: "👨‍🏫", key: "nav.instructor", instructorOnly: true },
-  { id: "community", icon: "🤝", key: "nav.community" },
+  { id: "lessons", icon: "📚", key: "nav.learn" },
+  { id: "forecast", icon: "🗺️", key: "nav.surf" },
+  { id: "diary", icon: "📓", key: "nav.log" },
+  { id: "profile", icon: "👤", key: "nav.profile" },
+];
+
+// Full menu items (accessible via burger menu)
+const ALL_NAV_KEYS = [
+  { id: "home", icon: "🏠", key: "nav.home" },
+  { id: "lessons", icon: "📚", key: "nav.learn" },
+  { id: "forecast", icon: "🗺️", key: "nav.surf" },
+  { id: "diary", icon: "📓", key: "nav.log" },
+  { id: "profile", icon: "👤", key: "nav.profile" },
+  // --- Below: accessible via menu only ---
+  { id: "schools", icon: "🏫", key: "nav.schools", menuOnly: true },
+  { id: "trip", icon: "✈️", key: "nav.trip", menuOnly: true },
+  { id: "builder", icon: "✎", key: "nav.builder", menuOnly: true },
+  { id: "equipment", icon: "🏄", key: "nav.equipment", menuOnly: true },
+  { id: "progress", icon: "📊", key: "nav.progress", menuOnly: true },
+  { id: "community", icon: "🤝", key: "nav.community", menuOnly: true },
+  { id: "instructor", icon: "👨‍🏫", key: "nav.instructor", instructorOnly: true, menuOnly: true },
 ];
 
 export default function SurfApp() {
@@ -69,9 +86,14 @@ export default function SurfApp() {
     try { return localStorage.getItem("soulsurf_instructor") === "true"; } catch { return false; }
   }, []);
 
+  // v6.3: Build nav items from new structure
   const NAV_ITEMS = useMemo(() =>
-    NAV_KEYS.filter(n => !n.instructorOnly || isInstructor).map(n => ({ ...n, label: i18n.t(n.key) })),
+    ALL_NAV_KEYS.filter(n => !n.instructorOnly || isInstructor).map(n => ({ ...n, label: i18n.t(n.key) })),
   [i18n.lang, isInstructor]);
+
+  const TAB_ITEMS = useMemo(() =>
+    PRIMARY_TABS.map(n => ({ ...n, label: i18n.t(n.key) })),
+  [i18n.lang]);
 
   const navigate = useCallback((s) => {
     if (s === screen) { setMenuOpen(false); return; }
@@ -99,6 +121,7 @@ export default function SurfApp() {
       case "trip": return <TripScreen data={data} t={th} dm={dm} i18n={i18n} spotObj={spotObj} navigate={navigate} />;
       case "diary": return <DiaryScreen data={data} t={th} dm={dm} i18n={i18n} setOpenLesson={setOpenLesson} photoSync={photoSync} />;
       case "progress": return <ProgressScreen data={data} t={th} dm={dm} i18n={i18n} setOpenLesson={setOpenLesson} />;
+      case "profile": return <ProfileScreen data={data} auth={auth} t={th} dm={dm} i18n={i18n} navigate={navigate} notifications={notifications} />;
       case "equipment": return <EquipmentScreen data={data} t={th} dm={dm} i18n={i18n} />;
       case "community": return <CommunityScreen data={data} auth={auth} t={th} dm={dm} i18n={i18n} navigate={navigate} />;
       case "forecast": return <ForecastScreen data={data} t={th} dm={dm} i18n={i18n} />;
@@ -231,7 +254,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.2.1</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.3</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -279,7 +302,7 @@ export default function SurfApp() {
         </div>
       </header>
 
-      {/* Slide-out Menu (v6.2.1: Scrollable + Fixed Footer) */}
+      {/* Slide-out Menu (v6.3: Scrollable + Fixed Footer) */}
       {menuOpen && (
         <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.4)", animation: "overlayIn 0.2s ease" }}>
           <nav onClick={e => e.stopPropagation()} style={{ 
@@ -316,26 +339,34 @@ export default function SurfApp() {
                 const isActive = screen === item.id;
                 const needsProgram = ["lessons", "diary"].includes(item.id);
                 const disabled = needsProgram && !data.hasSaved;
+                const isFirstMenuOnly = item.menuOnly && (i === 0 || !NAV_ITEMS[i - 1]?.menuOnly);
                 return (
-                  <button key={item.id} onClick={() => !disabled && navigate(item.id)} style={{
-                    display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "14px 24px",
-                    background: isActive ? (dm ? "rgba(77,182,172,0.12)" : "#E0F2F1") : "transparent",
-                    border: "none", borderLeft: isActive ? "3px solid #009688" : "3px solid transparent",
-                    cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : 1,
-                    fontSize: 15, fontWeight: isActive ? 700 : 500, color: isActive ? th.accent : th.text,
-                    fontFamily: "'DM Sans', sans-serif", textAlign: "left",
-                    animation: `slideUp 0.3s ease both`, animationDelay: `${i * 40}ms`,
-                  }}>
-                    <span style={{ fontSize: 18 }}>{item.icon}</span>
-                    <span style={{ flex: 1 }}>{item.label}</span>
-                    {disabled && <span style={{ fontSize: 9, color: th.text3 }}>🔒</span>}
-                    {item.id === "lessons" && remaining > 0 && !disabled && (
-                      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.accent, background: dm ? "rgba(77,182,172,0.15)" : "#E0F2F1", padding: "2px 8px", borderRadius: 10 }}>{remaining}</span>
+                  <React.Fragment key={item.id}>
+                    {isFirstMenuOnly && (
+                      <div style={{ padding: "8px 24px 4px", borderTop: `1px solid ${th.cardBorder}`, marginTop: 4 }}>
+                        <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>{i18n.t("nav.more")}</span>
+                      </div>
                     )}
-                    {item.id === "diary" && data.diaryCount > 0 && !disabled && (
-                      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>{data.diaryCount}</span>
-                    )}
-                  </button>
+                    <button onClick={() => !disabled && navigate(item.id)} style={{
+                      display: "flex", alignItems: "center", gap: 12, width: "100%", padding: item.menuOnly ? "11px 24px" : "14px 24px",
+                      background: isActive ? (dm ? "rgba(77,182,172,0.12)" : "#E0F2F1") : "transparent",
+                      border: "none", borderLeft: isActive ? "3px solid #009688" : "3px solid transparent",
+                      cursor: disabled ? "not-allowed" : "pointer", opacity: disabled ? 0.4 : item.menuOnly ? 0.8 : 1,
+                      fontSize: item.menuOnly ? 14 : 15, fontWeight: isActive ? 700 : 500, color: isActive ? th.accent : th.text,
+                      fontFamily: "'DM Sans', sans-serif", textAlign: "left",
+                      animation: `slideUp 0.3s ease both`, animationDelay: `${i * 40}ms`,
+                    }}>
+                      <span style={{ fontSize: item.menuOnly ? 16 : 18 }}>{item.icon}</span>
+                      <span style={{ flex: 1 }}>{item.label}</span>
+                      {disabled && <span style={{ fontSize: 9, color: th.text3 }}>🔒</span>}
+                      {item.id === "lessons" && remaining > 0 && !disabled && (
+                        <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.accent, background: dm ? "rgba(77,182,172,0.15)" : "#E0F2F1", padding: "2px 8px", borderRadius: 10 }}>{remaining}</span>
+                      )}
+                      {item.id === "diary" && data.diaryCount > 0 && !disabled && (
+                        <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>{data.diaryCount}</span>
+                      )}
+                    </button>
+                  </React.Fragment>
                 );
               })}
             </div>
@@ -386,7 +417,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.2.1 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.3 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
@@ -401,10 +432,10 @@ export default function SurfApp() {
         </Suspense>
       </main>
 
-      {/* Bottom Tab Bar */}
+      {/* Bottom Tab Bar (v6.3: 5 tabs) */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 80, background: dm ? "rgba(13,24,32,0.97)" : "rgba(255,253,247,0.97)", backdropFilter: "blur(12px)", borderTop: `1px solid ${th.cardBorder}`, display: "flex", justifyContent: "space-around", padding: "6px 0 env(safe-area-inset-bottom, 6px)" }}>
-        {NAV_ITEMS.filter(i => ["home","lessons","forecast","schools","community"].includes(i.id)).map(item => {
-          const isActive = screen === item.id;
+        {TAB_ITEMS.map(item => {
+          const isActive = screen === item.id || (item.id === "lessons" && screen === "builder") || (item.id === "forecast" && (screen === "schools" || screen === "trip")) || (item.id === "profile" && (screen === "progress" || screen === "equipment" || screen === "community" || screen === "instructor"));
           const showBadge = item.id === "lessons" && remaining > 0 && data.hasSaved;
           return (
             <button key={item.id} onClick={() => navigate(item.id)} style={{

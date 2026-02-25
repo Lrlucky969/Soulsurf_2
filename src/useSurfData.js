@@ -87,6 +87,11 @@ export default function useSurfData(sync) {
   // Streak freeze state (Sprint 30)
   const [streakData, setStreakData] = useState({ lastFreeze: null, freezeCount: 0 });
 
+  // v6.3: User Profile (Sprint 32 – Strategic Refocus)
+  const [skillLevel, setSkillLevel] = useState(null); // "beginner" | "lower_intermediate" | "intermediate"
+  const [primaryGoal, setPrimaryGoal] = useState(null); // "first_waves" | "improve_takeoff" | "learn_turns" | "surf_independently"
+  const [wantsSchoolHelp, setWantsSchoolHelp] = useState(true);
+
   useEffect(() => {
     try { const saved = localStorage.getItem("soulsurf_dark"); if (saved === "true") setDarkMode(true); } catch {}
   }, []);
@@ -123,6 +128,23 @@ export default function useSurfData(sync) {
     // Load streak data (Sprint 30)
     const sd = loadStreakData();
     setStreakData(sd);
+
+    // v6.3: Load user profile (Sprint 32)
+    try {
+      const profile = localStorage.getItem("soulsurf_profile");
+      if (profile) {
+        const p = JSON.parse(profile);
+        if (p.skillLevel) setSkillLevel(p.skillLevel);
+        if (p.primaryGoal) setPrimaryGoal(p.primaryGoal);
+        if (p.wantsSchoolHelp !== undefined) setWantsSchoolHelp(p.wantsSchoolHelp);
+      } else if (saved) {
+        // Auto-migrate: detect skill level from existing program data
+        const completedCount = saved.completed ? Object.keys(saved.completed).filter(k => saved.completed[k]).length : 0;
+        if (completedCount >= 30) setSkillLevel("intermediate");
+        else if (completedCount >= 10) setSkillLevel("lower_intermediate");
+        else if (completedCount > 0) setSkillLevel("beginner");
+      }
+    } catch {}
     
     setHydrated(true);
   }, []);
@@ -131,6 +153,15 @@ export default function useSurfData(sync) {
     saveTrips({ trips: newTrips, activeTrip: newActive });
     if (sync?.uploadTrips) sync.uploadTrips({ trips: newTrips, activeTrip: newActive });
   }, [sync]);
+
+  // v6.3: Save user profile (Sprint 32)
+  const saveProfile = useCallback((profile) => {
+    const merged = { skillLevel, primaryGoal, wantsSchoolHelp, ...profile };
+    if (profile.skillLevel !== undefined) setSkillLevel(profile.skillLevel);
+    if (profile.primaryGoal !== undefined) setPrimaryGoal(profile.primaryGoal);
+    if (profile.wantsSchoolHelp !== undefined) setWantsSchoolHelp(profile.wantsSchoolHelp);
+    try { localStorage.setItem("soulsurf_profile", JSON.stringify(merged)); } catch {}
+  }, [skillLevel, primaryGoal, wantsSchoolHelp]);
 
   const saveAll = useCallback((overrides = {}) => {
     const base = { days, goal, spot, board, experience, completed, diary, activeDay, surfDays };
@@ -455,5 +486,8 @@ export default function useSurfData(sync) {
     
     // Cloud sync helpers
     restoreFromCloud, getProgramSnapshot, getTripsSnapshot,
+
+    // v6.3: User Profile (Sprint 32)
+    skillLevel, setSkillLevel, primaryGoal, setPrimaryGoal, wantsSchoolHelp, setWantsSchoolHelp, saveProfile,
   };
 }

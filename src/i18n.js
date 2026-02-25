@@ -8,6 +8,12 @@ const T = {
   // NAV
   // ══════════════════════════════════════════
   "nav.home": { de: "Home", en: "Home", pt: "Início" },
+  "nav.learn": { de: "Lernen", en: "Learn", pt: "Aprender" },
+  "nav.surf": { de: "Surfen", en: "Surf", pt: "Surfar" },
+  "nav.log": { de: "Log", en: "Log", pt: "Log" },
+  "nav.profile": { de: "Profil", en: "Profile", pt: "Perfil" },
+  "nav.more": { de: "Weitere", en: "More", pt: "Mais" },
+  "nav.builder": { de: "Programm Builder", en: "Program Builder", pt: "Criar Programa" },
   "nav.lessons": { de: "Lektionen", en: "Lessons", pt: "Aulas" },
   "nav.forecast": { de: "Forecast", en: "Forecast", pt: "Previsão" },
   "nav.schools": { de: "Surfschulen", en: "Surf Schools", pt: "Escolas" },
@@ -218,6 +224,59 @@ const T = {
   "pay.cancelledDesc": { de: "Die Zahlung wurde nicht abgeschlossen. Du kannst es erneut versuchen.", en: "The payment was not completed. You can try again.", pt: "O pagamento não foi concluído. Você pode tentar novamente." },
   "pay.tryAgain": { de: "Erneut versuchen", en: "Try again", pt: "Tentar novamente" },
   "pay.cancellationNote": { de: "Kostenlose Stornierung bis 24h vor Kursbeginn", en: "Free cancellation up to 24h before the course", pt: "Cancelamento gratuito até 24h antes do curso" },
+
+  // ══════════════════════════════════════════
+  // ONBOARDING v6.3 (Sprint 32)
+  // ══════════════════════════════════════════
+  "ob.welcome": { de: "Willkommen bei SoulSurf", en: "Welcome to SoulSurf", pt: "Bem-vindo ao SoulSurf" },
+  "ob.welcomeDesc": { de: "Dein persönlicher Surf-Mentor. Lass uns dein Profil einrichten.", en: "Your personal surf mentor. Let's set up your profile.", pt: "Seu mentor de surf pessoal. Vamos configurar seu perfil." },
+  "ob.skillTitle": { de: "Wie erfahren bist du?", en: "What's your experience level?", pt: "Qual é seu nível de experiência?" },
+  "ob.goalTitle": { de: "Was ist dein Ziel?", en: "What's your goal?", pt: "Qual é seu objetivo?" },
+  "ob.locationTitle": { de: "Wo surfst du?", en: "Where do you surf?", pt: "Onde você surfa?" },
+  "ob.locationDesc": { de: "Wähle deinen Hauptspot", en: "Choose your main spot", pt: "Escolha seu spot principal" },
+  "ob.schoolTitle": { de: "Surfschul-Empfehlungen?", en: "Surf school recommendations?", pt: "Recomendações de escola?" },
+  "ob.schoolDesc": { de: "Sollen wir dir passende Surfschulen empfehlen, wenn die Bedingungen es erfordern?", en: "Should we recommend suitable surf schools when conditions require it?", pt: "Devemos recomendar escolas de surf quando as condições exigirem?" },
+  "ob.schoolYes": { de: "Ja, gerne!", en: "Yes, please!", pt: "Sim, por favor!" },
+  "ob.schoolNo": { de: "Nein, danke", en: "No, thanks", pt: "Não, obrigado" },
+  "ob.next": { de: "Weiter", en: "Next", pt: "Próximo" },
+  "ob.finish": { de: "Los geht's! 🏄", en: "Let's go! 🏄", pt: "Vamos lá! 🏄" },
+  "ob.step": { de: "Schritt", en: "Step", pt: "Passo" },
+  "skill.beginner": { de: "Anfänger", en: "Beginner", pt: "Iniciante" },
+  "skill.beginnerDesc": { de: "0-10 Sessions, lerne die Basics", en: "0-10 sessions, learning the basics", pt: "0-10 sessões, aprendendo o básico" },
+  "skill.lowerIntermediate": { de: "Fortgeschrittener Anfänger", en: "Lower Intermediate", pt: "Iniciante Avançado" },
+  "skill.lowerIntermediateDesc": { de: "10-30 Sessions, fange grüne Wellen", en: "10-30 sessions, catching green waves", pt: "10-30 sessões, pegando ondas verdes" },
+  "skill.intermediate": { de: "Intermediate", en: "Intermediate", pt: "Intermediário" },
+  "skill.intermediateDesc": { de: "30+ Sessions, arbeite an Turns", en: "30+ sessions, working on turns", pt: "30+ sessões, praticando manobras" },
+  "goal.firstWaves": { de: "Erste grüne Wellen fangen", en: "Catch first green waves", pt: "Pegar primeiras ondas verdes" },
+  "goal.improveTakeoff": { de: "Takeoff verbessern", en: "Improve takeoff", pt: "Melhorar a remada" },
+  "goal.learnTurns": { de: "Turns lernen", en: "Learn to turn", pt: "Aprender manobras" },
+  "goal.surfIndependently": { de: "Selbstständig surfen", en: "Surf independently", pt: "Surfar independentemente" },
+
+  // ══════════════════════════════════════════
+  // PROFILE SCREEN v6.3.2 (Sprint 32)
+  // ══════════════════════════════════════════
+  "profile.surfer": { de: "Surfer", en: "Surfer", pt: "Surfista" },
+  "profile.surfProfile": { de: "Surf-Profil", en: "Surf Profile", pt: "Perfil de Surf" },
+  "profile.level": { de: "Level", en: "Level", pt: "Nível" },
+  "profile.goal": { de: "Ziel", en: "Goal", pt: "Objetivo" },
+  "profile.spot": { de: "Spot", en: "Spot", pt: "Spot" },
+  "profile.schoolHelp": { de: "Surfschul-Empfehlungen", en: "School Recommendations", pt: "Recomendações de Escola" },
+  "profile.stats": { de: "Statistiken", en: "Statistics", pt: "Estatísticas" },
+  "profile.lessons": { de: "Lektionen", en: "Lessons", pt: "Aulas" },
+  "profile.entries": { de: "Einträge", en: "Entries", pt: "Entradas" },
+  "profile.progress": { de: "Fortschritt", en: "Progress", pt: "Progresso" },
+  "profile.badges": { de: "Badges", en: "Badges", pt: "Badges" },
+  "profile.more": { de: "Weitere", en: "More", pt: "Mais" },
+  "profile.equipmentDesc": { de: "Board-Beratung & Gear", en: "Board advice & gear", pt: "Consulta de prancha & gear" },
+  "profile.progressDesc": { de: "Badges, Skill Tree, Coaching", en: "Badges, skill tree, coaching", pt: "Badges, árvore de habilidades" },
+  "profile.communityDesc": { de: "Spots & Leute", en: "Spots & people", pt: "Spots & pessoas" },
+  "profile.instructorDesc": { de: "Surfschul-Dashboard", en: "Surf school dashboard", pt: "Painel da escola" },
+  "profile.madeWith": { de: "Made with", en: "Made with", pt: "Feito com" },
+  "g.save": { de: "Speichern", en: "Save", pt: "Salvar" },
+  "g.edit": { de: "Bearbeiten", en: "Edit", pt: "Editar" },
+  "g.delete": { de: "Löschen", en: "Delete", pt: "Excluir" },
+  "g.cancel": { de: "Abbrechen", en: "Cancel", pt: "Cancelar" },
+  "g.activate": { de: "Aktivieren", en: "Activate", pt: "Ativar" },
 
   // ══════════════════════════════════════════
   // DIARY
