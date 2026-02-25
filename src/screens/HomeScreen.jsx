@@ -1,10 +1,11 @@
-// SoulSurf – HomeScreen v6.3.4 (Sprint 32: Strategic Onboarding + Bugfixes)
+// SoulSurf – HomeScreen v6.4 (Sprint 33: Decision Engine)
 import React, { useState, useEffect, useMemo } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
+import useForecast from "../useForecast.js";
+import { getTodayRecommendation, confidenceDisplay, actionDisplay } from "../decisionEngine.js";
 
 const ONBOARDING_KEY = "soulsurf_onboarded";
 
-// v6.3: SKILL LEVELS for new onboarding
 const SKILL_LEVELS = [
   { id: "beginner", emoji: "🌱", key: "skill.beginner", descKey: "skill.beginnerDesc", color: "#4CAF50" },
   { id: "lower_intermediate", emoji: "🌿", key: "skill.lowerIntermediate", descKey: "skill.lowerIntermediateDesc", color: "#FF9800" },
@@ -28,7 +29,12 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   const [obSpot, setObSpot] = useState(null);
   const [obSchoolHelp, setObSchoolHelp] = useState(null);
   const [showFreezeConfirm, setShowFreezeConfirm] = useState(false);
-  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+
+  // v6.4: Decision Engine data
+  const { conditions, loading: forecastLoading, bestWindow } = useForecast(spotObj || null);
+  const recommendation = useMemo(() => {
+    return getTodayRecommendation(data, conditions, spotObj);
+  }, [data, conditions, spotObj]);
 
   useEffect(() => {
     try { const v = localStorage.getItem(ONBOARDING_KEY); if (!v) setOnboarded(false); } catch {}
@@ -37,29 +43,11 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   const finishOnboarding = () => {
     try { localStorage.setItem(ONBOARDING_KEY, "1"); } catch {}
     if (data.saveProfile) {
-      data.saveProfile({
-        skillLevel: obSkill || "beginner",
-        primaryGoal: obGoal || "first_waves",
-        wantsSchoolHelp: obSchoolHelp !== false,
-      });
+      data.saveProfile({ skillLevel: obSkill || "beginner", primaryGoal: obGoal || "first_waves", wantsSchoolHelp: obSchoolHelp !== false });
     }
     if (obSpot && data.setSpot) data.setSpot(obSpot);
     setOnboarded(true);
   };
-
-  const nextBadge = useMemo(() => {
-    const BADGES = [
-      { name: "Paddler", threshold: 10, cat: "lessons", emoji: "📗" },
-      { name: "Wave Catcher", threshold: 25, cat: "lessons", emoji: "📘" },
-      { name: "Shredder", threshold: 50, cat: "lessons", emoji: "📕" },
-    ];
-    return BADGES.find(b => data.done < b.threshold);
-  }, [data.done]);
-
-  const coachingTip = useMemo(() => {
-    if (data.coaching?.tips?.length > 0) return data.coaching.tips[0];
-    return null;
-  }, [data.coaching]);
 
   const progressPct = data.total > 0 ? Math.round((data.done / data.total) * 100) : 0;
 
@@ -92,7 +80,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   };
 
   // ═══════════════════════════════════════════
-  // v6.3: NEW 4-STEP STRATEGIC ONBOARDING
+  // 4-STEP ONBOARDING (unchanged from v6.3.4)
   // ═══════════════════════════════════════════
   if (!onboarded && !data.skillLevel) {
     const totalSteps = 4;
@@ -107,7 +95,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
 
     return (
       <div style={{ paddingTop: 20, textAlign: "center" }}>
-        {/* Step 0: Welcome + Skill Level */}
         {obStep === 0 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 80, height: 80, borderRadius: 20, marginBottom: 14, animation: "float 4s ease-in-out infinite", boxShadow: "0 12px 40px rgba(0,150,136,0.2)" }} />
@@ -141,8 +128,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <StepDots />
           </div>
         )}
-
-        {/* Step 1: Goal */}
         {obStep === 1 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, marginBottom: 8 }}>{stepLabel}</div>
@@ -178,8 +163,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <StepDots />
           </div>
         )}
-
-        {/* Step 2: Location */}
         {obStep === 2 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, marginBottom: 8 }}>{stepLabel}</div>
@@ -213,8 +196,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <StepDots />
           </div>
         )}
-
-        {/* Step 3: Surf School Opt-In + Summary */}
         {obStep === 3 && (
           <div style={{ animation: "screenIn 0.4s ease both" }}>
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, marginBottom: 8 }}>{stepLabel}</div>
@@ -229,9 +210,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 cursor: "pointer", textAlign: "left", transition: "all 0.2s ease",
               }}>
                 <span style={{ fontSize: 28 }}>👍</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: obSchoolHelp === true ? t.accent : t.text }}>{_("ob.schoolYes")}</div>
-                </div>
+                <div style={{ flex: 1 }}><div style={{ fontSize: 16, fontWeight: 700, color: obSchoolHelp === true ? t.accent : t.text }}>{_("ob.schoolYes")}</div></div>
                 {obSchoolHelp === true && <span style={{ fontSize: 18, color: t.accent }}>✓</span>}
               </button>
               <button onClick={() => setObSchoolHelp(false)} style={{
@@ -241,9 +220,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 cursor: "pointer", textAlign: "left", transition: "all 0.2s ease",
               }}>
                 <span style={{ fontSize: 28 }}>🤙</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: t.text }}>{_("ob.schoolNo")}</div>
-                </div>
+                <div style={{ flex: 1 }}><div style={{ fontSize: 16, fontWeight: 700, color: t.text }}>{_("ob.schoolNo")}</div></div>
                 {obSchoolHelp === false && <span style={{ fontSize: 18, color: t.text3 }}>✓</span>}
               </button>
             </div>
@@ -275,7 +252,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   }
 
   // ═══════════════════════════════════════════
-  // DASHBOARD (returning users with program)
+  // v6.4: DECISION ENGINE DASHBOARD
   // ═══════════════════════════════════════════
   if (data.hasSaved && spotObj) {
     const today = new Date().toISOString().slice(0, 10);
@@ -284,231 +261,264 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
     const timeGreeting = hour < 10 ? _("home.morning") : hour < 14 ? _("home.midday") : hour < 18 ? _("home.afternoon") : _("home.evening");
     const dateLang = i18n?.lang === "pt" ? "pt-BR" : i18n?.lang === "en" ? "en-US" : "de-DE";
     const streakMilestones = data.streakMilestones || { achieved: [], current: null, next: null, progress: 0 };
+    const conf = confidenceDisplay(recommendation.confidence);
+    const act = actionDisplay(recommendation.action);
 
     return (
       <div style={{ paddingTop: 20 }}>
-        {/* Greeting + Skill Badge */}
-        <div style={{ marginBottom: 20 }}>
+        {/* Greeting */}
+        <div style={{ marginBottom: 16 }}>
           <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>{new Date().toLocaleDateString(dateLang, { weekday: "long", day: "numeric", month: "long" })}</div>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginTop: 4 }}>
             {data.streak > 2 ? _("home.onFire") : progressPct >= 80 ? _("home.almostDone") : progressPct >= 50 ? _("home.keepGoing") : timeGreeting}
           </h2>
-          {data.skillLevel && (
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", padding: "4px 10px", borderRadius: 8 }}>
-              <span style={{ fontSize: 12 }}>{SKILL_LEVELS.find(s => s.id === data.skillLevel)?.emoji}</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent }}>{_(SKILL_LEVELS.find(s => s.id === data.skillLevel)?.key || data.skillLevel)}</span>
+        </div>
+
+        {/* ══════ DECISION CARD (HERO) ══════ */}
+        <div style={{
+          background: `linear-gradient(135deg, ${conf.color}18, ${conf.color}08)`,
+          border: `2px solid ${conf.color}40`,
+          borderRadius: 20, padding: "20px", marginBottom: 16,
+          position: "relative", overflow: "hidden",
+          animation: "slideUp 0.4s ease both",
+        }}>
+          <div style={{ position: "absolute", top: -15, right: -15, fontSize: 70, opacity: 0.08 }}>{act.emoji}</div>
+
+          {/* Header: Today for your level */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              {_("decision.todayFor")} · {spotObj.emoji} {spotObj.name.split(",")[0]}
             </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 4, background: `${conf.color}20`, padding: "3px 8px", borderRadius: 6 }}>
+              <span style={{ fontSize: 10 }}>{conf.emoji}</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, fontWeight: 700, color: conf.color }}>{_(conf.label)}</span>
+            </div>
+          </div>
+
+          {/* Loading state */}
+          {forecastLoading && !conditions ? (
+            <div style={{ textAlign: "center", padding: "20px 0" }}>
+              <div style={{ fontSize: 28, marginBottom: 8, animation: "float 2s ease-in-out infinite" }}>🌊</div>
+              <div style={{ fontSize: 13, color: t.text2 }}>{_("decision.noData")}</div>
+            </div>
+          ) : (
+            <>
+              {/* Action + Reason */}
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+                <div style={{ width: 52, height: 52, borderRadius: 16, background: `${act.color}20`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>{act.emoji}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text }}>{_(act.label)}</div>
+                  <div style={{ fontSize: 12, color: t.text2, marginTop: 2 }}>{_(recommendation.reasonKey, recommendation.reason)}</div>
+                </div>
+              </div>
+
+              {/* Conditions mini-row */}
+              {conditions && conditions.waveHeight != null && (
+                <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                  <div style={{ flex: 1, background: dm ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>{_("decision.waves")}</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: t.text }}>{conditions.waveHeight?.toFixed(1)}m</div>
+                    {conditions.wavePeriod != null && <div style={{ fontSize: 9, color: t.text3 }}>{conditions.wavePeriod?.toFixed(0)}s</div>}
+                  </div>
+                  <div style={{ flex: 1, background: dm ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>{_("decision.wind")}</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: t.text }}>{conditions.wind != null ? Math.round(conditions.wind) : "–"}<span style={{ fontSize: 10, fontWeight: 500 }}>km/h</span></div>
+                  </div>
+                  <div style={{ flex: 1, background: dm ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>Score</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: conf.color }}>{conditions.surfScore}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Best window hint */}
+              {bestWindow && bestWindow.score >= 60 && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: dm ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", borderRadius: 10, marginBottom: 14 }}>
+                  <span style={{ fontSize: 14 }}>⏰</span>
+                  <span style={{ fontSize: 12, color: t.text2 }}>{_("decision.bestWindow")}: <strong style={{ color: t.text }}>{bestWindow.hour}:00</strong> (Score {bestWindow.score})</span>
+                </div>
+              )}
+
+              {/* CTA Button */}
+              {recommendation.cta && (
+                <button onClick={() => navigate(recommendation.cta.screen)} style={{
+                  width: "100%", padding: "14px", borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: "pointer",
+                  fontFamily: "'Playfair Display', serif",
+                  background: recommendation.action === "book_lesson" ? "linear-gradient(135deg, #FF9800, #FF7043)" : "linear-gradient(135deg, #009688, #4DB6AC)",
+                  color: "white", border: "none",
+                  boxShadow: `0 6px 20px ${recommendation.action === "book_lesson" ? "rgba(255,152,0,0.3)" : "rgba(0,150,136,0.3)"}`,
+                }}>
+                  {_(recommendation.cta.text)} →
+                </button>
+              )}
+            </>
           )}
         </div>
 
-        {/* Notification Card (collapsed) */}
+        {/* Notification prompt (only if not granted) */}
         {notifications && notifications.isSupported && !notifications.isGranted && (
           <button onClick={async () => await notifications.requestPermission()} style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 12, background: dm ? "rgba(255,183,77,0.08)" : "#FFF8E1",
-            border: `1px solid ${dm ? "rgba(255,183,77,0.15)" : "#FFE0B2"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, cursor: "pointer", textAlign: "left",
+            width: "100%", display: "flex", alignItems: "center", gap: 12, background: dm ? "rgba(255,183,77,0.06)" : "#FFF8E1",
+            border: `1px solid ${dm ? "rgba(255,183,77,0.12)" : "#FFE0B2"}`, borderRadius: 14, padding: "10px 16px", marginBottom: 12, cursor: "pointer", textAlign: "left",
           }}>
-            <span style={{ fontSize: 20 }}>🔔</span>
+            <span style={{ fontSize: 18 }}>🔔</span>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{_("home.notifEnable", "Benachrichtigungen aktivieren")}</div>
-              <div style={{ fontSize: 11, color: t.text2 }}>{_("home.notifEnableDesc", "Streak-Reminder & Forecast-Alerts")}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: t.text }}>{_("home.notifEnable", "Benachrichtigungen aktivieren")}</div>
             </div>
-            <span style={{ fontSize: 12, color: t.accent, fontWeight: 700 }}>→</span>
+            <span style={{ fontSize: 11, color: t.accent, fontWeight: 700 }}>→</span>
           </button>
         )}
 
-        {/* Progress Card */}
-        <div style={{ background: "linear-gradient(135deg, #004D40, #00695C)", borderRadius: 20, padding: "20px", color: "white", marginBottom: 16, position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: -20, right: -20, fontSize: 80, opacity: 0.08 }}>🏄</div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-            <div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, textTransform: "uppercase", opacity: 0.7 }}>{savedGoal?.emoji} {savedGoal?.name}</div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 800, marginTop: 4 }}>{spotObj.emoji} {spotObj.name}</div>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 900 }}>{progressPct}%</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, opacity: 0.7 }}>{data.done}/{data.total}</div>
-            </div>
-          </div>
-          <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 8, height: 6, overflow: "hidden", marginBottom: 14 }}>
-            <div style={{ background: "linear-gradient(90deg, #FFB74D, #FF7043)", height: "100%", borderRadius: 8, width: `${progressPct}%`, transition: "width 0.5s ease" }} />
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={() => navigate("lessons")} style={{ flex: 1, background: "white", color: "#004D40", border: "none", borderRadius: 12, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif" }}>▶ {_("home.continueSurf", "Weiter surfen")}</button>
-            <button onClick={() => setShowResetConfirm(true)} style={{ background: "rgba(255,255,255,0.15)", color: "white", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 12, padding: "12px 16px", fontSize: 14, cursor: "pointer" }}>🗑</button>
-          </div>
-        </div>
-
-        {showResetConfirm && (
-          <div style={{ background: dm ? "#2d2010" : "#FFF3E0", border: "2px solid #FFB74D", borderRadius: 14, padding: "16px", marginBottom: 16, textAlign: "center" }}>
-            <p style={{ fontSize: 14, color: dm ? "#e8eaed" : "#4E342E", marginBottom: 12 }}>{_("home.resetConfirm", "Programm und Fortschritt löschen?")}</p>
-            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-              <button onClick={() => { data.resetProgram(); setShowResetConfirm(false); }} style={{ background: "#E53935", color: "white", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{_("g.delete", "Löschen")}</button>
-              <button onClick={() => setShowResetConfirm(false)} style={{ background: "#ECEFF1", color: "#546E7A", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, cursor: "pointer" }}>{_("g.cancel", "Abbrechen")}</button>
-            </div>
-          </div>
-        )}
-
-        {/* Streak Card */}
+        {/* Streak Card (compact) */}
         {data.streak >= 2 && streakMilestones.current && (
-          <div style={{ background: "linear-gradient(135deg, #FFB74D, #FF7043)", borderRadius: 16, padding: "16px 18px", marginBottom: 12, color: "white", position: "relative", overflow: "hidden", animation: "slideUp 0.4s ease both" }}>
-            <div style={{ position: "absolute", top: -10, right: -10, fontSize: 60, opacity: 0.15 }}>🔥</div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <div style={{ background: "linear-gradient(135deg, #FFB74D, #FF7043)", borderRadius: 16, padding: "14px 16px", marginBottom: 12, color: "white", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: -10, right: -10, fontSize: 50, opacity: 0.12 }}>🔥</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, textTransform: "uppercase", opacity: 0.9 }}>Streak</div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 800, marginTop: 2 }}>{streakMilestones.current.badge} {streakMilestones.current.title}</div>
-                <div style={{ fontSize: 11, opacity: 0.9, marginTop: 2 }}>{streakMilestones.current.desc}</div>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 800 }}>{streakMilestones.current.badge} {data.streak} {_("general.days", "Tage")}</div>
+                <div style={{ fontSize: 10, opacity: 0.9, marginTop: 2 }}>{streakMilestones.current.desc}</div>
               </div>
-              <div style={{ fontSize: 36, fontWeight: 900 }}>{data.streak}</div>
+              {streakMilestones.next && (
+                <div style={{ textAlign: "right", fontSize: 10, opacity: 0.8 }}>{streakMilestones.next.badge} in {streakMilestones.next.day - data.streak}d</div>
+              )}
             </div>
-            {streakMilestones.next && (
-              <>
-                <div style={{ background: "rgba(255,255,255,0.25)", borderRadius: 6, height: 6, overflow: "hidden", marginBottom: 6 }}>
-                  <div style={{ background: "white", height: "100%", borderRadius: 6, width: `${Math.round(streakMilestones.progress * 100)}%`, transition: "width 0.5s ease" }} />
-                </div>
-                <div style={{ fontSize: 10, opacity: 0.9, textAlign: "right" }}>{streakMilestones.next.badge} {streakMilestones.next.title} ({streakMilestones.next.day - data.streak} {_("general.days", "Tage")})</div>
-              </>
-            )}
             {data.canFreezeStreak && data.streak >= 3 && (
-              <button onClick={() => setShowFreezeConfirm(true)} style={{ marginTop: 10, width: "100%", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: 10, padding: "10px", fontSize: 12, fontWeight: 700, color: "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                🧊 {_("home.freezeAvailable", "Streak Freeze (1x/Monat)")}
+              <button onClick={() => setShowFreezeConfirm(true)} style={{ marginTop: 8, width: "100%", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: 8, padding: "8px", fontSize: 11, fontWeight: 700, color: "white", cursor: "pointer" }}>
+                🧊 Streak Freeze
               </button>
             )}
           </div>
         )}
 
         {showFreezeConfirm && (
-          <div style={{ background: dm ? "rgba(92,107,192,0.1)" : "#E8EAF6", border: `1px solid ${dm ? "rgba(92,107,192,0.2)" : "#C5CAE9"}`, borderRadius: 14, padding: "16px", marginBottom: 16, textAlign: "center" }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>🧊</div>
-            <p style={{ fontSize: 14, color: t.text, marginBottom: 4, fontWeight: 700 }}>{_("home.freezeTitle", "Streak Freeze aktivieren?")}</p>
-            <p style={{ fontSize: 12, color: t.text2, marginBottom: 12, lineHeight: 1.5 }}>{_("home.freezeDesc", "Dein Streak bleibt 1 Tag erhalten. 1x pro Monat möglich.")}</p>
+          <div style={{ background: dm ? "rgba(92,107,192,0.1)" : "#E8EAF6", border: `1px solid ${dm ? "rgba(92,107,192,0.2)" : "#C5CAE9"}`, borderRadius: 14, padding: "16px", marginBottom: 12, textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: t.text, marginBottom: 8, fontWeight: 700 }}>{_("home.freezeTitle", "Streak Freeze aktivieren?")}</p>
+            <p style={{ fontSize: 11, color: t.text2, marginBottom: 10 }}>{_("home.freezeDesc", "Dein Streak bleibt 1 Tag erhalten. 1x pro Monat.")}</p>
             <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-              <button onClick={handleFreezeStreak} style={{ background: "#7986CB", color: "white", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{_("g.activate", "Aktivieren")}</button>
-              <button onClick={() => setShowFreezeConfirm(false)} style={{ background: "#ECEFF1", color: "#546E7A", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 13, cursor: "pointer" }}>{_("g.cancel", "Abbrechen")}</button>
+              <button onClick={handleFreezeStreak} style={{ background: "#7986CB", color: "white", border: "none", borderRadius: 10, padding: "8px 20px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{_("g.activate", "Aktivieren")}</button>
+              <button onClick={() => setShowFreezeConfirm(false)} style={{ background: "#ECEFF1", color: "#546E7A", border: "none", borderRadius: 10, padding: "8px 16px", fontSize: 12, cursor: "pointer" }}>{_("g.cancel", "Abbrechen")}</button>
             </div>
           </div>
         )}
 
+        {/* Milestone toast */}
         {milestone && !seenTooltips[`ms-${data.done}-${data.streak}`] && (
-          <div style={{ background: dm ? "rgba(255,183,77,0.1)" : "#FFF8E1", border: `1px solid ${dm ? "rgba(255,183,77,0.2)" : "#FFE0B2"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10, animation: "slideUp 0.4s ease both" }}>
-            <span style={{ fontSize: 28 }}>{milestone.emoji}</span>
-            <div style={{ flex: 1, fontSize: 13, fontWeight: 600, color: dm ? "#FFB74D" : "#E65100" }}>{milestone.text}</div>
-            <button onClick={() => dismissTooltip(`ms-${data.done}-${data.streak}`)} style={{ background: "none", border: "none", color: t.text3, fontSize: 16, cursor: "pointer", padding: 4 }}>✕</button>
+          <div style={{ background: dm ? "rgba(255,183,77,0.1)" : "#FFF8E1", border: `1px solid ${dm ? "rgba(255,183,77,0.2)" : "#FFE0B2"}`, borderRadius: 14, padding: "10px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 24 }}>{milestone.emoji}</span>
+            <div style={{ flex: 1, fontSize: 12, fontWeight: 600, color: dm ? "#FFB74D" : "#E65100" }}>{milestone.text}</div>
+            <button onClick={() => dismissTooltip(`ms-${data.done}-${data.streak}`)} style={{ background: "none", border: "none", color: t.text3, fontSize: 14, cursor: "pointer", padding: 2 }}>✕</button>
           </div>
         )}
 
-        {/* Stats */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-          {[
-            { emoji: "🔥", value: data.streak, label: _("home.streak"), color: "#FFB74D" },
-            { emoji: "📓", value: data.diaryCount, label: _("home.entries"), color: "#7986CB" },
-            { emoji: "📚", value: data.total - data.done, label: _("home.open"), color: t.accent },
-          ].map((s, i) => (
-            <div key={i} style={{ flex: 1, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, padding: "12px 10px", textAlign: "center" }}>
-              <div style={{ fontSize: 20 }}>{s.emoji}</div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Gamification (implicit feature flag) */}
-        {data.gamification?.currentLevel && (
-          <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "14px 16px", marginBottom: 12 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 22 }}>{data.gamification.currentLevel.emoji}</span>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{data.gamification.currentLevel.name}</div>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent }}>{data.gamification.totalXP} XP</div>
-                </div>
-              </div>
-            </div>
-            <div style={{ background: dm ? "rgba(255,255,255,0.08)" : "#ECEFF1", borderRadius: 6, height: 8, overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 6, background: "linear-gradient(90deg, #009688, #4DB6AC, #80CBC4)", width: `${Math.round(data.gamification.levelProgress * 100)}%`, transition: "width 0.5s ease" }} />
-            </div>
-          </div>
-        )}
-
-        {/* Surf Today */}
-        <button onClick={data.toggleSurfDay} style={{
-          width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", marginBottom: 12, borderRadius: 14, cursor: "pointer", textAlign: "left",
-          background: surfedToday ? (dm ? "rgba(255,183,77,0.12)" : "#FFF8E1") : t.card,
-          border: `1px solid ${surfedToday ? "#FFB74D" : t.cardBorder}`,
-        }}>
-          <span style={{ fontSize: 24 }}>{surfedToday ? "🏄‍♂️" : "🏖️"}</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: surfedToday ? "#E65100" : t.text }}>{surfedToday ? _("home.surfedToday") : _("home.surfedTodayQ")}</div>
-            <div style={{ fontSize: 11, color: t.text2 }}>{surfedToday ? `${_("home.streak")}: ${data.streak} 🔥` : _("home.tapToLog")}</div>
-          </div>
-        </button>
-
-        {/* Coach Tip */}
-        {coachingTip && (
-          <button onClick={() => navigate("progress")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: dm ? "rgba(102,187,106,0.08)" : "#E8F5E9", border: `1px solid ${dm ? "rgba(102,187,106,0.15)" : "#C8E6C9"}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12, cursor: "pointer", textAlign: "left" }}>
-            <span style={{ fontSize: 24 }}>{coachingTip.icon}</span>
+        {/* Next Lesson Card (compact) */}
+        {data.hasSaved && (
+          <button onClick={() => navigate("lessons")} style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 12,
+            background: "linear-gradient(135deg, #004D40, #00695C)", borderRadius: 16,
+            padding: "14px 16px", marginBottom: 12, cursor: "pointer", textAlign: "left",
+            color: "white", border: "none", position: "relative", overflow: "hidden",
+          }}>
+            <div style={{ position: "absolute", top: -10, right: -10, fontSize: 50, opacity: 0.08 }}>📚</div>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>▶</div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#66BB6A" : "#2E7D32", textTransform: "uppercase" }}>Coach-Tipp</div>
-              <div style={{ fontSize: 12, color: t.text2, marginTop: 2 }}>{coachingTip.tip}</div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700 }}>{_("home.continueSurf", "Weiter surfen")}</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, opacity: 0.7 }}>{data.done}/{data.total} · {progressPct}%</div>
             </div>
-            <span style={{ fontSize: 14, color: t.text3 }}>→</span>
+            <span style={{ fontSize: 14, opacity: 0.7 }}>→</span>
           </button>
         )}
 
+        {/* Surf Today toggle */}
+        <button onClick={data.toggleSurfDay} style={{
+          width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", marginBottom: 12, borderRadius: 14, cursor: "pointer", textAlign: "left",
+          background: surfedToday ? (dm ? "rgba(255,183,77,0.12)" : "#FFF8E1") : t.card,
+          border: `1px solid ${surfedToday ? "#FFB74D" : t.cardBorder}`,
+        }}>
+          <span style={{ fontSize: 22 }}>{surfedToday ? "🏄‍♂️" : "🏖️"}</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: surfedToday ? "#E65100" : t.text }}>{surfedToday ? _("home.surfedToday") : _("home.surfedTodayQ")}</div>
+            <div style={{ fontSize: 10, color: t.text2 }}>{surfedToday ? `${_("home.streak")}: ${data.streak} 🔥` : _("home.tapToLog")}</div>
+          </div>
+        </button>
+
+        {/* Reset program (hidden behind tap) */}
+        {showResetConfirm && (
+          <div style={{ background: dm ? "#2d2010" : "#FFF3E0", border: "2px solid #FFB74D", borderRadius: 14, padding: "14px", marginBottom: 12, textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: dm ? "#e8eaed" : "#4E342E", marginBottom: 10 }}>{_("home.resetConfirm", "Programm löschen?")}</p>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <button onClick={() => { data.resetProgram(); setShowResetConfirm(false); }} style={{ background: "#E53935", color: "white", border: "none", borderRadius: 10, padding: "7px 18px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{_("g.delete", "Löschen")}</button>
+              <button onClick={() => setShowResetConfirm(false)} style={{ background: "#ECEFF1", color: "#546E7A", border: "none", borderRadius: 10, padding: "7px 18px", fontSize: 12, cursor: "pointer" }}>{_("g.cancel", "Abbrechen")}</button>
+            </div>
+          </div>
+        )}
+
         {/* Quick Links */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 20 }}>
           {[
             { icon: "🌊", label: _("nav.surf", "Surf"), screen: "forecast" },
-            { icon: "✈️", label: _("nav.trip", "Trip"), screen: "trip" },
             { icon: "🏫", label: _("nav.schools", "Schulen"), screen: "schools" },
-            { icon: "🏄", label: _("nav.equipment", "Gear"), screen: "equipment" },
+            { icon: "📓", label: _("nav.log", "Log"), screen: "diary" },
+            { icon: "👤", label: _("nav.profile", "Profil"), screen: "profile" },
           ].map((card, i) => (
-            <button key={i} onClick={() => navigate(card.screen)} style={{ background: t.card, borderRadius: 14, padding: "14px 8px", border: `1px solid ${t.cardBorder}`, cursor: "pointer", textAlign: "center" }}>
-              <div style={{ fontSize: 22, marginBottom: 4 }}>{card.icon}</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, fontWeight: 600, color: t.text2 }}>{card.label}</div>
+            <button key={i} onClick={() => navigate(card.screen)} style={{ background: t.card, borderRadius: 12, padding: "12px 6px", border: `1px solid ${t.cardBorder}`, cursor: "pointer", textAlign: "center" }}>
+              <div style={{ fontSize: 20, marginBottom: 3 }}>{card.icon}</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, fontWeight: 600, color: t.text2 }}>{card.label}</div>
             </button>
           ))}
-        </div>
-
-        <div style={{ padding: 20, background: t.card, borderRadius: 16, border: `1px dashed ${dm ? "#2d3f50" : "#CFD8DC"}`, textAlign: "center" }}>
-          <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.text3, fontStyle: "italic" }}>☮ "The best surfer is the one having the most fun." — Phil Edwards</p>
         </div>
       </div>
     );
   }
 
   // ═══════════════════════════════════════════
-  // DEFAULT HOME (onboarded but no program)
+  // DEFAULT HOME (onboarded, no program yet)
+  // v6.4: Also shows Decision Card if spot set
   // ═══════════════════════════════════════════
+  const conf2 = confidenceDisplay(recommendation.confidence);
+  const act2 = actionDisplay(recommendation.action);
+
   return (
-    <div style={{ paddingTop: 40, textAlign: "center" }}>
-      <div style={{ fontSize: 70, marginBottom: 12, animation: "float 4s ease-in-out infinite" }}>🌊</div>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 36, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 10 }}>{_("home.heroTitle", "Lerne Surfen.")}<br /><span style={{ color: t.accent }}>{_("home.heroSub", "Finde deinen Flow.")}</span></h2>
-      <p style={{ fontSize: 16, color: t.text2, maxWidth: 400, margin: "0 auto 24px", lineHeight: 1.6 }}>{_("home.heroDesc", "Erstelle dein persönliches Surf-Programm oder plane deinen nächsten Trip.")}</p>
-      {data.skillLevel && (
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 20, background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", padding: "8px 16px", borderRadius: 12 }}>
-          <span style={{ fontSize: 16 }}>{SKILL_LEVELS.find(s => s.id === data.skillLevel)?.emoji}</span>
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: t.accent, fontWeight: 700 }}>{_(SKILL_LEVELS.find(s => s.id === data.skillLevel)?.key || data.skillLevel)}</span>
+    <div style={{ paddingTop: 30, textAlign: "center" }}>
+      <div style={{ fontSize: 60, marginBottom: 10, animation: "float 4s ease-in-out infinite" }}>🌊</div>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 8 }}>{_("home.heroTitle", "Lerne Surfen.")}<br /><span style={{ color: t.accent }}>{_("home.heroSub", "Finde deinen Flow.")}</span></h2>
+      <p style={{ fontSize: 15, color: t.text2, maxWidth: 400, margin: "0 auto 20px", lineHeight: 1.6 }}>{_("home.heroDesc", "Erstelle dein persönliches Surf-Programm oder plane deinen nächsten Trip.")}</p>
+
+      {/* Mini Decision Card for no-program users with a spot */}
+      {spotObj && conditions && (
+        <div style={{ maxWidth: 380, margin: "0 auto 20px", background: `${conf2.color}10`, border: `1px solid ${conf2.color}30`, borderRadius: 16, padding: "14px 16px", textAlign: "left" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+            <span style={{ fontSize: 22 }}>{act2.emoji}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{_(act2.label)}</div>
+              <div style={{ fontSize: 11, color: t.text2 }}>{spotObj.emoji} {spotObj.name.split(",")[0]} · {conditions.waveHeight?.toFixed(1)}m · {conditions.wind != null ? Math.round(conditions.wind) + "km/h" : ""}</div>
+            </div>
+            <div style={{ fontSize: 10, color: conf2.color, fontWeight: 700 }}>{conf2.emoji}</div>
+          </div>
+          {recommendation.cta && recommendation.action === "book_lesson" && (
+            <button onClick={() => navigate("schools")} style={{ width: "100%", padding: "10px", background: "linear-gradient(135deg, #FF9800, #FF7043)", color: "white", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+              {_("decision.cta.findCoach")} →
+            </button>
+          )}
         </div>
       )}
-      <button onClick={() => navigate("builder")} style={{ display: "block", margin: "0 auto 32px", background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "18px 44px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>{_("home.createProgram", "Programm erstellen")} 🤙</button>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 32 }}>
+
+      <button onClick={() => navigate("builder")} style={{ display: "block", margin: "0 auto 28px", background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "18px 44px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>{_("home.createProgram", "Programm erstellen")} 🤙</button>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 28 }}>
         {[
           { icon: "🌊", title: _("nav.surf", "Surf"), desc: _("home.checkForecastDesc", "Surf-Bedingungen"), screen: "forecast" },
           { icon: "🏫", title: _("nav.schools", "Schulen"), desc: _("home.findSchool", "Surfschulen finden"), screen: "schools" },
           { icon: "🏄", title: _("nav.equipment", "Equipment"), desc: _("home.findBoardDesc", "Finde dein Board"), screen: "equipment" },
         ].map((card, i) => (
           <button key={i} onClick={() => navigate(card.screen)} style={{
-            background: t.card, borderRadius: 18, padding: "20px 16px", border: `1px solid ${t.cardBorder}`,
+            background: t.card, borderRadius: 18, padding: "18px 14px", border: `1px solid ${t.cardBorder}`,
             cursor: "pointer", textAlign: "left", animation: "slideUp 0.4s ease both", animationDelay: `${i * 100}ms`,
           }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>{card.icon}</div>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, fontWeight: 700, color: t.text, marginBottom: 4 }}>{card.title}</div>
-            <div style={{ fontSize: 12, color: t.text3, lineHeight: 1.4 }}>{card.desc}</div>
+            <div style={{ fontSize: 26, marginBottom: 6 }}>{card.icon}</div>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700, color: t.text, marginBottom: 3 }}>{card.title}</div>
+            <div style={{ fontSize: 11, color: t.text3, lineHeight: 1.3 }}>{card.desc}</div>
           </button>
         ))}
-      </div>
-      <div style={{ padding: 20, background: t.card, borderRadius: 16, border: `1px dashed ${dm ? "#2d3f50" : "#CFD8DC"}` }}>
-        <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.text3, fontStyle: "italic" }}>☮ "The best surfer is the one having the most fun." — Phil Edwards</p>
       </div>
     </div>
   );
