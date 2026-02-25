@@ -283,6 +283,44 @@ const T = {
   "g.activate": { de: "Aktivieren", en: "Activate", pt: "Ativar" },
 
   // ══════════════════════════════════════════
+  // DECISION ENGINE v6.4 (Sprint 33)
+  // ══════════════════════════════════════════
+  "decision.todayFor": { de: "Heute für dein Level", en: "Today for your level", pt: "Hoje para seu nível" },
+  "decision.confidence.high": { de: "Hohe Sicherheit", en: "High confidence", pt: "Alta confiança" },
+  "decision.confidence.medium": { de: "Mittlere Sicherheit", en: "Medium confidence", pt: "Confiança média" },
+  "decision.confidence.low": { de: "Niedrige Sicherheit", en: "Low confidence", pt: "Baixa confiança" },
+  "decision.confidence.unknown": { de: "Lade Daten...", en: "Loading data...", pt: "Carregando dados..." },
+  "decision.action.surfSolo": { de: "Solo surfen gehen", en: "Go surf solo", pt: "Surfar sozinho" },
+  "decision.action.bookLesson": { de: "Surflehrer buchen", en: "Book a lesson", pt: "Agendar aula" },
+  "decision.action.caution": { de: "Mit Vorsicht surfen", en: "Surf with caution", pt: "Surfar com cautela" },
+  "decision.action.wait": { de: "Besseren Tag abwarten", en: "Wait for a better day", pt: "Esperar um dia melhor" },
+  "decision.action.noSurf": { de: "Heute nicht surfen", en: "No surf today", pt: "Sem surf hoje" },
+  "decision.action.checkLater": { de: "Später prüfen", en: "Check later", pt: "Verificar depois" },
+  "decision.noData": { de: "Forecast-Daten laden...", en: "Loading forecast...", pt: "Carregando previsão..." },
+  "decision.storm": { de: "Gewitter – heute nicht sicher", en: "Storm – not safe today", pt: "Tempestade – não seguro hoje" },
+  "decision.flat": { de: "Flat – keine surfbaren Wellen", en: "Flat – no surfable waves", pt: "Flat – sem ondas surfáveis" },
+  "decision.tooBigBeginner": { de: "Wellen zu groß für dein Level", en: "Waves too big for your level", pt: "Ondas grandes demais para seu nível" },
+  "decision.reefCaution": { de: "Riff-Spot – besonders vorsichtig sein", en: "Reef spot – extra caution needed", pt: "Spot de recife – cuidado extra" },
+  "decision.reefLesson": { de: "Riff-Spot – ein Guide hilft beim Einstieg", en: "Reef spot – a guide helps getting started", pt: "Spot de recife – um guia ajuda" },
+  "decision.tooWindy": { de: "Zu windig – unruhige Bedingungen", en: "Too windy – choppy conditions", pt: "Muito ventoso – condições agitadas" },
+  "decision.windy": { de: "Windiger Tag – Bedingungen sind unruhig", en: "Windy day – choppy conditions", pt: "Dia ventoso – condições agitadas" },
+  "decision.perfectBeginner": { de: "Perfekte Bedingungen für dein Level!", en: "Perfect conditions for your level!", pt: "Condições perfeitas para seu nível!" },
+  "decision.goodConditions": { de: "Gute Bedingungen – ab ins Wasser!", en: "Good conditions – get in the water!", pt: "Boas condições – entre na água!" },
+  "decision.okayConditions": { de: "Mittelmäßige Bedingungen – kann gehen", en: "Okay conditions – could work", pt: "Condições medianas – pode funcionar" },
+  "decision.challengingIntermediate": { de: "Anspruchsvolle Bedingungen – Coach empfohlen", en: "Challenging conditions – coach recommended", pt: "Condições desafiadoras – coach recomendado" },
+  "decision.suboptimal": { de: "Nicht die besten Bedingungen", en: "Not the best conditions", pt: "Não são as melhores condições" },
+  "decision.cta.findCoach": { de: "Coach finden", en: "Find a coach", pt: "Encontrar coach" },
+  "decision.cta.lesson": { de: "Lektion machen", en: "Do a lesson", pt: "Fazer aula" },
+  "decision.cta.todayLesson": { de: "Heutige Lektion", en: "Today's lesson", pt: "Aula de hoje" },
+  "decision.cta.createProgram": { de: "Programm erstellen", en: "Create program", pt: "Criar programa" },
+  "decision.cta.checkForecast": { de: "Forecast checken", en: "Check forecast", pt: "Ver previsão" },
+  "decision.cta.otherSpots": { de: "Andere Spots", en: "Other spots", pt: "Outros spots" },
+  "decision.bestWindow": { de: "Bestes Zeitfenster", en: "Best window", pt: "Melhor horário" },
+  "decision.conditions": { de: "Aktuelle Bedingungen", en: "Current conditions", pt: "Condições atuais" },
+  "decision.waves": { de: "Wellen", en: "Waves", pt: "Ondas" },
+  "decision.wind": { de: "Wind", en: "Wind", pt: "Vento" },
+
+  // ══════════════════════════════════════════
   // DIARY
   // ══════════════════════════════════════════
   "diary.title": { de: "📓 Surf-Tagebuch", en: "📓 Surf Diary", pt: "📓 Diário de Surf" },
