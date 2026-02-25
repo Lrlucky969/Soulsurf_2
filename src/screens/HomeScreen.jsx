@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v6.4 (Sprint 33: Decision Engine)
+// SoulSurf – HomeScreen v6.4.1 (Sprint 33: Decision Engine + Bugfixes)
 import React, { useState, useEffect, useMemo } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
@@ -32,9 +32,19 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
 
   // v6.4: Decision Engine data
   const { conditions, loading: forecastLoading, bestWindow } = useForecast(spotObj || null);
+  // v6.4.1: Granular userData to avoid re-renders on unrelated data changes
+  const userData = useMemo(() => ({
+    skillLevel: data.skillLevel,
+    primaryGoal: data.primaryGoal,
+    wantsSchoolHelp: data.wantsSchoolHelp,
+    done: data.done,
+    streak: data.streak,
+    hasSaved: data.hasSaved,
+  }), [data.skillLevel, data.primaryGoal, data.wantsSchoolHelp, data.done, data.streak, data.hasSaved]);
+
   const recommendation = useMemo(() => {
-    return getTodayRecommendation(data, conditions, spotObj);
-  }, [data, conditions, spotObj]);
+    return getTodayRecommendation(userData, conditions, spotObj);
+  }, [userData, conditions, spotObj]);
 
   useEffect(() => {
     try { const v = localStorage.getItem(ONBOARDING_KEY); if (!v) setOnboarded(false); } catch {}
@@ -295,11 +305,16 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             </div>
           </div>
 
-          {/* Loading state */}
-          {forecastLoading && !conditions ? (
+          {/* Loading / No-data state */}
+          {!conditions ? (
             <div style={{ textAlign: "center", padding: "20px 0" }}>
-              <div style={{ fontSize: 28, marginBottom: 8, animation: "float 2s ease-in-out infinite" }}>🌊</div>
-              <div style={{ fontSize: 13, color: t.text2 }}>{_("decision.noData")}</div>
+              <div style={{ fontSize: 28, marginBottom: 8, animation: forecastLoading ? "float 2s ease-in-out infinite" : "none" }}>🌊</div>
+              <div style={{ fontSize: 13, color: t.text2 }}>{forecastLoading ? _("decision.noData") : _("decision.noWaveData", "Keine Daten verfügbar")}</div>
+              {!forecastLoading && (
+                <button onClick={() => navigate("forecast")} style={{ marginTop: 10, background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 10, padding: "8px 16px", fontSize: 12, color: t.accent, fontWeight: 700, cursor: "pointer" }}>
+                  {_("decision.cta.checkForecast")} →
+                </button>
+              )}
             </div>
           ) : (
             <>
@@ -335,7 +350,12 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
               {bestWindow && bestWindow.score >= 60 && (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: dm ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", borderRadius: 10, marginBottom: 14 }}>
                   <span style={{ fontSize: 14 }}>⏰</span>
-                  <span style={{ fontSize: 12, color: t.text2 }}>{_("decision.bestWindow")}: <strong style={{ color: t.text }}>{bestWindow.hour}:00</strong> (Score {bestWindow.score})</span>
+                  <span style={{ fontSize: 12, color: t.text2 }}>
+                    {_("decision.bestWindow")}: <strong style={{ color: t.text }}>{bestWindow.hour}:00</strong> (Score {bestWindow.score})
+                    {recommendation.action === "surf_with_caution" && bestWindow.score > (conditions?.surfScore || 0) && (
+                      <span style={{ color: t.accent, fontWeight: 600 }}> — 💡 {_("decision.betterThen", "Dann besser!")}</span>
+                    )}
+                  </span>
                 </div>
               )}
 
