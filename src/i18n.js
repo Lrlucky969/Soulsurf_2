@@ -346,6 +346,12 @@ const T = {
   "suit.schoolsAvail": { de: "Surfschulen verfügbar", en: "Schools available", pt: "Escolas disponíveis" },
 
   // ══════════════════════════════════════════
+  // CONTEXTUAL BOOKING v6.6 (V1: Decision → Booking)
+  // ══════════════════════════════════════════
+  "schools.decisionBanner": { de: "Ein Coach hilft dir heute", en: "A coach can help you today", pt: "Um coach pode te ajudar hoje" },
+  "schools.decisionDesc": { de: "Die Bedingungen sind heute anspruchsvoll – eine Surfschule sorgt für Sicherheit und Spaß.", en: "Conditions are challenging today – a surf school ensures safety and fun.", pt: "As condições estão desafiadoras hoje – uma escola de surf garante segurança e diversão." },
+
+  // ══════════════════════════════════════════
   // DIARY
   // ══════════════════════════════════════════
   "diary.title": { de: "📓 Surf-Tagebuch", en: "📓 Surf Diary", pt: "📓 Diário de Surf" },
