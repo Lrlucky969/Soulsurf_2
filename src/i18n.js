@@ -248,9 +248,13 @@ const T = {
   "skill.intermediate": { de: "Intermediate", en: "Intermediate", pt: "Intermediário" },
   "skill.intermediateDesc": { de: "30+ Sessions, arbeite an Turns", en: "30+ sessions, working on turns", pt: "30+ sessões, praticando manobras" },
   "goal.firstWaves": { de: "Erste grüne Wellen fangen", en: "Catch first green waves", pt: "Pegar primeiras ondas verdes" },
+  "goal.firstWavesDesc": { de: "Aufstehen & die erste ungebrochene Welle reiten", en: "Stand up and ride your first unbroken wave", pt: "Ficar de pé e surfar sua primeira onda verde" },
   "goal.improveTakeoff": { de: "Takeoff verbessern", en: "Improve takeoff", pt: "Melhorar a remada" },
+  "goal.improveTakeoffDesc": { de: "Schneller & sicherer auf dem Board aufstehen", en: "Get up faster and more consistently", pt: "Ficar de pé mais rápido e consistente" },
   "goal.learnTurns": { de: "Turns lernen", en: "Learn to turn", pt: "Aprender manobras" },
+  "goal.learnTurnsDesc": { de: "Bottom Turns, Cutbacks & erste Manöver", en: "Bottom turns, cutbacks & first maneuvers", pt: "Bottom turns, cutbacks e primeiras manobras" },
   "goal.surfIndependently": { de: "Selbstständig surfen", en: "Surf independently", pt: "Surfar independentemente" },
+  "goal.surfIndependentlyDesc": { de: "Spots lesen, Wellen wählen, sicher allein surfen", en: "Read spots, pick waves, surf safely on your own", pt: "Ler spots, escolher ondas, surfar sozinho com segurança" },
 
   // ══════════════════════════════════════════
   // PROFILE SCREEN v6.3.2 (Sprint 32)

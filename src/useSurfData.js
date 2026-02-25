@@ -1,4 +1,4 @@
-// SoulSurf – Central State Hook (v6.1 – Streak System Relaunch)
+// SoulSurf – Central State Hook (v6.3.4 – Profile System + Migration Fix)
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { CONTENT_POOL, analyzeDiary } from "./data.js";
 import { generateProgram } from "./generator.js";
@@ -142,7 +142,7 @@ export default function useSurfData(sync) {
         const completedCount = saved.completed ? Object.keys(saved.completed).filter(k => saved.completed[k]).length : 0;
         if (completedCount >= 30) setSkillLevel("intermediate");
         else if (completedCount >= 10) setSkillLevel("lower_intermediate");
-        else if (completedCount > 0) setSkillLevel("beginner");
+        else setSkillLevel("beginner");
       }
     } catch {}
     
