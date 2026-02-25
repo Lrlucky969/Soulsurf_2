@@ -1,4 +1,4 @@
-// SoulSurf – SurfScreen v6.5 (Sprint 34: Unified Surf Screen)
+// SoulSurf – SurfScreen v6.5.1 (Sprint 34: Bugfix)
 // Replaces ForecastScreen as "Surf" tab target
 // 3 Views: Spots | Schools | Forecast (toggle)
 import React, { useState, useMemo } from "react";
@@ -17,14 +17,20 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
   // Forecast for selected spot
   const { conditions, loading: fcLoading, bestWindow, hourly } = useForecast(spotObj);
 
-  // Sorted spots by suitability
+  // Sorted spots by suitability (always new array ref)
+  const allSorted = useMemo(() => sortSpotsBySuitability(SURF_SPOTS, data.skillLevel), [data.skillLevel]);
+  const filterCounts = useMemo(() => ({
+    all: allSorted.length,
+    perfect: allSorted.filter(s => s.suitability.level === "perfect").length,
+    suitable: allSorted.filter(s => s.suitability.level !== "challenging").length,
+  }), [allSorted]);
   const sortedSpots = useMemo(() => {
-    const sorted = sortSpotsBySuitability(SURF_SPOTS, data.skillLevel);
-    if (filterLevel === "all") return sorted;
-    if (filterLevel === "perfect") return sorted.filter(s => s.suitability.level === "perfect");
-    if (filterLevel === "suitable") return sorted.filter(s => s.suitability.level !== "challenging");
-    return sorted;
-  }, [data.skillLevel, filterLevel]);
+    switch (filterLevel) {
+      case "perfect": return allSorted.filter(s => s.suitability.level === "perfect");
+      case "suitable": return allSorted.filter(s => s.suitability.level !== "challenging");
+      default: return [...allSorted];
+    }
+  }, [allSorted, filterLevel]);
 
   // Schools for current spot
   const spotSchools = useMemo(() => getSchoolsBySpot(selectedSpot), [selectedSpot]);
@@ -46,9 +52,9 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
       {/* Skill filter pills */}
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
         {[
-          { id: "all", label: _("surf.all", "Alle") },
-          { id: "perfect", label: "🟢 " + _("suit.perfect", "Perfekt") },
-          { id: "suitable", label: "🟡 " + _("suit.suitable", "Geeignet") },
+          { id: "all", label: _("surf.all", "Alle"), count: filterCounts.all },
+          { id: "perfect", label: "🟢 " + _("suit.perfect", "Perfekt"), count: filterCounts.perfect },
+          { id: "suitable", label: "🟡 " + _("suit.suitable", "Geeignet"), count: filterCounts.suitable },
         ].map(f => (
           <button key={f.id} onClick={() => setFilterLevel(f.id)} style={{
             padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: "pointer",
@@ -56,7 +62,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
             border: filterLevel === f.id ? `2px solid ${t.accent}` : `2px solid ${t.inputBorder}`,
             color: filterLevel === f.id ? t.accent : t.text2,
             fontFamily: "'Space Mono', monospace",
-          }}>{f.label}</button>
+          }}>{f.label} ({f.count})</button>
         ))}
       </div>
 
@@ -181,12 +187,17 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
         </div>
 
         {/* Current conditions */}
-        {fcLoading && !conditions ? (
+        {!conditions ? (
           <div style={{ ...card, padding: 20, textAlign: "center", marginBottom: 12 }}>
-            <div style={{ fontSize: 24, marginBottom: 6, animation: "float 2s ease-in-out infinite" }}>🌊</div>
-            <div style={{ fontSize: 12, color: t.text2 }}>{_("decision.noData")}</div>
+            <div style={{ fontSize: 24, marginBottom: 8, animation: fcLoading ? "float 2s ease-in-out infinite" : "none" }}>{fcLoading ? "🌊" : "⚠️"}</div>
+            <div style={{ fontSize: 12, color: t.text2 }}>{fcLoading ? _("decision.noData") : _("surf.noConditions", "Keine Daten verfügbar")}</div>
+            {!fcLoading && (
+              <button onClick={() => setView("spots")} style={{ marginTop: 10, background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 10, padding: "8px 16px", fontSize: 12, color: t.accent, fontWeight: 700, cursor: "pointer" }}>
+                ← {_("surf.allSpots")}
+              </button>
+            )}
           </div>
-        ) : conditions ? (
+        ) : (
           <div style={{ ...card, padding: "16px 18px", marginBottom: 12 }}>
             <div style={{ ...sectionLabel }}>{_("decision.conditions", "Aktuelle Bedingungen")}</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 12 }}>
@@ -222,7 +233,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
               </div>
             )}
           </div>
-        ) : null}
+        )}
 
         {/* Tips */}
         {spotObj.tips && spotObj.tips.length > 0 && (
