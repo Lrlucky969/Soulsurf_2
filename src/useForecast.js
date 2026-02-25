@@ -1,15 +1,14 @@
-// SoulSurf – useForecast v6.4 (Sprint 33)
-// Unified forecast hook: merges weather + swell + hourly into single `conditions` object
-// Re-exports surfScore for convenience
+// SoulSurf – useForecast v6.4.1 (Sprint 33: Bugfix)
+// Unified forecast hook: weather + swell + hourly → conditions
+// Note: useSwell/useHourlyForecast don't expose errors – failures result in null data gracefully
 import { useMemo } from "react";
 import { useWeather, useSwell, useHourlyForecast, surfScore } from "./weather.js";
 
 export { surfScore };
 
 /**
- * Unified forecast hook
  * @param {Object|null} spot - SURF_SPOTS entry with lat/lng
- * @returns {{ conditions: Object|null, loading: boolean, error: string|null, hourly: Array|null, swell: Array|null }}
+ * @returns {{ conditions, loading, error, hourly, swell, bestWindow }}
  */
 export default function useForecast(spot) {
   const { weather, loading: wLoad, error: wError } = useWeather(spot);
@@ -17,73 +16,62 @@ export default function useForecast(spot) {
   const { hourly, loading: hLoad } = useHourlyForecast(spot);
 
   const loading = wLoad || sLoad || hLoad;
-  const error = wError || null;
+  const error = wError || null; // swell/hourly fail silently → null data
 
-  // Build unified conditions for current time
+  // Stable date values for memoization (recalculate only when hourly data changes)
   const conditions = useMemo(() => {
     if (!weather?.current) return null;
 
-    // Try to find current hour in hourly data
     const now = new Date();
-    const currentHourNum = now.getHours();
     const todayStr = now.toISOString().slice(0, 10);
+    const currentHourNum = now.getHours();
 
+    // Find matching hour in hourly data
     let currentHour = null;
     if (hourly) {
-      currentHour = hourly.find(h => {
-        const hDate = h.time.slice(0, 10);
-        const hHour = new Date(h.time).getHours();
-        return hDate === todayStr && hHour === currentHourNum;
-      });
-      // Fallback: nearest hour
+      currentHour = hourly.find(h =>
+        h.time.slice(0, 10) === todayStr && new Date(h.time).getHours() === currentHourNum
+      );
+      // Fallback: nearest hour ±1
       if (!currentHour) {
-        currentHour = hourly.find(h => h.time.slice(0, 10) === todayStr && Math.abs(new Date(h.time).getHours() - currentHourNum) <= 1);
+        currentHour = hourly.find(h =>
+          h.time.slice(0, 10) === todayStr && Math.abs(new Date(h.time).getHours() - currentHourNum) <= 1
+        );
       }
     }
 
-    // Swell today
     const todaySwell = swell?.[0] || null;
 
     return {
-      // Wave data (prefer hourly, fallback to daily swell)
       waveHeight: currentHour?.waveHeight ?? todaySwell?.waveHeight ?? null,
       wavePeriod: currentHour?.wavePeriod ?? todaySwell?.wavePeriod ?? null,
       waveDir: currentHour?.waveDir ?? todaySwell?.waveDir ?? null,
-
-      // Wind data (prefer hourly, fallback to current weather)
       wind: currentHour?.wind ?? weather.current?.wind ?? null,
       gusts: currentHour?.gusts ?? null,
       windDir: currentHour?.windDir ?? weather.current?.windDir ?? null,
-
-      // Surf score (hourly-based if available)
-      surfScore: currentHour ? surfScore(currentHour) : 50,
-
-      // Weather
+      surfScore: currentHour ? surfScore(currentHour) : (todaySwell ? 50 : null),
       temp: currentHour?.temp ?? weather.current?.temp ?? null,
       code: currentHour?.code ?? weather.current?.code ?? null,
-
-      // Raw source refs for advanced display
       _source: currentHour ? "hourly" : "daily",
     };
   }, [weather, swell, hourly]);
 
-  // Today's best window (for secondary display)
+  // Best surf window today
   const bestWindow = useMemo(() => {
     if (!hourly) return null;
     const todayStr = new Date().toISOString().slice(0, 10);
     const todayHours = hourly.filter(h => {
-      const hDate = h.time.slice(0, 10);
-      const hHour = new Date(h.time).getHours();
-      return hDate === todayStr && hHour >= 6 && hHour <= 20;
+      const hr = new Date(h.time).getHours();
+      return h.time.slice(0, 10) === todayStr && hr >= 6 && hr <= 20;
     });
     if (todayHours.length === 0) return null;
 
     let bestScore = -1, bestHour = null;
-    todayHours.forEach(h => {
+    for (const h of todayHours) {
       const s = surfScore(h);
       if (s > bestScore) { bestScore = s; bestHour = h; }
-    });
-    if (!bestHour) return null;
+    }
+    if (!bestHour || bestScore < 40) return null;
     return {
       time: bestHour.time,
       hour: new Date(bestHour.time).getHours(),

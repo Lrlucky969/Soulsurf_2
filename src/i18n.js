@@ -297,6 +297,8 @@ const T = {
   "decision.action.noSurf": { de: "Heute nicht surfen", en: "No surf today", pt: "Sem surf hoje" },
   "decision.action.checkLater": { de: "Später prüfen", en: "Check later", pt: "Verificar depois" },
   "decision.noData": { de: "Forecast-Daten laden...", en: "Loading forecast...", pt: "Carregando previsão..." },
+  "decision.noWaveData": { de: "Keine Wellendaten verfügbar", en: "No wave data available", pt: "Sem dados de ondas" },
+  "decision.betterThen": { de: "Dann besser!", en: "Better then!", pt: "Melhor então!" },
   "decision.storm": { de: "Gewitter – heute nicht sicher", en: "Storm – not safe today", pt: "Tempestade – não seguro hoje" },
   "decision.flat": { de: "Flat – keine surfbaren Wellen", en: "Flat – no surfable waves", pt: "Flat – sem ondas surfáveis" },
   "decision.tooBigBeginner": { de: "Wellen zu groß für dein Level", en: "Waves too big for your level", pt: "Ondas grandes demais para seu nível" },
@@ -319,6 +321,8 @@ const T = {
   "decision.conditions": { de: "Aktuelle Bedingungen", en: "Current conditions", pt: "Condições atuais" },
   "decision.waves": { de: "Wellen", en: "Waves", pt: "Ondas" },
   "decision.wind": { de: "Wind", en: "Wind", pt: "Vento" },
+  "decision.noWaveData": { de: "Keine Wellendaten verfügbar", en: "No wave data available", pt: "Sem dados de ondas" },
+  "decision.betterThen": { de: "Dann besser!", en: "Better then!", pt: "Melhor então!" },
 
   // ══════════════════════════════════════════
   // DIARY

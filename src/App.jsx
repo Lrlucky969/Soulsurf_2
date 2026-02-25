@@ -1,4 +1,4 @@
-// SoulSurf v6.4 – App Shell (Sprint 33: Decision Engine)
+// SoulSurf v6.4.1 – App Shell (Sprint 33: Decision Engine)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -30,7 +30,7 @@ const THEMES = {
 };
 
 // ═══════════════════════════════════════════════════════
-// v6.4: NEW 5-TAB NAVIGATION (Strategic Refocus)
+// v6.4.1: NEW 5-TAB NAVIGATION (Strategic Refocus)
 // Old screens remain accessible via burger menu
 // ═══════════════════════════════════════════════════════
 const PRIMARY_TABS = [
@@ -86,7 +86,7 @@ export default function SurfApp() {
     try { return localStorage.getItem("soulsurf_instructor") === "true"; } catch { return false; }
   }, []);
 
-  // v6.4: Build nav items from new structure
+  // v6.4.1: Build nav items from new structure
   const NAV_ITEMS = useMemo(() =>
     ALL_NAV_KEYS.filter(n => !n.instructorOnly || isInstructor).map(n => ({ ...n, label: i18n.t(n.key) })),
   [i18n.lang, isInstructor]);
@@ -254,7 +254,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.4</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.4.1</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -302,7 +302,7 @@ export default function SurfApp() {
         </div>
       </header>
 
-      {/* Slide-out Menu (v6.4: Scrollable + Fixed Footer) */}
+      {/* Slide-out Menu (v6.4.1: Scrollable + Fixed Footer) */}
       {menuOpen && (
         <div onClick={() => setMenuOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,0.4)", animation: "overlayIn 0.2s ease" }}>
           <nav onClick={e => e.stopPropagation()} style={{ 
@@ -417,7 +417,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.4 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.4.1 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
@@ -432,7 +432,7 @@ export default function SurfApp() {
         </Suspense>
       </main>
 
-      {/* Bottom Tab Bar (v6.4: 5 tabs) */}
+      {/* Bottom Tab Bar (v6.4.1: 5 tabs) */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 80, background: dm ? "rgba(13,24,32,0.97)" : "rgba(255,253,247,0.97)", backdropFilter: "blur(12px)", borderTop: `1px solid ${th.cardBorder}`, display: "flex", justifyContent: "space-around", padding: "6px 0 env(safe-area-inset-bottom, 6px)" }}>
         {TAB_ITEMS.map(item => {
           const isActive = screen === item.id || (item.id === "lessons" && screen === "builder") || (item.id === "profile" && ["progress", "equipment", "community", "instructor"].includes(screen));
