@@ -1,179 +1,120 @@
-# 🏄 SoulSurf – Your Personal Surf Coach
-  
-> Learn to surf with personalized programs, live forecasts, and a vibrant community.
-  
-![SoulSurf Banner](https://via.placeholder.com/1200x400/009688/FFFFFF?text=SoulSurf)
-## ✨ Features
-  
-- 📚 **63 Surf Lessons** – From pop-up to barrel riding
-- 🌊 **Live Surf Forecast** – Hourly conditions & best surf times
-- 📓 **Smart Diary** – AI-powered coaching based on your entries
+# 🏄 SoulSurf – Your Personal Surf Decision Engine
+
+> Not just surf lessons – SoulSurf tells you **what to do today**: surf, book a coach, or learn indoors.
+
+## ✨ Core Features
+
+- 🧠 **Decision Engine** – Personalized daily recommendation based on conditions, skill level, and spot
+- 🌊 **Live Surf Forecast** – 3-day hourly conditions with surf scores
+- 📍 **Spot Suitability** – Color-coded ratings (🟢🟡🔴) for every spot based on your level
+- 🏫 **Surf School Booking** – Contextual school recommendations with Stripe payments
+- 📚 **50+ Surf Lessons** – From pop-up to barrel riding, phase-tagged to weather
 - 🗺️ **Trip Planner** – Spots, weather, packing lists
-- 🏫 **Surf School Marketplace** – Book lessons with Stripe
-- 🎮 **Gamification** – XP, levels, badges, skill tree
-- 🌍 **Multi-language** – German, English, Portuguese
-- 📱 **PWA** – Works offline, installable
-- ☁️ **Cloud Sync** – Supabase backend
+- 📓 **Surf Diary** – Session logging with photo upload
+- 🎮 **Gamification** – XP, levels, badges, streaks, skill tree
+- 🌍 **3 Languages** – German, English, Portuguese
+- 📱 **PWA** – Installable, offline-capable
 
-## 📁 Dateistruktur & Funktionen
+## 🎯 Current Focus: Vertical Slice (v6.6.2)
 
-### Root-Level Konfiguration
+Building one **perfect end-to-end journey**: Beginner surfer in Portugal.
 
-- **`.env.example`** – Template für Umgebungsvariablen (Supabase, Stripe Keys)
-- **`package.json`** – Dependencies und Build-Scripts (React, Supabase, Stripe)
-- **`index.html`** – Entry-Point der SPA, lädt die React-App
+**User Story:** Lisa (28, Beginner, 2 weeks in Portugal) opens the app and in <30 seconds knows what to do today and can book a lesson if needed.
 
-### `/api` – Serverless Functions (Vercel)
+**Key Flow:** Open App → Decision Engine → "Book a Coach" → Filtered Schools → Book
 
-- **`checkout.js`** – Stripe Checkout API für Surfschul-Buchungen
-  - Erstellt Stripe Payment Sessions
-  - Berechnet 15% Kommission
-  - Validiert Buchungsdaten
-  - Multi-Language Support (DE/EN/PT)
+## 📁 Architecture
 
-- **`webhook.js`** – Stripe Webhook Handler
-  - Empfängt `checkout.session.completed` Events
-  - Speichert bestätigte Buchungen in Supabase
-  - Webhook-Signatur-Verifizierung
+```
+src/
+├── App.jsx                 # App shell, navigation, themes, auth
+├── analytics.js            # Event tracking (decision→booking funnel)
+├── decisionEngine.js       # 11 rules: conditions × skill → recommendation
+├── spotSuitability.js      # Score-based spot rating (0-100 → 🟢🟡🔴)
+├── useForecast.js          # Unified forecast hook (weather + swell + hourly)
+├── useSurfData.js          # State manager (localStorage + gamification)
+├── useAuth.js              # Supabase authentication
+├── useSync.js              # Cloud sync to Supabase
+├── i18n.js                 # 393 translation keys (DE/EN/PT)
+├── data.js                 # Content: 50+ lessons, 15+ spots, 8 schools
+├── components.jsx          # Shared UI components
+└── screens/
+    ├── HomeScreen.jsx      # Decision Engine hero + 4-step onboarding
+    ├── BuilderScreen.jsx   # Program generator (2 steps: board + days)
+    ├── SurfScreen.jsx      # Spots & Schools + 3-day forecast
+    ├── SchoolsScreen.jsx   # Contextual school booking (Stripe)
+    ├── LessonsScreen.jsx   # Lesson browser with phase filters
+    ├── DiaryScreen.jsx     # Surf diary with AI coaching
+    ├── TripScreen.jsx      # Trip planner
+    ├── ProgressScreen.jsx  # XP, badges, skill tree
+    ├── ProfileScreen.jsx   # User profile hub
+    └── ...
+api/
+├── checkout.js             # Stripe Checkout (15% commission)
+└── webhook.js              # Stripe webhook → Supabase
+```
 
-### `/src` – React Application
+## 🔄 Data Flow
 
-#### Core Files
-
-- **`App.jsx`** – Haupt-Component & App Shell
-  - Navigation & Screen-Management
-  - Auth-Integration
-  - Theme System (Light/Dark)
-  - Menu & Header
-  - Cloud Sync Integration
-  - Notification System
-
-- **`useSurfData.js`** – Haupt-State-Manager (Custom Hook)
-  - LocalStorage Persistierung
-  - Programm-Erstellung & -Verwaltung
-  - Lektion Completion Tracking
-  - Gamification (XP, Levels, Badges)
-  - Streak System
-
-- **`useAuth.js`** – Supabase Authentication Hook
-  - Login/Logout/Signup
-  - Session Management
-  - User Profile
-
-- **`useSync.js`** – Cloud Sync Logic
-  - Upload/Download zu Supabase
-  - Conflict Resolution
-  - Auto-Sync bei Login
-
-- **`usePhotoSync.js`** – Foto-Upload für Diary
-  - Supabase Storage Integration
-  - Image Compression
-
-- **`useNotifications.js`** – Push Notifications (v6.2)
-  - Browser Push API
-  - Permission Handling
-  - Notification Scheduling
-
-- **`i18n.js`** – Internationalisierung
-  - DE/EN/PT Übersetzungen
-  - Language Switcher Logic
-
-- **`data.js`** – Statische Daten & Content
-  - 63 Surf-Lektionen (Theory, Practice, Warmup, Equipment)
-  - Surf Spots (15+ Locations weltweit)
-  - Surfschul-Daten
-  - Goals, Board-Types, Skill Tree
-
-- **`components.jsx`** – Wiederverwendbare UI-Components
-  - `WaveBackground` – Animierter Hintergrund
-  - `LessonModal` – Lektion-Detail-Overlay
-  - `LessonCard` – Lektion-Preview-Card
-
-#### `/screens` – Screen Components (Lazy-Loaded)
-
-- **`HomeScreen.jsx`** – Dashboard mit Stats, Quick Actions, Notifications
-- **`BuilderScreen.jsx`** – Programm-Konfigurator (Goal, Spot, Dauer, Level)
-- **`LessonsScreen.jsx`** – Lektion-Übersicht mit Filtern & Completion Tracking
-- **`TripScreen.jsx`** – Surf-Trip-Planer mit Maps, Wetter, Packing List
-- **`DiaryScreen.jsx`** – Surf-Tagebuch mit Foto-Upload & AI-Coaching
-- **`ProgressScreen.jsx`** – XP, Badges, Skill Tree, Streak-Anzeige
-- **`EquipmentScreen.jsx`** – Equipment-Verwaltung (Boards, Wetsuits)
-- **`CommunityScreen.jsx`** – User-Profiles & Social Features
-- **`ForecastScreen.jsx`** – Live Surf Forecast (Windguru/Surfline Integration)
-- **`SchoolsScreen.jsx`** – Surfschul-Marktplatz mit Stripe-Buchung
-- **`InstructorScreen.jsx`** – Surf-Lehrer Dashboard (Session-Management, Zertifikate)
-- **`AuthScreen.jsx`** – Login/Signup UI
-
-### `/public` – Static Assets
-
-- **`icon-*.png`** – App Icons für PWA (192x192, 512x512)
-- **`favicon.*`** – Browser Favicons
-- **`pwa-*.png`** – PWA Splash Screens
-
----
-
-## 🔄 Datenfluss
-- User Input → Screen Component → useSurfData Hook → LocalStorage
-- ↓
-- Cloud Sync (useSync)
-- ↓
-- Supabase Database
-
-
-**Stripe-Buchung:**
-- SchoolsScreen → /api/checkout → Stripe Checkout → /api/webhook → Supabase
-
-
----
+```
+User opens app
+  → HomeScreen loads Decision Engine
+  → useForecast(spot) fetches conditions from Open-Meteo API
+  → decisionEngine evaluates 11 rules → recommendation
+  → User sees: 🟢 "Go Surf!" / 🟡 "Book Coach" / 🔴 "Learn Indoors"
+  → CTA click → navigate("schools", { fromDecision, spot, reason })
+  → SchoolsScreen shows contextual banner + filtered schools
+  → Book → Stripe Checkout → webhook → Supabase
+```
 
 ## 🎨 Theme System
 
-- Themes definiert in `App.jsx` (Light/Dark)
-- Alle Screens bekommen `t` (theme object) und `dm` (dark mode boolean) als Props
-- Dynamische Farben via `th.accent`, `th.card`, etc.
+- Light & Dark mode (auto-detects system preference)
+- Theme object `t` passed to all screens: `t.text`, `t.card`, `t.accent`, etc.
+- Fonts: Playfair Display (headings), Space Mono (data), DM Sans (body)
 
----
+## 🌐 Internationalization
 
-## 🌐 Multi-Language
+- `i18n.js` with 393 keys across DE/EN/PT
+- `i18n.t("key")` or `_("key", "fallback")` pattern
+- Language switcher in Profile screen
 
-- `i18n.js` verwaltet Übersetzungen (DE, EN, PT)
-- `i18n.t("key")` rendert übersetzten Text
-- Language Switcher im Menu
+## 📊 Analytics (V1)
 
----
+- localStorage-based event tracking
+- Events: `decision_shown`, `decision_cta_clicked`, `booking_started`
+- Session tracking with 30-min timeout
+- `getFunnelStats()` for conversion analysis
 
-## 📦 Dependencies
+## 📦 Tech Stack
 
-- **React 18** – UI Framework
-- **Supabase Client** – Auth & Database
-- **Stripe** – Payment Processing
-- **Vite** – Build Tool & Dev Server
-- **Vite PWA Plugin** – Progressive Web App Support
+- **React 18** – UI (single-file components with inline styles)
+- **Vite** – Build tool + dev server
+- **Supabase** – Auth, database, cloud sync, photo storage
+- **Stripe** – Payment processing for school bookings
+- **Open-Meteo API** – Weather + marine forecast data
+- **Vite PWA Plugin** – Service worker, offline support
 
-  
 ## 🚀 Quick Start
-  
-### Prerequisites
-  
-- Node.js 18+
-- Supabase account (free tier works)
-- Stripe account (for school bookings)
-  
-### Installation
-  
+
 ```bash
-# Clone the repo
 git clone https://github.com/yourusername/soulsurf.git
 cd soulsurf
-  
-# Install dependencies
 npm install
-  
-# Copy environment variables
-cp .env.example .env
-  
-# Edit .env with your keys
-nano .env
-  
-# Run dev server
-npm run dev```
+cp .env.example .env  # Add Supabase + Stripe keys
+npm run dev
+```
+
+## 📋 Version History
+
+| Version | Sprint | Highlight |
+|---------|--------|-----------|
+| v6.6.2 | V1 | UX Fixes: no-scroll onboarding, clear Decision, 3-day forecast, simplified builder |
+| v6.6.1 | V1 | Decision → Booking flow, analytics, contextual schools |
+| v6.5.1 | 34 | Unified Surf Screen, spot suitability engine |
+| v6.4.1 | 33 | Decision Engine MVP, null-safe checks |
+| v6.3.4 | 32 | 5-tab nav, 4-step onboarding, profile screen |
+| v6.0 | 29 | Stripe integration |
+| v5.9 | 28 | i18n (DE/EN/PT) |
+
+**Current: v6.6.2 · 14 Screens · 393 i18n Keys · ~9,500 Lines**
