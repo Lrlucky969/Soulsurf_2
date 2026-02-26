@@ -1,22 +1,41 @@
-// SoulSurf – SurfScreen v6.6 (V1: Decision → Booking Flow)
+// SoulSurf – SurfScreen v6.6.2 (V1: UX Fix – 2 views, 3-day forecast)
 // Replaces ForecastScreen as "Surf" tab target
 // 3 Views: Spots | Schools | Forecast (toggle)
 import React, { useState, useMemo } from "react";
 import { SURF_SPOTS, SURF_SCHOOLS, getSchoolsBySpot } from "../data.js";
 import { sortSpotsBySuitability, getSpotSuitability } from "../spotSuitability.js";
 import useForecast from "../useForecast.js";
-import { scoreLabel, windDirLabel, swellRating } from "../weather.js";
+import { scoreLabel, windDirLabel, swellRating, surfScore, weatherLabel, windArrow } from "../weather.js";
 import { trackEvent } from "../analytics.js";
+
+function formatHour(timeStr) { const d = new Date(timeStr); return `${d.getHours().toString().padStart(2, "0")}:00`; }
+function formatDate(timeStr) { const d = new Date(timeStr); const days = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"]; return `${days[d.getDay()]}, ${d.getDate()}.${d.getMonth() + 1}`; }
 
 export default function SurfScreen({ data, t, dm, i18n, navigate }) {
   const _ = i18n?.t || ((k, f) => f || k);
-  const [view, setView] = useState("spots"); // spots | schools | forecast
+  const [view, setView] = useState("spots"); // spots | forecast (merged schools into spots)
   const [selectedSpot, setSelectedSpot] = useState(data.spot || SURF_SPOTS[0]?.id);
-  const [filterLevel, setFilterLevel] = useState("all"); // all | perfect | suitable
+  const [filterLevel, setFilterLevel] = useState("all");
+  const [selectedDay, setSelectedDay] = useState(0); // v6.6.2: 3-day forecast
   const spotObj = SURF_SPOTS.find(s => s.id === selectedSpot) || SURF_SPOTS[0];
 
   // Forecast for selected spot
   const { conditions, loading: fcLoading, bestWindow, hourly } = useForecast(spotObj);
+
+  // v6.6.2: Group hourly data into days for 3-day forecast
+  const days = useMemo(() => {
+    if (!hourly) return [];
+    const grouped = {};
+    hourly.forEach(h => {
+      const dateKey = h.time.split("T")[0];
+      if (!grouped[dateKey]) grouped[dateKey] = [];
+      grouped[dateKey].push(h);
+    });
+    return Object.entries(grouped).map(([date, hours]) => ({
+      date, label: formatDate(hours[0].time),
+      hours, surfHours: hours.filter(h => { const hr = new Date(h.time).getHours(); return hr >= 6 && hr <= 20; }),
+    }));
+  }, [hourly]);
 
   // Sorted spots by suitability (always new array ref)
   const allSorted = useMemo(() => sortSpotsBySuitability(SURF_SPOTS, data.skillLevel), [data.skillLevel]);
@@ -122,43 +141,11 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
     </div>
   );
 
-  // ═══ SCHOOLS VIEW ═══
-  const renderSchools = () => (
-    <div>
-      <div style={sectionLabel}>{allSchools.length} {_("surf.schools", "Surfschulen")}</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {allSchools.map((school, i) => (
-          <button key={school.id} onClick={() => {
-            trackEvent("decision_cta_clicked", { action: "browse_school", spot: school.spotId, source: "surf_schools_view" });
-            navigate("schools", { spot: school.spotId });
-          }} style={{
-            ...card, display: "flex", alignItems: "center", gap: 12, padding: "14px 16px",
-            cursor: "pointer", textAlign: "left", width: "100%",
-            animation: "slideUp 0.3s ease both", animationDelay: `${i * 50}ms`,
-          }}>
-            <div style={{
-              width: 42, height: 42, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
-              background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", fontSize: 20,
-            }}>🏫</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 14, fontWeight: 700, color: t.text }}>{school.name}</div>
-              <div style={{ fontSize: 11, color: t.text2, marginTop: 2 }}>
-                {school.spot?.emoji} {school.spot?.name?.split(",")[0]}
-                {school.suitability && <span> · {school.suitability.emoji} {_(school.suitability.labelKey)}</span>}
-              </div>
-              {school.price && <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.accent, marginTop: 2 }}>ab €{school.price}</div>}
-            </div>
-            <span style={{ fontSize: 14, color: t.text3 }}>→</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  // ═══ FORECAST VIEW (for selected spot) ═══
+  // ═══ FORECAST VIEW (for selected spot) – v6.6.2: with 3-day tabs + hourly ═══
   const renderForecast = () => {
     const suit = getSpotSuitability(spotObj, data.skillLevel);
     const sRating = conditions?.waveHeight != null ? swellRating(conditions.waveHeight, conditions.wavePeriod) : null;
+    const currentDay = days[selectedDay];
 
     return (
       <div>
@@ -239,6 +226,45 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
           </div>
         )}
 
+        {/* v6.6.2: 3-Day Forecast Tabs + Hourly Timeline */}
+        {days.length > 0 && (
+          <div style={{ ...card, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={sectionLabel}>{_("fc.forecast3Day", "3-Tage-Forecast")}</div>
+            <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+              {days.slice(0, 3).map((d, i) => (
+                <button key={d.date} onClick={() => setSelectedDay(i)} style={{
+                  flex: 1, padding: "8px 6px", borderRadius: 10, fontSize: 11, fontWeight: selectedDay === i ? 700 : 500, cursor: "pointer",
+                  background: selectedDay === i ? (dm ? t.accent : "#263238") : t.inputBg,
+                  color: selectedDay === i ? "white" : t.text2, border: `1px solid ${selectedDay === i ? "transparent" : t.inputBorder}`,
+                  fontFamily: "'Space Mono', monospace",
+                }}>{i === 0 ? _("fc.today", "Heute") : i === 1 ? _("fc.tomorrow", "Morgen") : d.label}</button>
+              ))}
+            </div>
+            {/* Hourly scroll */}
+            {currentDay && (
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 4 }}>
+                <div style={{ display: "flex", gap: 6, minWidth: "max-content" }}>
+                  {currentDay.surfHours.map((h, i) => {
+                    const score = surfScore(h);
+                    const sl = scoreLabel(score);
+                    return (
+                      <div key={i} style={{ width: 68, padding: "8px 4px", background: dm ? "rgba(255,255,255,0.03)" : "#FAFAFA", border: `1px solid ${t.cardBorder}`, borderRadius: 10, textAlign: "center", flexShrink: 0 }}>
+                        <div style={{ fontSize: 10, fontWeight: 600, color: t.text2, marginBottom: 3 }}>{formatHour(h.time)}</div>
+                        <div style={{ height: 3, borderRadius: 2, background: dm ? "rgba(255,255,255,0.06)" : "#ECEFF1", marginBottom: 3 }}>
+                          <div style={{ height: "100%", borderRadius: 2, background: sl.color, width: `${score}%` }} />
+                        </div>
+                        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, fontWeight: 700, color: sl.color, marginBottom: 2 }}>{score}</div>
+                        {h.waveHeight != null && <div style={{ fontSize: 9, color: t.text2 }}>🌊 {h.waveHeight.toFixed(1)}m</div>}
+                        <div style={{ fontSize: 9, color: t.text3 }}>💨 {Math.round(h.wind || 0)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Tips */}
         {spotObj.tips && spotObj.tips.length > 0 && (
           <div style={{ ...card, padding: "14px 16px", marginBottom: 12 }}>
@@ -291,11 +317,10 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("surf.title", "Surf")}</h2>
       <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>{_("surf.subtitle", "Spots, Schulen & Bedingungen")}</p>
 
-      {/* View toggle */}
+      {/* View toggle – v6.6.2: 2 views (merged spots+schools) */}
       <div style={{ display: "flex", gap: 4, marginBottom: 16, background: dm ? "rgba(255,255,255,0.05)" : "#F5F5F5", borderRadius: 12, padding: 3 }}>
         {[
-          { id: "spots", label: _("surf.spots", "Spots"), icon: "📍" },
-          { id: "schools", label: _("surf.schools", "Schulen"), icon: "🏫" },
+          { id: "spots", label: _("surf.spots", "Spots") + " & " + _("surf.schools", "Schulen"), icon: "📍" },
           { id: "forecast", label: _("surf.forecast", "Forecast"), icon: "🌊" },
         ].map(tab => (
           <button key={tab.id} onClick={() => setView(tab.id)} style={{
@@ -314,7 +339,6 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
 
       {/* View content */}
       {view === "spots" && renderSpots()}
-      {view === "schools" && renderSchools()}
       {view === "forecast" && renderForecast()}
     </div>
   );

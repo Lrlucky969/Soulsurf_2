@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v6.6 (V1: Decision → Booking Flow)
+// SoulSurf – HomeScreen v6.6.2 (V1: UX Fixes – No-scroll onboarding, clearer Decision)
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
@@ -104,12 +104,12 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   };
 
   // ═══════════════════════════════════════════
-  // 4-STEP ONBOARDING (unchanged from v6.3.4)
+  // 4-STEP ONBOARDING – v6.6.2: No-scroll layout (buttons always visible)
   // ═══════════════════════════════════════════
   if (!onboarded && !data.skillLevel) {
     const totalSteps = 4;
     const StepDots = () => (
-      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 24, marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 12 }}>
         {Array.from({ length: totalSteps }, (_, s) => (
           <div key={s} style={{ width: s === obStep ? 24 : 8, height: 8, borderRadius: 4, background: s <= obStep ? t.accent : (dm ? "#2d3f50" : "#E0E0E0"), opacity: s < obStep ? 0.5 : 1, transition: "all 0.3s ease" }} />
         ))}
@@ -117,65 +117,55 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
     );
     const stepLabel = `${_("ob.step")} ${obStep + 1}/${totalSteps}`;
 
+    // v6.6.2: Outer wrapper = full viewport height, flex column, buttons at bottom
+    const ObWrap = ({ children, buttons }) => (
+      <div style={{ display: "flex", flexDirection: "column", height: "calc(100dvh - 120px)", paddingTop: 10 }}>
+        <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", textAlign: "center", paddingBottom: 8 }}>{children}</div>
+        <div style={{ flexShrink: 0, paddingTop: 10, paddingBottom: 8 }}>
+          {buttons}
+          <StepDots />
+        </div>
+      </div>
+    );
+
     return (
-      <div style={{ paddingTop: 20, textAlign: "center" }}>
+      <div>
         {obStep === 0 && (
-          <div style={{ animation: "screenIn 0.4s ease both" }}>
+          <ObWrap buttons={
+            <button onClick={() => { if (obSkill) setObStep(1); }} disabled={!obSkill} style={{
+              width: "100%", background: obSkill ? "linear-gradient(135deg, #009688, #4DB6AC)" : (dm ? "#2d3f50" : "#E0E0E0"),
+              color: obSkill ? "white" : t.text3, border: "none", borderRadius: 50, padding: "16px 44px",
+              fontSize: 16, fontWeight: 700, cursor: obSkill ? "pointer" : "not-allowed",
+              fontFamily: "'Playfair Display', serif", boxShadow: obSkill ? "0 8px 30px rgba(0,150,136,0.3)" : "none", transition: "all 0.3s ease",
+            }}>{_("ob.next")} →</button>
+          }>
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 80, height: 80, borderRadius: 20, marginBottom: 14, animation: "float 4s ease-in-out infinite", boxShadow: "0 12px 40px rgba(0,150,136,0.2)" }} />
             <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 30, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 6 }}>{_("ob.welcome")}</h1>
-            <p style={{ fontSize: 14, color: t.text2, maxWidth: 340, margin: "0 auto 20px", lineHeight: 1.6 }}>{_("ob.welcomeDesc")}</p>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>{_("ob.skillTitle")}</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 380, margin: "0 auto" }}>
+            <p style={{ fontSize: 14, color: t.text2, maxWidth: 340, margin: "0 auto 16px", lineHeight: 1.6 }}>{_("ob.welcomeDesc")}</p>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("ob.skillTitle")}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 380, margin: "0 auto" }}>
               {SKILL_LEVELS.map((level, i) => (
                 <button key={level.id} onClick={() => setObSkill(level.id)} style={{
-                  display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16,
+                  display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 14,
                   background: obSkill === level.id ? (dm ? `${level.color}20` : `${level.color}12`) : t.card,
                   border: obSkill === level.id ? `2px solid ${level.color}` : `2px solid ${t.cardBorder}`,
                   cursor: "pointer", textAlign: "left", transition: "all 0.2s ease",
                   animation: "slideUp 0.3s ease both", animationDelay: `${i * 70}ms`,
                 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 14, background: `${level.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>{level.emoji}</div>
+                  <div style={{ width: 42, height: 42, borderRadius: 12, background: `${level.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{level.emoji}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: obSkill === level.id ? level.color : t.text }}>{_(level.key)}</div>
-                    <div style={{ fontSize: 12, color: t.text2, marginTop: 2 }}>{_(level.descKey)}</div>
+                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: obSkill === level.id ? level.color : t.text }}>{_(level.key)}</div>
+                    <div style={{ fontSize: 11, color: t.text2, marginTop: 1 }}>{_(level.descKey)}</div>
                   </div>
-                  {obSkill === level.id && <span style={{ fontSize: 18, color: level.color }}>✓</span>}
+                  {obSkill === level.id && <span style={{ fontSize: 16, color: level.color }}>✓</span>}
                 </button>
               ))}
             </div>
-            <button onClick={() => { if (obSkill) setObStep(1); }} disabled={!obSkill} style={{
-              marginTop: 20, background: obSkill ? "linear-gradient(135deg, #009688, #4DB6AC)" : (dm ? "#2d3f50" : "#E0E0E0"),
-              color: obSkill ? "white" : t.text3, border: "none", borderRadius: 50, padding: "16px 44px",
-              fontSize: 16, fontWeight: 700, cursor: obSkill ? "pointer" : "not-allowed",
-              fontFamily: "'Playfair Display', serif", boxShadow: obSkill ? "0 8px 30px rgba(0,150,136,0.3)" : "none", transition: "all 0.3s ease",
-            }}>{_("ob.next")} →</button>
-            <StepDots />
-          </div>
+          </ObWrap>
         )}
         {obStep === 1 && (
-          <div style={{ animation: "screenIn 0.4s ease both" }}>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, marginBottom: 8 }}>{stepLabel}</div>
-            <div style={{ fontSize: 52, marginBottom: 12 }}>🎯</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 6 }}>{_("ob.goalTitle")}</h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 380, margin: "20px auto 0" }}>
-              {SURF_GOALS.map((goal, i) => (
-                <button key={goal.id} onClick={() => setObGoal(goal.id)} style={{
-                  display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16,
-                  background: obGoal === goal.id ? (dm ? `${goal.color}20` : `${goal.color}12`) : t.card,
-                  border: obGoal === goal.id ? `2px solid ${goal.color}` : `2px solid ${t.cardBorder}`,
-                  cursor: "pointer", textAlign: "left", transition: "all 0.2s ease",
-                  animation: "slideUp 0.3s ease both", animationDelay: `${i * 70}ms`,
-                }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: `${goal.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{goal.emoji}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: obGoal === goal.id ? goal.color : t.text }}>{_(goal.key)}</div>
-                    {goal.descKey && <div style={{ fontSize: 12, color: t.text2, marginTop: 2 }}>{_(goal.descKey)}</div>}
-                  </div>
-                  {obGoal === goal.id && <span style={{ fontSize: 18, color: goal.color }}>✓</span>}
-                </button>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20 }}>
+          <ObWrap buttons={
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button onClick={() => setObStep(0)} style={{ background: t.inputBg, color: t.text2, border: `1px solid ${t.inputBorder}`, borderRadius: 50, padding: "14px 28px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>←</button>
               <button onClick={() => { if (obGoal) setObStep(2); }} disabled={!obGoal} style={{
                 flex: 1, maxWidth: 200, background: obGoal ? "linear-gradient(135deg, #009688, #4DB6AC)" : (dm ? "#2d3f50" : "#E0E0E0"),
@@ -184,31 +174,33 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 fontFamily: "'Playfair Display', serif", transition: "all 0.3s ease",
               }}>{_("ob.next")} →</button>
             </div>
-            <StepDots />
-          </div>
-        )}
-        {obStep === 2 && (
-          <div style={{ animation: "screenIn 0.4s ease both" }}>
+          }>
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, marginBottom: 8 }}>{stepLabel}</div>
-            <div style={{ fontSize: 52, marginBottom: 12 }}>📍</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("ob.locationTitle")}</h2>
-            <p style={{ fontSize: 13, color: t.text2, marginBottom: 20 }}>{_("ob.locationDesc")}</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, maxWidth: 380, margin: "0 auto" }}>
-              {SURF_SPOTS.map((spot, i) => (
-                <button key={spot.id} onClick={() => setObSpot(spot.id)} style={{
-                  padding: "14px 10px", borderRadius: 14, textAlign: "center",
-                  background: obSpot === spot.id ? (dm ? "rgba(0,150,136,0.15)" : "#E0F2F1") : t.card,
-                  border: obSpot === spot.id ? `2px solid ${t.accent}` : `2px solid ${t.cardBorder}`,
-                  cursor: "pointer", transition: "all 0.2s ease",
-                  animation: "slideUp 0.3s ease both", animationDelay: `${i * 50}ms`,
+            <div style={{ fontSize: 48, marginBottom: 10 }}>🎯</div>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 6 }}>{_("ob.goalTitle")}</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 380, margin: "16px auto 0" }}>
+              {SURF_GOALS.map((goal, i) => (
+                <button key={goal.id} onClick={() => setObGoal(goal.id)} style={{
+                  display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 14,
+                  background: obGoal === goal.id ? (dm ? `${goal.color}20` : `${goal.color}12`) : t.card,
+                  border: obGoal === goal.id ? `2px solid ${goal.color}` : `2px solid ${t.cardBorder}`,
+                  cursor: "pointer", textAlign: "left", transition: "all 0.2s ease",
+                  animation: "slideUp 0.3s ease both", animationDelay: `${i * 70}ms`,
                 }}>
-                  <div style={{ fontSize: 24, marginBottom: 4 }}>{spot.emoji}</div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: obSpot === spot.id ? t.accent : t.text }}>{spot.name.split(",")[0]}</div>
-                  <div style={{ fontSize: 9, color: t.text3, marginTop: 2 }}>{spot.difficulty === "beginner" ? "🟢" : spot.difficulty === "intermediate" ? "🟡" : "🔴"} {spot.waveType}</div>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: `${goal.color}15`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>{goal.emoji}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 14, fontWeight: 700, color: obGoal === goal.id ? goal.color : t.text }}>{_(goal.key)}</div>
+                    {goal.descKey && <div style={{ fontSize: 11, color: t.text2, marginTop: 1 }}>{_(goal.descKey)}</div>}
+                  </div>
+                  {obGoal === goal.id && <span style={{ fontSize: 16, color: goal.color }}>✓</span>}
                 </button>
               ))}
             </div>
-            <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20 }}>
+          </ObWrap>
+        )}
+        {obStep === 2 && (
+          <ObWrap buttons={
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button onClick={() => setObStep(1)} style={{ background: t.inputBg, color: t.text2, border: `1px solid ${t.inputBorder}`, borderRadius: 50, padding: "14px 28px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>←</button>
               <button onClick={() => { if (obSpot) setObStep(3); }} disabled={!obSpot} style={{
                 flex: 1, maxWidth: 200, background: obSpot ? "linear-gradient(135deg, #009688, #4DB6AC)" : (dm ? "#2d3f50" : "#E0E0E0"),
@@ -217,18 +209,46 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 fontFamily: "'Playfair Display', serif", transition: "all 0.3s ease",
               }}>{_("ob.next")} →</button>
             </div>
-            <StepDots />
-          </div>
+          }>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, marginBottom: 8 }}>{stepLabel}</div>
+            <div style={{ fontSize: 48, marginBottom: 10 }}>📍</div>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("ob.locationTitle")}</h2>
+            <p style={{ fontSize: 12, color: t.text2, marginBottom: 14 }}>{_("ob.locationDesc")}</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, maxWidth: 380, margin: "0 auto" }}>
+              {SURF_SPOTS.map((spot, i) => (
+                <button key={spot.id} onClick={() => setObSpot(spot.id)} style={{
+                  padding: "10px 6px", borderRadius: 12, textAlign: "center",
+                  background: obSpot === spot.id ? (dm ? "rgba(0,150,136,0.15)" : "#E0F2F1") : t.card,
+                  border: obSpot === spot.id ? `2px solid ${t.accent}` : `2px solid ${t.cardBorder}`,
+                  cursor: "pointer", transition: "all 0.2s ease",
+                  animation: "slideUp 0.2s ease both", animationDelay: `${i * 30}ms`,
+                }}>
+                  <div style={{ fontSize: 20, marginBottom: 2 }}>{spot.emoji}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: obSpot === spot.id ? t.accent : t.text, lineHeight: 1.2 }}>{spot.name.split(",")[0]}</div>
+                </button>
+              ))}
+            </div>
+          </ObWrap>
         )}
         {obStep === 3 && (
-          <div style={{ animation: "screenIn 0.4s ease both" }}>
+          <ObWrap buttons={
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <button onClick={() => setObStep(2)} style={{ background: t.inputBg, color: t.text2, border: `1px solid ${t.inputBorder}`, borderRadius: 50, padding: "14px 28px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>←</button>
+              <button onClick={() => { if (obSchoolHelp !== null) finishOnboarding(); }} disabled={obSchoolHelp === null} style={{
+                flex: 1, maxWidth: 200, background: obSchoolHelp !== null ? "linear-gradient(135deg, #009688, #4DB6AC)" : (dm ? "#2d3f50" : "#E0E0E0"),
+                color: obSchoolHelp !== null ? "white" : t.text3, border: "none", borderRadius: 50, padding: "14px 28px",
+                fontSize: 16, fontWeight: 700, cursor: obSchoolHelp !== null ? "pointer" : "not-allowed",
+                fontFamily: "'Playfair Display', serif", boxShadow: obSchoolHelp !== null ? "0 8px 30px rgba(0,150,136,0.3)" : "none", transition: "all 0.3s ease",
+              }}>{_("ob.finish")}</button>
+            </div>
+          }>
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, marginBottom: 8 }}>{stepLabel}</div>
-            <div style={{ fontSize: 52, marginBottom: 12 }}>🏫</div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 6 }}>{_("ob.schoolTitle")}</h2>
-            <p style={{ fontSize: 13, color: t.text2, maxWidth: 340, margin: "0 auto 24px", lineHeight: 1.6 }}>{_("ob.schoolDesc")}</p>
+            <div style={{ fontSize: 48, marginBottom: 10 }}>🏫</div>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 6 }}>{_("ob.schoolTitle")}</h2>
+            <p style={{ fontSize: 12, color: t.text2, maxWidth: 340, margin: "0 auto 20px", lineHeight: 1.5 }}>{_("ob.schoolDesc")}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 340, margin: "0 auto" }}>
               <button onClick={() => setObSchoolHelp(true)} style={{
-                display: "flex", alignItems: "center", gap: 14, padding: "18px 20px", borderRadius: 16,
+                display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16,
                 background: obSchoolHelp === true ? (dm ? "rgba(0,150,136,0.15)" : "#E0F2F1") : t.card,
                 border: obSchoolHelp === true ? `2px solid ${t.accent}` : `2px solid ${t.cardBorder}`,
                 cursor: "pointer", textAlign: "left", transition: "all 0.2s ease",
@@ -238,7 +258,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 {obSchoolHelp === true && <span style={{ fontSize: 18, color: t.accent }}>✓</span>}
               </button>
               <button onClick={() => setObSchoolHelp(false)} style={{
-                display: "flex", alignItems: "center", gap: 14, padding: "18px 20px", borderRadius: 16,
+                display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", borderRadius: 16,
                 background: obSchoolHelp === false ? (dm ? "rgba(158,158,158,0.1)" : "#F5F5F5") : t.card,
                 border: obSchoolHelp === false ? `2px solid ${t.text3}` : `2px solid ${t.cardBorder}`,
                 cursor: "pointer", textAlign: "left", transition: "all 0.2s ease",
@@ -249,9 +269,9 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
               </button>
             </div>
             {obSchoolHelp !== null && (
-              <div style={{ maxWidth: 340, margin: "20px auto 0", background: dm ? "rgba(0,150,136,0.06)" : "#F1F8F7", border: `1px solid ${dm ? "rgba(0,150,136,0.12)" : "#C8E6C9"}`, borderRadius: 14, padding: "14px 16px", textAlign: "left", animation: "slideUp 0.3s ease both" }}>
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{_("ob.yourProfile", "Dein Profil")}</div>
-                <div style={{ fontSize: 13, color: t.text, lineHeight: 1.8 }}>
+              <div style={{ maxWidth: 340, margin: "16px auto 0", background: dm ? "rgba(0,150,136,0.06)" : "#F1F8F7", border: `1px solid ${dm ? "rgba(0,150,136,0.12)" : "#C8E6C9"}`, borderRadius: 14, padding: "12px 14px", textAlign: "left", animation: "slideUp 0.3s ease both" }}>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>{_("ob.yourProfile", "Dein Profil")}</div>
+                <div style={{ fontSize: 12, color: t.text, lineHeight: 1.8 }}>
                   {SKILL_LEVELS.find(s => s.id === obSkill)?.emoji} {_(SKILL_LEVELS.find(s => s.id === obSkill)?.key || "")}<br />
                   🎯 {_(SURF_GOALS.find(g => g.id === obGoal)?.key || "")}<br />
                   📍 {SURF_SPOTS.find(s => s.id === obSpot)?.emoji} {SURF_SPOTS.find(s => s.id === obSpot)?.name?.split(",")[0]}<br />
@@ -259,17 +279,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 </div>
               </div>
             )}
-            <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20 }}>
-              <button onClick={() => setObStep(2)} style={{ background: t.inputBg, color: t.text2, border: `1px solid ${t.inputBorder}`, borderRadius: 50, padding: "14px 28px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>←</button>
-              <button onClick={() => { if (obSchoolHelp !== null) finishOnboarding(); }} disabled={obSchoolHelp === null} style={{
-                flex: 1, maxWidth: 200, background: obSchoolHelp !== null ? "linear-gradient(135deg, #009688, #4DB6AC)" : (dm ? "#2d3f50" : "#E0E0E0"),
-                color: obSchoolHelp !== null ? "white" : t.text3, border: "none", borderRadius: 50, padding: "14px 28px",
-                fontSize: 16, fontWeight: 700, cursor: obSchoolHelp !== null ? "pointer" : "not-allowed",
-                fontFamily: "'Playfair Display', serif", boxShadow: obSchoolHelp !== null ? "0 8px 30px rgba(0,150,136,0.3)" : "none", transition: "all 0.3s ease",
-              }}>{_("ob.finish")}</button>
-            </div>
-            <StepDots />
-          </div>
+          </ObWrap>
         )}
       </div>
     );
@@ -535,23 +545,30 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
       <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 8 }}>{_("home.heroTitle", "Lerne Surfen.")}<br /><span style={{ color: t.accent }}>{_("home.heroSub", "Finde deinen Flow.")}</span></h2>
       <p style={{ fontSize: 15, color: t.text2, maxWidth: 400, margin: "0 auto 20px", lineHeight: 1.6 }}>{_("home.heroDesc", "Erstelle dein persönliches Surf-Programm oder plane deinen nächsten Trip.")}</p>
 
-      {/* Mini Decision Card for no-program users with a spot */}
+      {/* v6.6.2: Decision Card with clear reason + prominent CTA */}
       {spotObj && conditions && (
-        <div style={{ maxWidth: 380, margin: "0 auto 20px", background: `${conf2.color}10`, border: `1px solid ${conf2.color}30`, borderRadius: 16, padding: "14px 16px", textAlign: "left" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-            <span style={{ fontSize: 22 }}>{act2.emoji}</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{_(act2.label)}</div>
-              <div style={{ fontSize: 11, color: t.text2 }}>{spotObj.emoji} {spotObj.name.split(",")[0]} · {conditions.waveHeight?.toFixed(1)}m · {conditions.wind != null ? Math.round(conditions.wind) + "km/h" : ""}</div>
-            </div>
-            <div style={{ fontSize: 10, color: conf2.color, fontWeight: 700 }}>{conf2.emoji}</div>
+        <div style={{ maxWidth: 380, margin: "0 auto 20px", background: recommendation.action === "book_lesson" || recommendation.action === "surf_with_caution" ? (dm ? "rgba(255,152,0,0.08)" : "#FFF3E0") : `${conf2.color}10`, border: `1px solid ${recommendation.action === "book_lesson" ? "rgba(255,152,0,0.25)" : conf2.color + "30"}`, borderRadius: 16, padding: "16px 18px", textAlign: "left" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+            <span style={{ fontSize: 20 }}>{act2.emoji}</span>
+            <span style={{ fontSize: 15, fontWeight: 800, color: t.text, fontFamily: "'Playfair Display', serif" }}>{_(act2.label)}</span>
+            <div style={{ marginLeft: "auto", fontSize: 10, color: conf2.color, fontWeight: 700 }}>{conf2.emoji}</div>
           </div>
-          {recommendation.cta && recommendation.action === "book_lesson" && (
+          {/* v6.6.2: Show reason WHY directly */}
+          {recommendation.reasonKey && (
+            <div style={{ fontSize: 12, color: t.text2, marginBottom: 8, lineHeight: 1.5 }}>
+              {_(recommendation.reasonKey)} · {spotObj.emoji} {spotObj.name.split(",")[0]} · {conditions.waveHeight?.toFixed(1)}m · {conditions.wind != null ? Math.round(conditions.wind) + "km/h" : ""}
+            </div>
+          )}
+          {recommendation.cta && (
             <button onClick={() => {
-              trackEvent("decision_cta_clicked", { action: "book_lesson", spot: spotObj?.id, source: "mini_card" });
-              navigate("schools", { fromDecision: true, spot: spotObj?.id, reason: recommendation.reasonKey, action: "book_lesson" });
-            }} style={{ width: "100%", padding: "10px", background: "linear-gradient(135deg, #FF9800, #FF7043)", color: "white", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-              {_("decision.cta.findCoach")} →
+              trackEvent("decision_cta_clicked", { action: recommendation.action, spot: spotObj?.id, source: "mini_card" });
+              if (recommendation.cta.screen === "schools") {
+                navigate("schools", { fromDecision: true, spot: spotObj?.id, reason: recommendation.reasonKey, action: recommendation.action });
+              } else {
+                navigate(recommendation.cta.screen);
+              }
+            }} style={{ width: "100%", padding: "12px", background: recommendation.action === "book_lesson" ? "linear-gradient(135deg, #FF9800, #FF7043)" : "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif" }}>
+              {_(recommendation.cta.text)} →
             </button>
           )}
         </div>
