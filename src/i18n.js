@@ -352,6 +352,15 @@ const T = {
   "schools.decisionDesc": { de: "Die Bedingungen sind heute anspruchsvoll – eine Surfschule sorgt für Sicherheit und Spaß.", en: "Conditions are challenging today – a surf school ensures safety and fun.", pt: "As condições estão desafiadoras hoje – uma escola de surf garante segurança e diversão." },
 
   // ══════════════════════════════════════════
+  // v6.6.2 UX FIXES
+  // ══════════════════════════════════════════
+  "fc.forecast3Day": { de: "3-Tage-Forecast", en: "3-Day Forecast", pt: "Previsão 3 dias" },
+  "builder.fromProfile": { de: "Aus Profil", en: "From profile", pt: "Do perfil" },
+  "builder.step": { de: "Schritt", en: "Step", pt: "Passo" },
+  "builder.of": { de: "von", en: "of", pt: "de" },
+  "builder.days": { de: "Tage", en: "days", pt: "dias" },
+
+  // ══════════════════════════════════════════
   // DIARY
   // ══════════════════════════════════════════
   "diary.title": { de: "📓 Surf-Tagebuch", en: "📓 Surf Diary", pt: "📓 Diário de Surf" },
