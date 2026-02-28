@@ -372,6 +372,20 @@ const T = {
   "schools.conditionsNow": { de: "Bedingungen jetzt", en: "Conditions now", pt: "Condições agora" },
 
   // ══════════════════════════════════════════
+  // V3: Portugal Content (v6.8)
+  // ══════════════════════════════════════════
+  "spot.crowd": { de: "Crowd", en: "Crowd", pt: "Crowd" },
+  "spot.crowd.low": { de: "Wenig los", en: "Quiet", pt: "Tranquilo" },
+  "spot.crowd.medium": { de: "Moderat", en: "Moderate", pt: "Moderado" },
+  "spot.crowd.high": { de: "Oft voll", en: "Often crowded", pt: "Frequentemente cheio" },
+  "spot.beginnerZones": { de: "Anfänger-Zonen", en: "Beginner zones", pt: "Zonas para iniciantes" },
+  "spot.bestMonths": { de: "Beste Monate", en: "Best months", pt: "Melhores meses" },
+  "spot.lessons.before": { de: "Vor der Session", en: "Before your session", pt: "Antes da sessão" },
+  "spot.lessons.during": { de: "Im Wasser", en: "In the water", pt: "Na água" },
+  "spot.lessons.after": { de: "Nach der Session", en: "After your session", pt: "Depois da sessão" },
+  "spot.lessons.recommended": { de: "Empfohlene Lektionen", en: "Recommended lessons", pt: "Lições recomendadas" },
+
+  // ══════════════════════════════════════════
   // DIARY
   // ══════════════════════════════════════════
   "diary.title": { de: "📓 Surf-Tagebuch", en: "📓 Surf Diary", pt: "📓 Diário de Surf" },

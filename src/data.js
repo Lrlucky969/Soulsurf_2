@@ -2,7 +2,10 @@
 
 export const SURF_SPOTS = [
   { id: "bali", name: "Bali, Indonesia", emoji: "🌺", difficulty: "beginner", waveType: "Sanfte Riffwellen", breakType: "reef", hazards: ["reef"], season: "Apr–Okt", water: "28°C", wetsuit: "none", lat: -8.72, lng: 115.17, tips: ["Uluwatu und Padang Padang für Fortgeschrittene, Kuta Beach für Anfänger", "Booties empfohlen wegen scharfem Riff", "Beste Zeit: früher Morgen vor dem Onshore-Wind"] },
-  { id: "portugal", name: "Algarve, Portugal", emoji: "🇵🇹", difficulty: "beginner", waveType: "Beachbreaks", breakType: "beach", hazards: ["rip", "current"], season: "Sep–Nov", water: "20°C", wetsuit: "3/2mm", lat: 37.09, lng: -8.81, tips: ["Arrifana und Amado sind perfekte Anfänger-Spots", "Neoprenanzug 3/2mm nötig, Wasser ist frisch", "Starke Strömungen möglich – immer zwischen den Flaggen surfen"] },
+  { id: "portugal", name: "Algarve, Portugal", emoji: "🇵🇹", difficulty: "beginner", waveType: "Beachbreaks", breakType: "beach", hazards: ["rip", "current"], season: "Sep–Nov", water: "20°C", wetsuit: "3/2mm", lat: 37.09, lng: -8.81,
+    crowd: "low", bestMonths: [5, 6, 7, 8, 9, 10],
+    beginnerZones: ["Praia do Amado – Innensektion (sandig, flach)", "Arrifana – rechte Ecke bei kleinem Swell", "Praia da Bordeira – riesiger Strand, viel Platz"],
+    tips: ["Amado und Arrifana sind perfekt für deine ersten Wellen", "3/2mm Neopren nötig – das Wasser ist auch im Sommer frisch", "Immer zwischen den Flaggen surfen – Strömungen können stark sein", "Morgens ist es meistens glatter und weniger windig"] },
   { id: "hawaii", name: "Hawaii, USA", emoji: "🌈", difficulty: "advanced", waveType: "Große Riffwellen", breakType: "reef", hazards: ["reef", "locals", "current"], season: "Nov–Feb", water: "25°C", wetsuit: "none", lat: 21.59, lng: -158.10, tips: ["Waikiki für Anfänger, North Shore nur für Erfahrene", "Respektiere die Locals – Hawaii hat strenge Lineup-Hierarchie", "Riffschuhe sind Pflicht an vielen Spots"] },
   { id: "costarica", name: "Costa Rica", emoji: "🦜", difficulty: "beginner", waveType: "Warme Beachbreaks", breakType: "beach", hazards: ["rip"], season: "Dez–Apr", water: "29°C", wetsuit: "none", lat: 10.30, lng: -85.84, tips: ["Tamarindo und Nosara sind ideal für Anfänger", "Kein Neopren nötig – Boardshorts reichen", "Achtung Krokodile an Flussmündungen (kein Witz!)"] },
   { id: "australia", name: "Gold Coast, Australien", emoji: "🦘", difficulty: "intermediate", waveType: "Pointbreaks", breakType: "point", hazards: ["locals", "current"], season: "Feb–Mai", water: "23°C", wetsuit: "springsuits", lat: -28.17, lng: 153.53, tips: ["Snapper Rocks hat weltklasse Pointbreaks", "Stinger Season beachten (Okt–Mai)", "Surf-Kultur ist groß – respektiere die Locals"] },
@@ -17,7 +20,10 @@ export const SURF_SPOTS = [
   { id: "maldives", name: "Malediven", emoji: "🐠", difficulty: "intermediate", waveType: "Perfekte Riffwellen", breakType: "reef", hazards: ["reef", "current"], season: "Mär–Okt", water: "29°C", wetsuit: "none", lat: 3.20, lng: 73.22, tips: ["Surf-Charter-Boote sind der beste Weg zu den Wellen", "Kristallklares Wasser – du siehst den Riffboden", "Reef Booties sind absolute Pflicht"] },
   { id: "mentawai", name: "Mentawai, Indonesien", emoji: "🌴", difficulty: "advanced", waveType: "Weltklasse Riffwellen", breakType: "reef", hazards: ["reef", "current"], season: "Apr–Okt", water: "28°C", wetsuit: "none", lat: -2.08, lng: 99.53, tips: ["Lance's Right und Macaronis sind Weltklasse-Wellen", "Nur per Boot erreichbar – plane Surf-Charter", "Scharfes Riff – Erste-Hilfe-Kit ist Pflicht"] },
   { id: "jeffreys", name: "Jeffreys Bay, Südafrika", emoji: "🦈", difficulty: "advanced", waveType: "Legendärer Pointbreak", breakType: "point", hazards: ["locals", "current"], season: "Jun–Sep", water: "17°C", wetsuit: "4/3mm", lat: -34.05, lng: 24.93, tips: ["Supertubes ist eine der besten Rechtswellen der Welt", "4/3mm Neopren nötig – das Wasser ist kalt", "Haie sind real – surfe in Gruppen und meide Flussmündungen"] },
-  { id: "ericeira", name: "Ericeira, Portugal", emoji: "🇵🇹", difficulty: "intermediate", waveType: "World Surf Reserve", breakType: "mixed", hazards: ["reef", "locals", "current"], season: "Sep–Apr", water: "17°C", wetsuit: "4/3mm", lat: 38.96, lng: -9.42, tips: ["Ribeira d'Ilhas ist der bekannteste Spot", "World Surf Reserve – geschützte Küste mit perfekten Wellen", "Nur 45 Min von Lissabon – perfekt für Surf & City"] },
+  { id: "ericeira", name: "Ericeira, Portugal", emoji: "🇵🇹", difficulty: "intermediate", waveType: "World Surf Reserve", breakType: "mixed", hazards: ["reef", "locals", "current"], season: "Sep–Apr", water: "17°C", wetsuit: "4/3mm", lat: 38.96, lng: -9.42,
+    crowd: "high", bestMonths: [9, 10, 11, 3, 4],
+    beginnerZones: ["Foz do Lizandro – sandiger Beachbreak, anfängerfreundlich", "Praia de São Julião – breit, weniger Crowd"],
+    tips: ["Ribeira d'Ilhas ist World Surf Reserve – respektiere das Lineup", "Foz do Lizandro ist der bessere Spot für Anfänger als Ribeira", "45 Min von Lissabon – perfekt für Surf & City kombiniert", "Im Winter 4/3mm Neopren Pflicht, Wasser kann auf 15°C fallen"] },
   { id: "siargao", name: "Siargao, Philippinen", emoji: "🏄", difficulty: "intermediate", waveType: "Cloud 9 Riffwellen", breakType: "reef", hazards: ["reef", "current"], season: "Aug–Nov", water: "28°C", wetsuit: "none", lat: 9.85, lng: 126.16, tips: ["Cloud 9 ist weltberühmt – kräftige, hohle Rechtswelle", "Für Anfänger: Jacking Horse oder Stimpy's", "Tropenparadies – Palmen, türkises Wasser, entspannte Vibes"] },
 ];
 
@@ -406,9 +412,15 @@ export function analyzeDiary(diary, contentPool) {
 
 // Additional PT/BR Spots
 export const EXTRA_SPOTS = [
-  { id: "peniche", name: "Peniche, Portugal", emoji: "🇵🇹", difficulty: "intermediate", waveType: "Supertubos & Beachbreaks", breakType: "beach", hazards: ["rip", "current"], season: "Sep–Nov", water: "18°C", wetsuit: "4/3mm", lat: 39.36, lng: -9.38, tips: ["Supertubos ist eine der besten Barrel-Wellen Europas", "Baleal für Anfänger, Supertubos nur für Erfahrene", "WSL-Event-Location – oft crowded im Herbst"] },
+  { id: "peniche", name: "Peniche, Portugal", emoji: "🇵🇹", difficulty: "intermediate", waveType: "Supertubos & Beachbreaks", breakType: "beach", hazards: ["rip", "current"], season: "Sep–Nov", water: "18°C", wetsuit: "4/3mm", lat: 39.36, lng: -9.38,
+    crowd: "medium", bestMonths: [9, 10, 11],
+    beginnerZones: ["Baleal – Südseite der Halbinsel (geschützt bei Nordwind)", "Praia da Gamboa – kleiner, sandiger Anfänger-Spot"],
+    tips: ["Baleal ist perfekt für Anfänger – Wellen auf beiden Seiten der Halbinsel", "Supertubos nur für Erfahrene – eine der besten Barrels Europas", "WSL-Event-Location im Herbst – dann sehr crowded", "Zwischen Baleal und Stadt gibt es günstige Surfcamps"] },
   { id: "nazare", name: "Nazaré, Portugal", emoji: "🇵🇹", difficulty: "advanced", waveType: "Big Wave Capital", breakType: "beach", hazards: ["current", "rocks"], season: "Okt–Mär", water: "16°C", wetsuit: "4/3mm", lat: 39.60, lng: -9.07, tips: ["Praia do Norte hat die größten Wellen der Welt", "NUR zuschauen wenn du kein Big-Wave-Surfer bist", "Praia da Vila ist okay für Anfänger im Sommer"] },
-  { id: "cascais", name: "Cascais/Carcavelos, Portugal", emoji: "🇵🇹", difficulty: "beginner", waveType: "Stadtnah & Konsistent", breakType: "beach", hazards: ["rip"], season: "Sep–Mai", water: "18°C", wetsuit: "3/2mm", lat: 38.68, lng: -9.34, tips: ["Carcavelos ist DER Surf-Strand für Lissabonner", "30 Min von Lissabon – perfekt für After-Work Sessions", "Viele Surfschulen, gut für Anfänger"] },
+  { id: "cascais", name: "Cascais/Carcavelos, Portugal", emoji: "🇵🇹", difficulty: "beginner", waveType: "Stadtnah & Konsistent", breakType: "beach", hazards: ["rip"], season: "Sep–Mai", water: "18°C", wetsuit: "3/2mm", lat: 38.68, lng: -9.34,
+    crowd: "high", bestMonths: [9, 10, 11, 4, 5],
+    beginnerZones: ["Carcavelos – Hauptstrand, Surfschulen rechts und links", "São Pedro do Estoril – kleinere Wellen, weniger Leute"],
+    tips: ["Carcavelos ist Lissabons #1 Surf-Strand – 30 Min mit dem Zug", "Morgens vor 9 Uhr surfen, danach wird es voll", "Viele Surfschulen direkt am Strand – einfach vorbeigehen", "Nach dem Surf: Pastéis de Nata in Belém (10 Min)"] },
   { id: "ubatuba", name: "Ubatuba, Brasilien", emoji: "🇧🇷", difficulty: "beginner", waveType: "Tropische Beachbreaks", breakType: "beach", hazards: ["rip"], season: "Apr–Sep", water: "24°C", wetsuit: "none", lat: -23.43, lng: -45.07, tips: ["'Capital do Surf' – Brasiliens Surf-Hauptstadt", "Praia Vermelha und Itamambuca sind die besten Spots", "3h von São Paulo – perfekt fürs Wochenende"] },
   { id: "garopaba", name: "Garopaba, Brasilien", emoji: "🇧🇷", difficulty: "intermediate", waveType: "Kraftvolle Beachbreaks", breakType: "beach", hazards: ["rip", "current"], season: "Apr–Sep", water: "19°C", wetsuit: "springsuits", lat: -28.02, lng: -48.62, tips: ["Silveira Beach hat kraftvolle, hohle Wellen", "Zwischen Juni und November: Wal-Beobachtung möglich!", "Ruhigere Alternative zu Floripa mit guten Wellen"] },
 ];
@@ -422,6 +434,9 @@ export const SURF_SCHOOLS = [
     languages: ["pt", "en", "de", "fr"],
     rating: 4.8, reviewCount: 342,
     priceRange: { currency: "EUR", from: 35, to: 75, unit: "Stunde" },
+    description: "Familiäre Surfschule direkt am Praia do Amado – einem der besten Anfänger-Strände Europas. Seit 2009 bringen ISA-zertifizierte Instruktoren Beginner sicher aufs Board. Kleine Gruppen, persönliche Betreuung.",
+    includes: ["Surfboard", "Wetsuit", "Versicherung", "Fotos"],
+    meetingPoint: "Parkplatz Praia do Amado, 15 Min vor Kursbeginn (Schild 'Amado Surf' am Eingang)",
     courses: [
       { id: "beginner", name: "Iniciante / Anfänger", duration: "2h", price: 40, groupSize: "max 6", description: "Pop-Up, Paddeln, erste Wellen. Board & Wetsuit inklusive." },
       { id: "intermediate", name: "Intermédio / Mittelstufe", duration: "2h", price: 50, groupSize: "max 4", description: "Bottom Turns, Positioning, Wellenwahl." },
@@ -439,6 +454,9 @@ export const SURF_SCHOOLS = [
     languages: ["pt", "en", "es", "fr"],
     rating: 4.7, reviewCount: 518,
     priceRange: { currency: "EUR", from: 45, to: 280, unit: "Stunde" },
+    description: "Premium Surfcamp im Herzen von Ericeira – Europas einzigem World Surf Reserve. Surf, Yoga und Community unter einem Dach. Perfekt für Solo-Reisende und Gruppen.",
+    includes: ["Surfboard", "Wetsuit", "Transport zu Spots", "Yoga-Sessions"],
+    meetingPoint: "Rapture House, Rua da Ribeira 12 – Rezeption öffnet 8:00",
     courses: [
       { id: "beginner", name: "Beginner Surf Lesson", duration: "2.5h", price: 45, groupSize: "max 5", description: "Fundamentals: Paddel-Technik, Pop-Up, Safety." },
       { id: "intermediate", name: "Progression Coaching", duration: "2.5h", price: 55, groupSize: "max 4", description: "Green Waves, Turns, Positioning im Lineup." },
@@ -456,6 +474,9 @@ export const SURF_SCHOOLS = [
     languages: ["pt", "en", "de"],
     rating: 4.6, reviewCount: 287,
     priceRange: { currency: "EUR", from: 35, to: 450, unit: "Stunde" },
+    description: "Direkt auf der Halbinsel Baleal – Wellen auf beiden Seiten, immer eine surfbare Option. Budget-freundlich mit deutschem Support. Ideal für Anfänger die eine entspannte Atmosphäre suchen.",
+    includes: ["Surfboard", "Wetsuit", "Rashguard"],
+    meetingPoint: "Baleal Surf Camp Rezeption, Estrada do Baleal – 20 Min vor Kurs",
     courses: [
       { id: "beginner", name: "Aula de Surf / Surfstunde", duration: "2h", price: 35, groupSize: "max 8", description: "Grundlagen für absolute Anfänger." },
       { id: "weekpack", name: "5-Tage Kurs", duration: "5×2h", price: 150, groupSize: "max 6", description: "Kompletter Anfängerkurs über eine Woche." },
@@ -472,6 +493,9 @@ export const SURF_SCHOOLS = [
     languages: ["pt", "en", "es"],
     rating: 4.5, reviewCount: 195,
     priceRange: { currency: "EUR", from: 30, to: 70, unit: "Stunde" },
+    description: "Urban Surfschule am Carcavelos Beach – der beliebteste Surfstrand Lissabons. 30 Min mit dem Zug von der Innenstadt. Perfekt um Surfen und Sightseeing zu kombinieren.",
+    includes: ["Surfboard", "Wetsuit"],
+    meetingPoint: "Lifeguard Tower #3, Praia de Carcavelos (Westseite)",
     courses: [
       { id: "beginner", name: "Intro Surf", duration: "1.5h", price: 30, groupSize: "max 8", description: "Schnupperstunde am Carcavelos Beach." },
       { id: "regular", name: "Surf Course", duration: "2h", price: 45, groupSize: "max 6", description: "Aufbaukurs: Wellenwahl, Positioning." },
@@ -570,3 +594,69 @@ export function formatPrice(price, currency) {
 
 // Language labels
 export const LANG_LABELS = { pt: "🇵🇹 Português", en: "🇬🇧 English", de: "🇩🇪 Deutsch", fr: "🇫🇷 Français", es: "🇪🇸 Español" };
+
+// ══════════════════════════════════════════
+// V3: Spot → Lesson Mapping (v6.8)
+// Maps spots to recommended lessons from CONTENT_POOL
+// ══════════════════════════════════════════
+
+const SPOT_LESSON_MAP = {
+  // Portugal – Beginner focus
+  portugal: { // Algarve
+    before: ["Spot-Check: Worauf achten?", "Surf-Warm-Up"],
+    during: ["Pop-Up Technik", "Paddeln & Wellenwahl"],
+    after: ["Post-Session Recovery"],
+  },
+  ericeira: {
+    before: ["Spot-Check: Worauf achten?", "Lineup Navigation"],
+    during: ["Bottom Turn & Trimmen", "Paddeln & Wellenwahl"],
+    after: ["Video-Analyse"],
+  },
+  peniche: {
+    before: ["Surf-Warm-Up", "Wellen zählen & Set-Analyse"],
+    during: ["Pop-Up Technik", "Wipeout Recovery"],
+    after: ["Post-Session Recovery"],
+  },
+  cascais: {
+    before: ["Spot-Check: Worauf achten?", "Session-Planung & Timing"],
+    during: ["Pop-Up Technik", "Paddeln & Wellenwahl"],
+    after: ["Post-Session Recovery"],
+  },
+  // Defaults for non-mapped spots
+  _default: {
+    before: ["Spot-Check: Worauf achten?", "Surf-Warm-Up"],
+    during: ["Pop-Up Technik", "Paddeln & Wellenwahl"],
+    after: ["Post-Session Recovery"],
+  },
+};
+
+/**
+ * Get recommended lessons for a spot.
+ * @param {string} spotId
+ * @param {string} skillLevel - "beginner" | "lowerIntermediate" | "intermediate" | "advanced"
+ * @returns {{ before: Object[], during: Object[], after: Object[] }}
+ */
+export function getSpotLessons(spotId, skillLevel = "beginner") {
+  const mapping = SPOT_LESSON_MAP[spotId] || SPOT_LESSON_MAP._default;
+  const allLessons = [
+    ...CONTENT_POOL.equipment,
+    ...CONTENT_POOL.warmup,
+    ...CONTENT_POOL.theory,
+    ...CONTENT_POOL.practice,
+  ];
+
+  const resolve = (titles) => titles
+    .map(title => allLessons.find(l => l.title === title))
+    .filter(Boolean)
+    // Filter by skill: beginner sees beginner+intermediate, advanced sees all
+    .filter(l => {
+      if (skillLevel === "beginner") return l.level === "beginner" || l.level === "intermediate";
+      return true;
+    });
+
+  return {
+    before: resolve(mapping.before),
+    during: resolve(mapping.during),
+    after: resolve(mapping.after),
+  };
+}
