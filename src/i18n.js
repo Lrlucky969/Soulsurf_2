@@ -361,6 +361,17 @@ const T = {
   "builder.days": { de: "Tage", en: "days", pt: "dias" },
 
   // ══════════════════════════════════════════
+  // V2: Schools as Business Core (v6.7)
+  // ══════════════════════════════════════════
+  "schools.perfectMatch": { de: "Perfekt für dein Level", en: "Perfect for your level", pt: "Perfeito para o teu nível" },
+  "schools.goodMatch": { de: "Geeignet für dich", en: "Suitable for you", pt: "Adequado para ti" },
+  "schools.includes": { de: "Inklusive", en: "Included", pt: "Incluído" },
+  "schools.notified": { de: "wurde benachrichtigt.", en: "has been notified.", pt: "foi notificado." },
+  "schools.noSchoolsDesc": { de: "Hier gibt es noch keine Schulen.", en: "No schools here yet.", pt: "Ainda não há escolas aqui." },
+  "schools.namePh": { de: "Dein Name", en: "Your name", pt: "Teu nome" },
+  "schools.conditionsNow": { de: "Bedingungen jetzt", en: "Conditions now", pt: "Condições agora" },
+
+  // ══════════════════════════════════════════
   // DIARY
   // ══════════════════════════════════════════
   "diary.title": { de: "📓 Surf-Tagebuch", en: "📓 Surf Diary", pt: "📓 Diário de Surf" },

@@ -1,4 +1,4 @@
-// SoulSurf v6.6.2 – App Shell (V1: Decision → Booking Flow)
+// SoulSurf v6.7 – App Shell (V2: Schools as Business Core)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -258,7 +258,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.6.2</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.7</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -421,7 +421,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.6.2 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.7 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
