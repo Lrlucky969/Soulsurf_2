@@ -1,8 +1,8 @@
-// SoulSurf – SurfScreen v6.6.2 (V1: UX Fix – 2 views, 3-day forecast)
+// SoulSurf – SurfScreen v6.8 (V3: Portugal Content + Spot Lessons)
 // Replaces ForecastScreen as "Surf" tab target
 // 3 Views: Spots | Schools | Forecast (toggle)
 import React, { useState, useMemo } from "react";
-import { SURF_SPOTS, SURF_SCHOOLS, getSchoolsBySpot } from "../data.js";
+import { SURF_SPOTS, SURF_SCHOOLS, getSchoolsBySpot, getSpotLessons } from "../data.js";
 import { sortSpotsBySuitability, getSpotSuitability } from "../spotSuitability.js";
 import useForecast from "../useForecast.js";
 import { scoreLabel, windDirLabel, swellRating, surfScore, weatherLabel, windArrow } from "../weather.js";
@@ -264,6 +264,78 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
             )}
           </div>
         )}
+
+        {/* v6.8: Beginner Zones */}
+        {spotObj.beginnerZones && spotObj.beginnerZones.length > 0 && (
+          <div style={{ ...card, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={sectionLabel}>🟢 {_("spot.beginnerZones", "Anfänger-Zonen")}</div>
+            {spotObj.beginnerZones.map((zone, i) => (
+              <div key={i} style={{ fontSize: 12, color: t.text2, lineHeight: 1.5, marginBottom: i < spotObj.beginnerZones.length - 1 ? 4 : 0, display: "flex", gap: 6 }}>
+                <span style={{ color: "#4CAF50" }}>•</span> {zone}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* v6.8: Crowd + Best Months */}
+        {(spotObj.crowd || spotObj.bestMonths) && (
+          <div style={{ ...card, padding: "14px 16px", marginBottom: 12 }}>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+              {spotObj.crowd && (
+                <div>
+                  <div style={{ ...sectionLabel, marginBottom: 4 }}>{_("spot.crowd", "Crowd")}</div>
+                  <span style={{ fontSize: 12, color: spotObj.crowd === "low" ? "#4CAF50" : spotObj.crowd === "high" ? "#E53935" : "#FFA000", fontWeight: 600 }}>
+                    {spotObj.crowd === "low" ? "🏖️" : spotObj.crowd === "high" ? "👥" : "👤"} {_(`spot.crowd.${spotObj.crowd}`)}
+                  </span>
+                </div>
+              )}
+              {spotObj.bestMonths && (
+                <div>
+                  <div style={{ ...sectionLabel, marginBottom: 4 }}>{_("spot.bestMonths", "Beste Monate")}</div>
+                  <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+                    {["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"].map((m, i) => (
+                      <span key={i} style={{ fontSize: 9, padding: "2px 5px", borderRadius: 4, fontFamily: "'Space Mono', monospace", background: spotObj.bestMonths.includes(i + 1) ? (dm ? "rgba(0,150,136,0.15)" : "#E0F2F1") : "transparent", color: spotObj.bestMonths.includes(i + 1) ? t.accent : t.text3, fontWeight: spotObj.bestMonths.includes(i + 1) ? 700 : 400 }}>{m}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* v6.8: Recommended Lessons for this spot */}
+        {(() => {
+          const lessons = getSpotLessons(spotObj.id, data.skillLevel);
+          const hasLessons = lessons.before.length > 0 || lessons.during.length > 0 || lessons.after.length > 0;
+          if (!hasLessons) return null;
+          return (
+            <div style={{ ...card, padding: "14px 16px", marginBottom: 12 }}>
+              <div style={sectionLabel}>📚 {_("spot.lessons.recommended", "Empfohlene Lektionen")}</div>
+              {[
+                { key: "before", label: _("spot.lessons.before", "Vor der Session"), items: lessons.before, emoji: "📖" },
+                { key: "during", label: _("spot.lessons.during", "Im Wasser"), items: lessons.during, emoji: "🌊" },
+                { key: "after", label: _("spot.lessons.after", "Nach der Session"), items: lessons.after, emoji: "🧘" },
+              ].filter(g => g.items.length > 0).map(group => (
+                <div key={group.key} style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 10, color: t.text3, fontWeight: 600, marginBottom: 4 }}>{group.emoji} {group.label}</div>
+                  {group.items.map((lesson, i) => (
+                    <button key={i} onClick={() => navigate("lessons", { lessonTitle: lesson.title })} style={{
+                      display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 10, marginBottom: 3, width: "100%",
+                      background: dm ? "rgba(255,255,255,0.02)" : "#FAFAFA", border: `1px solid ${t.cardBorder}`, cursor: "pointer", textAlign: "left",
+                    }}>
+                      <span style={{ fontSize: 14 }}>{lesson.icon}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: t.text }}>{lesson.title}</div>
+                        <div style={{ fontSize: 10, color: t.text3 }}>{lesson.duration} · {lesson.level}</div>
+                      </div>
+                      <span style={{ fontSize: 11, color: t.accent }}>→</span>
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
 
         {/* Tips */}
         {spotObj.tips && spotObj.tips.length > 0 && (
