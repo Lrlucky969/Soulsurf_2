@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v6.6.2 (V1: UX Fixes – No-scroll onboarding, clearer Decision)
+// SoulSurf – HomeScreen v6.9 (V4: Decision Dominance – Hero Card, BeginnerZone, Crowd-aware)
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
@@ -308,19 +308,32 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </h2>
         </div>
 
-        {/* ══════ DECISION CARD (HERO) ══════ */}
+        {/* ══════ V4: DECISION HERO (dominates screen) ══════ */}
         <div style={{
-          background: `linear-gradient(135deg, ${conf.color}18, ${conf.color}08)`,
-          border: `2px solid ${conf.color}40`,
-          borderRadius: 20, padding: "20px", marginBottom: 16,
+          borderRadius: 22, padding: "22px 20px", marginBottom: 14,
           position: "relative", overflow: "hidden",
           animation: "slideUp 0.4s ease both",
+          ...(recommendation.action === "surf_solo" ? {
+            background: dm ? "linear-gradient(135deg, #1B5E20, #2E7D32)" : "linear-gradient(135deg, #E8F5E9, #C8E6C9)",
+            border: "2px solid #4CAF5060",
+          } : recommendation.action === "book_lesson" ? {
+            background: dm ? "linear-gradient(135deg, #E65100, #BF360C)" : "linear-gradient(135deg, #FFF3E0, #FFE0B2)",
+            border: "2px solid #FF980060",
+          } : recommendation.action === "no_surf" ? {
+            background: dm ? "linear-gradient(135deg, #B71C1C, #880E4F)" : "linear-gradient(135deg, #FFEBEE, #FCE4EC)",
+            border: "2px solid #F4433660",
+          } : {
+            background: `linear-gradient(135deg, ${conf.color}18, ${conf.color}08)`,
+            border: `2px solid ${conf.color}40`,
+          }),
         }}>
-          <div style={{ position: "absolute", top: -15, right: -15, fontSize: 70, opacity: 0.08 }}>{act.emoji}</div>
+          <div style={{ position: "absolute", top: -20, right: -20, fontSize: 80, opacity: 0.07 }}>{act.emoji}</div>
 
-          {/* Header: Today for your level */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+          {/* State label */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em",
+              color: recommendation.action === "surf_solo" ? (dm ? "#A5D6A7" : "#2E7D32") : recommendation.action === "book_lesson" ? (dm ? "#FFCC80" : "#E65100") : recommendation.action === "no_surf" ? (dm ? "#EF9A9A" : "#C62828") : t.text3,
+            }}>
               {_("decision.todayFor")} · {spotObj.emoji} {spotObj.name.split(",")[0]}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4, background: `${conf.color}20`, padding: "3px 8px", borderRadius: 6 }}>
@@ -329,86 +342,97 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             </div>
           </div>
 
-          {/* Loading / No-data state */}
           {!conditions ? (
-            <div style={{ textAlign: "center", padding: "20px 0" }}>
+            <div style={{ textAlign: "center", padding: "16px 0" }}>
               <div style={{ fontSize: 28, marginBottom: 8, animation: forecastLoading ? "float 2s ease-in-out infinite" : "none" }}>🌊</div>
-              <div style={{ fontSize: 13, color: t.text2 }}>{forecastLoading ? _("decision.noData") : _("decision.noWaveData", "Keine Daten verfügbar")}</div>
-              {!forecastLoading && (
-                <button onClick={() => navigate("forecast")} style={{ marginTop: 10, background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 10, padding: "8px 16px", fontSize: 12, color: t.accent, fontWeight: 700, cursor: "pointer" }}>
-                  {_("decision.cta.checkForecast")} →
-                </button>
-              )}
+              <div style={{ fontSize: 13, color: dm ? "#ccc" : t.text2 }}>{forecastLoading ? _("decision.noData") : _("decision.noWaveData")}</div>
             </div>
           ) : (
             <>
-              {/* Action + Reason */}
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-                <div style={{ width: 52, height: 52, borderRadius: 16, background: `${act.color}20`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>{act.emoji}</div>
+              {/* v6.9: Large action headline */}
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
+                <div style={{ width: 56, height: 56, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30,
+                  background: recommendation.action === "surf_solo" ? (dm ? "rgba(255,255,255,0.1)" : "#4CAF5018") : recommendation.action === "book_lesson" ? (dm ? "rgba(255,255,255,0.1)" : "#FF980018") : (dm ? "rgba(255,255,255,0.1)" : `${act.color}18`),
+                }}>{act.emoji}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text }}>{_(act.label)}</div>
-                  <div style={{ fontSize: 12, color: t.text2, marginTop: 2 }}>{_(recommendation.reasonKey, recommendation.reason)}</div>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 900,
+                    color: recommendation.action === "surf_solo" ? (dm ? "#fff" : "#1B5E20") : recommendation.action === "book_lesson" ? (dm ? "#fff" : "#BF360C") : recommendation.action === "no_surf" ? (dm ? "#fff" : "#B71C1C") : t.text,
+                  }}>{_(act.label)}</div>
+                  <div style={{ fontSize: 12, marginTop: 2,
+                    color: dm ? "rgba(255,255,255,0.75)" : t.text2,
+                  }}>{_(recommendation.reasonKey)}</div>
                 </div>
               </div>
 
+              {/* v6.9: Beginner Zone tip (only for go-surf states) */}
+              {recommendation.beginnerZone && (recommendation.action === "surf_solo" || recommendation.action === "surf_with_caution") && (
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 12px", borderRadius: 10, marginBottom: 10,
+                  background: dm ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)",
+                }}>
+                  <span style={{ fontSize: 13, flexShrink: 0 }}>📍</span>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: dm ? "#fff" : t.text }}>{_("decision.goHere", "Geh hierhin:")}</div>
+                    <div style={{ fontSize: 11, color: dm ? "rgba(255,255,255,0.7)" : t.text2 }}>{recommendation.beginnerZone}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* v6.9: Secondary note (crowd warning etc.) */}
+              {recommendation.secondaryNote && (
+                <div style={{ fontSize: 10, padding: "5px 10px", borderRadius: 8, marginBottom: 10,
+                  background: dm ? "rgba(255,183,77,0.1)" : "#FFF8E1", color: dm ? "#FFB74D" : "#E65100",
+                  display: "flex", alignItems: "center", gap: 6,
+                }}>
+                  <span>👥</span> {_(recommendation.secondaryNote)}
+                </div>
+              )}
+
               {/* Conditions mini-row */}
-              {conditions && conditions.waveHeight != null && (
-                <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-                  <div style={{ flex: 1, background: dm ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>{_("decision.waves")}</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: t.text }}>{conditions.waveHeight?.toFixed(1)}m</div>
-                    {conditions.wavePeriod != null && <div style={{ fontSize: 9, color: t.text3 }}>{conditions.wavePeriod?.toFixed(0)}s</div>}
-                  </div>
-                  <div style={{ flex: 1, background: dm ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>{_("decision.wind")}</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: t.text }}>{conditions.wind != null ? Math.round(conditions.wind) : "–"}<span style={{ fontSize: 10, fontWeight: 500 }}>km/h</span></div>
-                  </div>
-                  <div style={{ flex: 1, background: dm ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", borderRadius: 10, padding: "8px 10px", textAlign: "center" }}>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>Score</div>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: conf.color }}>{conditions.surfScore}</div>
-                  </div>
+              {conditions.waveHeight != null && (
+                <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+                  {[
+                    { label: _("decision.waves"), value: `${conditions.waveHeight.toFixed(1)}m`, sub: conditions.wavePeriod != null ? `${conditions.wavePeriod.toFixed(0)}s` : null },
+                    { label: _("decision.wind"), value: `${conditions.wind != null ? Math.round(conditions.wind) : "–"}`, sub: "km/h" },
+                    { label: "Score", value: conditions.surfScore, sub: null },
+                  ].map((c, i) => (
+                    <div key={i} style={{ flex: 1, borderRadius: 10, padding: "7px 8px", textAlign: "center",
+                      background: dm ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)",
+                    }}>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, color: dm ? "rgba(255,255,255,0.5)" : t.text3 }}>{c.label}</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: i === 2 ? conf.color : (dm ? "#fff" : t.text) }}>{c.value}{c.sub && <span style={{ fontSize: 9, fontWeight: 400 }}>{c.sub}</span>}</div>
+                    </div>
+                  ))}
                 </div>
               )}
 
               {/* Best window hint */}
               {bestWindow && bestWindow.score >= 60 && (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: dm ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", borderRadius: 10, marginBottom: 14 }}>
-                  <span style={{ fontSize: 14 }}>⏰</span>
-                  <span style={{ fontSize: 12, color: t.text2 }}>
-                    {_("decision.bestWindow")}: <strong style={{ color: t.text }}>{bestWindow.hour}:00</strong> (Score {bestWindow.score})
-                    {recommendation.action === "surf_with_caution" && bestWindow.score > (conditions?.surfScore || 0) && (
-                      <span style={{ color: t.accent, fontWeight: 600 }}> — 💡 {_("decision.betterThen", "Dann besser!")}</span>
-                    )}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 12,
+                  background: dm ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+                }}>
+                  <span style={{ fontSize: 13 }}>⏰</span>
+                  <span style={{ fontSize: 11, color: dm ? "rgba(255,255,255,0.7)" : t.text2 }}>
+                    {_("decision.bestWindow")}: <strong style={{ color: dm ? "#fff" : t.text }}>{bestWindow.hour}:00</strong> (Score {bestWindow.score})
                   </span>
                 </div>
               )}
 
-              {/* CTA Button */}
+              {/* Primary CTA */}
               {recommendation.cta && (
                 <button onClick={() => {
-                  trackEvent("decision_cta_clicked", {
-                    action: recommendation.action,
-                    confidence: recommendation.confidence,
-                    spot: spotObj?.id,
-                    ctaScreen: recommendation.cta.screen,
-                  });
-                  // v6.6: Navigate with context for schools
+                  trackEvent("decision_cta_clicked", { action: recommendation.action, confidence: recommendation.confidence, spot: spotObj?.id, ctaScreen: recommendation.cta.screen });
                   if (recommendation.cta.screen === "schools") {
-                    navigate("schools", {
-                      fromDecision: true,
-                      spot: spotObj?.id,
-                      reason: recommendation.reasonKey,
-                      action: recommendation.action,
-                    });
+                    navigate("schools", { fromDecision: true, spot: spotObj?.id, reason: recommendation.reasonKey, action: recommendation.action });
                   } else {
                     navigate(recommendation.cta.screen);
                   }
                 }} style={{
                   width: "100%", padding: "14px", borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: "pointer",
-                  fontFamily: "'Playfair Display', serif",
-                  background: recommendation.action === "book_lesson" ? "linear-gradient(135deg, #FF9800, #FF7043)" : "linear-gradient(135deg, #009688, #4DB6AC)",
-                  color: "white", border: "none",
-                  boxShadow: `0 6px 20px ${recommendation.action === "book_lesson" ? "rgba(255,152,0,0.3)" : "rgba(0,150,136,0.3)"}`,
+                  fontFamily: "'Playfair Display', serif", color: "white", border: "none",
+                  background: recommendation.action === "book_lesson" ? "linear-gradient(135deg, #FF9800, #FF7043)"
+                    : recommendation.action === "no_surf" ? "linear-gradient(135deg, #5C6BC0, #7986CB)"
+                    : "linear-gradient(135deg, #009688, #4DB6AC)",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
                 }}>
                   {_(recommendation.cta.text)} →
                 </button>
@@ -431,23 +455,16 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </button>
         )}
 
-        {/* Streak Card (compact) */}
+        {/* Streak Card (v6.9: more compact) */}
         {data.streak >= 2 && streakMilestones.current && (
-          <div style={{ background: "linear-gradient(135deg, #FFB74D, #FF7043)", borderRadius: 16, padding: "14px 16px", marginBottom: 12, color: "white", position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: -10, right: -10, fontSize: 50, opacity: 0.12 }}>🔥</div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 800 }}>{streakMilestones.current.badge} {data.streak} {_("general.days", "Tage")}</div>
-                <div style={{ fontSize: 10, opacity: 0.9, marginTop: 2 }}>{streakMilestones.current.desc}</div>
-              </div>
-              {streakMilestones.next && (
-                <div style={{ textAlign: "right", fontSize: 10, opacity: 0.8 }}>{streakMilestones.next.badge} in {streakMilestones.next.day - data.streak}d</div>
-              )}
+          <div style={{ background: "linear-gradient(135deg, #FFB74D, #FF7043)", borderRadius: 12, padding: "10px 14px", marginBottom: 10, color: "white", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 20 }}>🔥</span>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 14, fontWeight: 800 }}>{data.streak} {_("general.days", "Tage")}</span>
+              {streakMilestones.next && <span style={{ fontSize: 10, opacity: 0.8, marginLeft: 8 }}>{streakMilestones.next.badge} in {streakMilestones.next.day - data.streak}d</span>}
             </div>
             {data.canFreezeStreak && data.streak >= 3 && (
-              <button onClick={() => setShowFreezeConfirm(true)} style={{ marginTop: 8, width: "100%", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: 8, padding: "8px", fontSize: 11, fontWeight: 700, color: "white", cursor: "pointer" }}>
-                🧊 Streak Freeze
-              </button>
+              <button onClick={() => setShowFreezeConfirm(true)} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 9, fontWeight: 700, color: "white", cursor: "pointer" }}>🧊</button>
             )}
           </div>
         )}
@@ -540,41 +557,73 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   const act2 = actionDisplay(recommendation.action);
 
   return (
-    <div style={{ paddingTop: 30, textAlign: "center" }}>
-      <div style={{ fontSize: 60, marginBottom: 10, animation: "float 4s ease-in-out infinite" }}>🌊</div>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 8 }}>{_("home.heroTitle", "Lerne Surfen.")}<br /><span style={{ color: t.accent }}>{_("home.heroSub", "Finde deinen Flow.")}</span></h2>
-      <p style={{ fontSize: 15, color: t.text2, maxWidth: 400, margin: "0 auto 20px", lineHeight: 1.6 }}>{_("home.heroDesc", "Erstelle dein persönliches Surf-Programm oder plane deinen nächsten Trip.")}</p>
+    <div style={{ paddingTop: 20 }}>
+      <div style={{ textAlign: "center", marginBottom: 20 }}>
+        <div style={{ fontSize: 48, marginBottom: 8 }}>🌊</div>
+        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 4 }}>{_("home.heroTitle", "Lerne Surfen.")}</h2>
+        <p style={{ fontSize: 13, color: t.text2, maxWidth: 360, margin: "0 auto", lineHeight: 1.5 }}>{_("home.heroDesc", "Erstelle dein persönliches Surf-Programm oder plane deinen nächsten Trip.")}</p>
+      </div>
 
-      {/* v6.6.2: Decision Card with clear reason + prominent CTA */}
+      {/* v6.9: Decision Hero for no-program users */}
       {spotObj && conditions && (
-        <div style={{ maxWidth: 380, margin: "0 auto 20px", background: recommendation.action === "book_lesson" || recommendation.action === "surf_with_caution" ? (dm ? "rgba(255,152,0,0.08)" : "#FFF3E0") : `${conf2.color}10`, border: `1px solid ${recommendation.action === "book_lesson" ? "rgba(255,152,0,0.25)" : conf2.color + "30"}`, borderRadius: 16, padding: "16px 18px", textAlign: "left" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <span style={{ fontSize: 20 }}>{act2.emoji}</span>
-            <span style={{ fontSize: 15, fontWeight: 800, color: t.text, fontFamily: "'Playfair Display', serif" }}>{_(act2.label)}</span>
-            <div style={{ marginLeft: "auto", fontSize: 10, color: conf2.color, fontWeight: 700 }}>{conf2.emoji}</div>
+        <div style={{
+          borderRadius: 20, padding: "18px", marginBottom: 16,
+          ...(recommendation.action === "surf_solo" ? {
+            background: dm ? "linear-gradient(135deg, #1B5E20, #2E7D32)" : "linear-gradient(135deg, #E8F5E9, #C8E6C9)",
+            border: "2px solid #4CAF5060",
+          } : recommendation.action === "book_lesson" ? {
+            background: dm ? "linear-gradient(135deg, #E65100, #BF360C)" : "linear-gradient(135deg, #FFF3E0, #FFE0B2)",
+            border: "2px solid #FF980060",
+          } : {
+            background: `linear-gradient(135deg, ${conf2.color}18, ${conf2.color}08)`,
+            border: `2px solid ${conf2.color}40`,
+          }),
+          position: "relative", overflow: "hidden", textAlign: "left",
+        }}>
+          <div style={{ position: "absolute", top: -15, right: -15, fontSize: 70, opacity: 0.06 }}>{act2.emoji}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26,
+              background: dm ? "rgba(255,255,255,0.1)" : `${act2.color}15`,
+            }}>{act2.emoji}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 900,
+                color: recommendation.action === "surf_solo" ? (dm ? "#fff" : "#1B5E20") : recommendation.action === "book_lesson" ? (dm ? "#fff" : "#BF360C") : t.text,
+              }}>{_(act2.label)}</div>
+              <div style={{ fontSize: 11, color: dm ? "rgba(255,255,255,0.7)" : t.text2, marginTop: 1 }}>
+                {_(recommendation.reasonKey)} · {spotObj.emoji} {spotObj.name.split(",")[0]} · {conditions.waveHeight?.toFixed(1)}m
+              </div>
+            </div>
+            <div style={{ background: `${conf2.color}20`, padding: "3px 8px", borderRadius: 6 }}>
+              <span style={{ fontSize: 10 }}>{conf2.emoji}</span>
+            </div>
           </div>
-          {/* v6.6.2: Show reason WHY directly */}
-          {recommendation.reasonKey && (
-            <div style={{ fontSize: 12, color: t.text2, marginBottom: 8, lineHeight: 1.5 }}>
-              {_(recommendation.reasonKey)} · {spotObj.emoji} {spotObj.name.split(",")[0]} · {conditions.waveHeight?.toFixed(1)}m · {conditions.wind != null ? Math.round(conditions.wind) + "km/h" : ""}
+          {recommendation.beginnerZone && (
+            <div style={{ fontSize: 11, padding: "6px 10px", borderRadius: 8, marginBottom: 8,
+              background: dm ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)", display: "flex", gap: 6, alignItems: "center",
+              color: dm ? "rgba(255,255,255,0.8)" : t.text2,
+            }}>
+              <span>📍</span> {recommendation.beginnerZone}
             </div>
           )}
           {recommendation.cta && (
             <button onClick={() => {
-              trackEvent("decision_cta_clicked", { action: recommendation.action, spot: spotObj?.id, source: "mini_card" });
+              trackEvent("decision_cta_clicked", { action: recommendation.action, spot: spotObj?.id, source: "hero_no_program" });
               if (recommendation.cta.screen === "schools") {
                 navigate("schools", { fromDecision: true, spot: spotObj?.id, reason: recommendation.reasonKey, action: recommendation.action });
               } else {
                 navigate(recommendation.cta.screen);
               }
-            }} style={{ width: "100%", padding: "12px", background: recommendation.action === "book_lesson" ? "linear-gradient(135deg, #FF9800, #FF7043)" : "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif" }}>
+            }} style={{ width: "100%", padding: "12px", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", color: "white", border: "none",
+              background: recommendation.action === "book_lesson" ? "linear-gradient(135deg, #FF9800, #FF7043)" : "linear-gradient(135deg, #009688, #4DB6AC)",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+            }}>
               {_(recommendation.cta.text)} →
             </button>
           )}
         </div>
       )}
 
-      <button onClick={() => navigate("builder")} style={{ display: "block", margin: "0 auto 28px", background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "18px 44px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>{_("home.createProgram", "Programm erstellen")} 🤙</button>
+      <button onClick={() => navigate("builder")} style={{ display: "block", width: "100%", margin: "0 auto 20px", background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "16px", fontSize: 17, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)" }}>{_("home.createProgram", "Programm erstellen")} 🤙</button>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 28 }}>
         {[
