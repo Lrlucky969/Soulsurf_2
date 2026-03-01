@@ -1,4 +1,4 @@
-// SoulSurf v7.2 – App Shell (Sprint 36: Forecast Polish + Tomorrow-aware)
+// SoulSurf v7.4 – App Shell (Sprint 38: Cloud Sync + Booking History)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -125,7 +125,7 @@ export default function SurfApp() {
       case "trip": return <TripScreen data={data} t={th} dm={dm} i18n={i18n} spotObj={spotObj} navigate={navigate} />;
       case "diary": return <DiaryScreen data={data} t={th} dm={dm} i18n={i18n} setOpenLesson={setOpenLesson} photoSync={photoSync} />;
       case "progress": return <ProgressScreen data={data} t={th} dm={dm} i18n={i18n} setOpenLesson={setOpenLesson} />;
-      case "profile": return <ProfileScreen data={data} auth={auth} t={th} dm={dm} i18n={i18n} navigate={navigate} notifications={notifications} />;
+      case "profile": return <ProfileScreen data={data} auth={auth} sync={sync} t={th} dm={dm} i18n={i18n} navigate={navigate} notifications={notifications} />;
       case "equipment": return <EquipmentScreen data={data} t={th} dm={dm} i18n={i18n} />;
       case "community": return <CommunityScreen data={data} auth={auth} t={th} dm={dm} i18n={i18n} navigate={navigate} />;
       case "forecast": return <SurfScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} />;
@@ -258,7 +258,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v7.2</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v7.4</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -421,7 +421,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v7.2 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v7.4 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
