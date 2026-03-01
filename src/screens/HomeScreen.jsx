@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v6.9 (V4: Decision Dominance – Hero Card, BeginnerZone, Crowd-aware)
+// SoulSurf – HomeScreen v7.0 (V4: Decision Dominance – Hero Card, BeginnerZone, Crowd-aware)
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
@@ -364,8 +364,8 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 </div>
               </div>
 
-              {/* v6.9: Beginner Zone tip (only for go-surf states) */}
-              {recommendation.beginnerZone && (recommendation.action === "surf_solo" || recommendation.action === "surf_with_caution") && (
+              {/* v6.9: Beginner Zone tip (all actionable states) */}
+              {recommendation.beginnerZone && recommendation.action !== "no_surf" && recommendation.action !== "check_later" && (
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 12px", borderRadius: 10, marginBottom: 10,
                   background: dm ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)",
                 }}>
@@ -388,7 +388,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
               )}
 
               {/* Conditions mini-row */}
-              {conditions.waveHeight != null && (
+              {conditions.waveHeight != null && recommendation.action !== "no_surf" && recommendation.action !== "check_later" && (
                 <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
                   {[
                     { label: _("decision.waves"), value: `${conditions.waveHeight.toFixed(1)}m`, sub: conditions.wavePeriod != null ? `${conditions.wavePeriod.toFixed(0)}s` : null },
@@ -406,7 +406,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
               )}
 
               {/* Best window hint */}
-              {bestWindow && bestWindow.score >= 60 && (
+              {bestWindow && bestWindow.score >= 60 && recommendation.action !== "no_surf" && (
                 <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderRadius: 8, marginBottom: 12,
                   background: dm ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
                 }}>
