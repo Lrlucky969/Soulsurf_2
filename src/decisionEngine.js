@@ -1,34 +1,27 @@
-// SoulSurf – Decision Engine v6.4.1 (Sprint 33: Bugfix Release)
-// Rule-based recommendation: skillLevel × conditions × spot → action
+// SoulSurf – Decision Engine v6.9 (V4: Decision Dominance)
+// Enhanced: crowd-aware, beginnerZone tips, lesson recommendations
+// Rule-based: skillLevel × conditions × spot × crowd → action
 
-// ─── Thresholds (no magic numbers) ───
 const T = {
-  FLAT_MAX: 0.3,            // m – below this = flat
-  BEGINNER_MAX_WAVE: 1.5,   // m – above this = too big for beginner
-  LOWER_INT_MAX_WAVE: 1.8,  // m – above this = challenging for lower_int
-  BEGINNER_IDEAL_MIN: 0.4,  // m – ideal wave range for beginners
-  BEGINNER_IDEAL_MAX: 1.2,  // m
-  BEGINNER_IDEAL_WIND: 15,  // km/h – max wind for perfect beginner
-  WIND_MODERATE: 20,        // km/h – above = caution
-  WIND_STRONG: 30,          // km/h – above = no surf
-  GUST_STRONG: 45,          // km/h
-  SCORE_GOOD: 60,           // surfScore threshold
+  FLAT_MAX: 0.3,
+  BEGINNER_MAX_WAVE: 1.5,
+  LOWER_INT_MAX_WAVE: 1.8,
+  BEGINNER_IDEAL_MIN: 0.4,
+  BEGINNER_IDEAL_MAX: 1.2,
+  BEGINNER_IDEAL_WIND: 15,
+  WIND_MODERATE: 20,
+  WIND_STRONG: 30,
+  GUST_STRONG: 45,
+  SCORE_GOOD: 60,
   SCORE_OKAY: 40,
-  STORM_CODE: 95,           // WMO weather code
+  STORM_CODE: 95,
 };
 
-/**
- * @param {Object} userData - { skillLevel, primaryGoal, wantsSchoolHelp, done, streak, hasSaved }
- * @param {Object|null} conditions - { waveHeight, wavePeriod, wind, gusts, surfScore, temp, code }
- * @param {Object|null} spot - SURF_SPOTS entry { id, difficulty, breakType, hazards, ... }
- * @returns {Object} recommendation
- */
 export function getTodayRecommendation(userData, conditions, spot) {
   const { skillLevel = "beginner", wantsSchoolHelp = true, hasSaved, done = 0 } = userData || {};
 
-  // ─── No data fallback ───
   if (!conditions || !spot) {
-    return rec("unknown", "check_later", "decision.noData", "Forecast-Daten laden...", null, null);
+    return rec("unknown", "check_later", "decision.noData", null, null, null, null);
   }
 
   const wh = conditions.waveHeight;
@@ -38,91 +31,98 @@ export function getTodayRecommendation(userData, conditions, spot) {
   const code = conditions.code;
   const isBeginnerSpot = spot.difficulty === "beginner";
   const isReef = spot.breakType === "reef";
+  const isCrowded = spot.crowd === "high";
+  const beginnerZone = spot.beginnerZones?.[0] || null;
 
-  // ─── Rule 1: Dangerous weather (storms, lightning) ───
+  // Rule 1: Dangerous weather
   if (code != null && code >= T.STORM_CODE) {
-    return rec("low", "no_surf", "decision.storm", "Gewitter – heute nicht sicher", null, conditions);
+    return rec("low", "no_surf", "decision.storm", null,
+      hasSaved ? { text: "decision.cta.lesson", screen: "lessons" } : null, conditions, null);
   }
 
-  // ─── Rule 2: Flat / no waves (explicit null check: null = unknown, 0 = flat) ───
+  // Rule 2: Flat
   if (wh != null && wh < T.FLAT_MAX) {
-    return rec("high", "no_surf", "decision.flat", "Flat – keine surfbaren Wellen",
-      hasSaved ? { text: "decision.cta.lesson", screen: "lessons" } : null, conditions);
+    return rec("high", "no_surf", "decision.flat", null,
+      hasSaved ? { text: "decision.cta.lesson", screen: "lessons" } : null, conditions, null);
   }
 
-  // ─── Rule 3: No wave data at all → can't recommend ───
+  // Rule 3: No wave data
   if (wh == null) {
-    return rec("unknown", "check_later", "decision.noWaveData", "Keine Wellendaten verfügbar",
-      { text: "decision.cta.checkForecast", screen: "forecast" }, conditions);
+    return rec("unknown", "check_later", "decision.noWaveData", null,
+      { text: "decision.cta.checkForecast", screen: "forecast" }, conditions, null);
   }
 
-  // ─── Rule 4: Beginner + Big waves ───
+  // Rule 4: Beginner + Big waves
   if (skillLevel === "beginner" && wh > T.BEGINNER_MAX_WAVE) {
     return rec("low",
       wantsSchoolHelp ? "book_lesson" : "wait_better_day",
-      "decision.tooBigBeginner", "Wellen zu groß für dein Level",
+      "decision.tooBigBeginner", null,
       wantsSchoolHelp ? { text: "decision.cta.findCoach", screen: "schools" } : { text: "decision.cta.otherSpots", screen: "forecast" },
-      conditions);
+      conditions, null);
   }
 
-  // ─── Rule 5: Beginner + Reef → suggest lesson or caution ───
+  // Rule 5: Beginner + Reef
   if (skillLevel === "beginner" && isReef) {
     return wantsSchoolHelp
-      ? rec("medium", "book_lesson", "decision.reefLesson", "Riff-Spot – ein Guide hilft beim Einstieg", { text: "decision.cta.findCoach", screen: "schools" }, conditions)
-      : rec("medium", "surf_with_caution", "decision.reefCaution", "Riff-Spot – besonders vorsichtig sein", { text: "decision.cta.spotTips", screen: "forecast" }, conditions);
+      ? rec("medium", "book_lesson", "decision.reefLesson", null, { text: "decision.cta.findCoach", screen: "schools" }, conditions, null)
+      : rec("medium", "surf_with_caution", "decision.reefCaution", null, { text: "decision.cta.spotTips", screen: "forecast" }, conditions, null);
   }
 
-  // ─── Rule 6: Strong wind ───
+  // Rule 6: Strong wind
   if ((wind != null && wind > T.WIND_STRONG) || (gusts != null && gusts > T.GUST_STRONG)) {
-    return rec("low", "no_surf", "decision.tooWindy", "Zu windig – unruhige Bedingungen",
-      hasSaved ? { text: "decision.cta.lesson", screen: "lessons" } : null, conditions);
+    return rec("low", "no_surf", "decision.tooWindy", null,
+      hasSaved ? { text: "decision.cta.lesson", screen: "lessons" } : null, conditions, null);
   }
 
-  // ─── Rule 7: Moderate wind (20-30) → caution ───
+  // Rule 7: Moderate wind
   if (wind != null && wind > T.WIND_MODERATE) {
     const action = skillLevel === "beginner" && wantsSchoolHelp ? "book_lesson" : "surf_with_caution";
-    return rec("medium", action, "decision.windy", "Windiger Tag – Bedingungen sind unruhig",
+    return rec("medium", action, "decision.windy", null,
       action === "book_lesson" ? { text: "decision.cta.findCoach", screen: "schools" } : { text: "decision.cta.checkForecast", screen: "forecast" },
-      conditions);
+      conditions, null);
   }
 
-  // ─── Rule 8: Perfect conditions for beginners ───
+  // Rule 8: Perfect beginner conditions (v6.9: crowd + zone aware)
   if (skillLevel === "beginner" && wh >= T.BEGINNER_IDEAL_MIN && wh <= T.BEGINNER_IDEAL_MAX && (wind == null || wind < T.BEGINNER_IDEAL_WIND) && isBeginnerSpot) {
-    return rec("high", "surf_solo", "decision.perfectBeginner", "Perfekte Bedingungen für dein Level!",
+    return rec("high", "surf_solo", "decision.perfectBeginner", beginnerZone,
       hasSaved ? { text: "decision.cta.todayLesson", screen: "lessons" } : { text: "decision.cta.createProgram", screen: "builder" },
-      conditions);
+      conditions, isCrowded ? "decision.crowdedTip" : null);
   }
 
-  // ─── Rule 9: Good conditions (score >= 60) ───
+  // Rule 9: Good conditions (v6.9: crowded beginner → suggest coach)
   if (score != null && score >= T.SCORE_GOOD) {
+    if (skillLevel === "beginner" && isCrowded && wantsSchoolHelp) {
+      return rec("medium", "book_lesson", "decision.crowdedCoach", beginnerZone,
+        { text: "decision.cta.findCoach", screen: "schools" }, conditions, "decision.crowdedTip");
+    }
     const action = skillLevel === "beginner" && !isBeginnerSpot ? "surf_with_caution" : "surf_solo";
-    return rec("high", action, "decision.goodConditions", "Gute Bedingungen – ab ins Wasser!",
+    return rec("high", action, "decision.goodConditions", beginnerZone,
       hasSaved ? { text: "decision.cta.todayLesson", screen: "lessons" } : { text: "decision.cta.createProgram", screen: "builder" },
-      conditions);
+      conditions, null);
   }
 
-  // ─── Rule 10: Okay conditions (score 40-60) ───
+  // Rule 10: Okay conditions
   if (score != null && score >= T.SCORE_OKAY) {
-    return rec("medium", "surf_with_caution", "decision.okayConditions", "Mittelmäßige Bedingungen – kann gehen",
-      { text: "decision.cta.checkForecast", screen: "forecast" }, conditions);
+    return rec("medium", "surf_with_caution", "decision.okayConditions", beginnerZone,
+      { text: "decision.cta.checkForecast", screen: "forecast" }, conditions, null);
   }
 
-  // ─── Rule 11: Lower intermediate + challenging waves ───
+  // Rule 11: Lower intermediate + challenging
   if (skillLevel === "lower_intermediate" && wh > T.LOWER_INT_MAX_WAVE) {
     return rec("medium",
       wantsSchoolHelp ? "book_lesson" : "surf_with_caution",
-      "decision.challengingIntermediate", "Anspruchsvolle Bedingungen – Coach empfohlen",
+      "decision.challengingIntermediate", null,
       wantsSchoolHelp ? { text: "decision.cta.findCoach", screen: "schools" } : null,
-      conditions);
+      conditions, null);
   }
 
-  // ─── Default: suboptimal ───
-  return rec("low", "surf_with_caution", "decision.suboptimal", "Nicht die besten Bedingungen",
-    hasSaved ? { text: "decision.cta.lesson", screen: "lessons" } : null, conditions);
+  // Default
+  return rec("low", "surf_with_caution", "decision.suboptimal", null,
+    hasSaved ? { text: "decision.cta.lesson", screen: "lessons" } : null, conditions, null);
 }
 
-function rec(confidence, action, reasonKey, reason, cta, conditions) {
-  return { confidence, action, reasonKey, reason, cta, conditions };
+function rec(confidence, action, reasonKey, beginnerZone, cta, conditions, secondaryNote) {
+  return { confidence, action, reasonKey, reason: reasonKey, cta, conditions, beginnerZone, secondaryNote };
 }
 
 export function confidenceDisplay(confidence) {

@@ -386,6 +386,13 @@ const T = {
   "spot.lessons.recommended": { de: "Empfohlene Lektionen", en: "Recommended lessons", pt: "Lições recomendadas" },
 
   // ══════════════════════════════════════════
+  // V4: Decision Dominance (v6.9)
+  // ══════════════════════════════════════════
+  "decision.goHere": { de: "Geh hierhin:", en: "Go here:", pt: "Vai aqui:" },
+  "decision.crowdedTip": { de: "Oft voll – früh morgens oder mit Coach für weniger Stress", en: "Often crowded – go early or with a coach", pt: "Frequentemente cheio – vai cedo ou com instrutor" },
+  "decision.crowdedCoach": { de: "Voll heute – ein Coach hilft dir im Lineup", en: "Crowded today – a coach helps in the lineup", pt: "Cheio hoje – um instrutor ajuda no lineup" },
+
+  // ══════════════════════════════════════════
   // DIARY
   // ══════════════════════════════════════════
   "diary.title": { de: "📓 Surf-Tagebuch", en: "📓 Surf Diary", pt: "📓 Diário de Surf" },
