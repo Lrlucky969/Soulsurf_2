@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v7.0 (V4: Decision Dominance – Hero Card, BeginnerZone, Crowd-aware)
+// SoulSurf – HomeScreen v7.2 (Sprint 36: Tomorrow-aware, lastUpdated)
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
@@ -32,7 +32,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   const [showFreezeConfirm, setShowFreezeConfirm] = useState(false);
 
   // v6.4: Decision Engine data
-  const { conditions, loading: forecastLoading, bestWindow } = useForecast(spotObj || null);
+  const { conditions, loading: forecastLoading, bestWindow, tomorrowBest, lastUpdated } = useForecast(spotObj || null);
   // v6.4.1: Granular userData to avoid re-renders on unrelated data changes
   const userData = useMemo(() => ({
     skillLevel: data.skillLevel,
@@ -417,7 +417,30 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 </div>
               )}
 
+              {/* v7.2: Last updated timestamp */}
+              {lastUpdated && (
+                <div style={{ textAlign: "right", marginBottom: 8 }}>
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: dm ? "rgba(255,255,255,0.3)" : t.text3 }}>
+                    ↻ {Math.round((Date.now() - lastUpdated.getTime()) / 60000)} min
+                  </span>
+                </div>
+              )}
+
               {/* Primary CTA */}
+              {/* v7.2: Tomorrow-better hint (when today is bad but tomorrow looks good) */}
+              {tomorrowBest && tomorrowBest.score >= 60 && (recommendation.action === "no_surf" || recommendation.action === "wait_better_day" || (recommendation.confidence === "low" && recommendation.action !== "check_later")) && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 10, marginBottom: 12,
+                  background: dm ? "rgba(76,175,80,0.1)" : "#E8F5E9", border: `1px solid ${dm ? "rgba(76,175,80,0.2)" : "#C8E6C9"}`,
+                }}>
+                  <span style={{ fontSize: 14 }}>🌅</span>
+                  <span style={{ fontSize: 11, color: dm ? "#81C784" : "#2E7D32", lineHeight: 1.4 }}>
+                    {_("decision.tomorrowBetter", "Morgen sieht besser aus!")}{" "}
+                    <strong>{tomorrowBest.hour}:00</strong> – Score {tomorrowBest.score}
+                    {tomorrowBest.waveHeight != null && <span style={{ fontWeight: 400 }}> · {tomorrowBest.waveHeight.toFixed(1)}m</span>}
+                  </span>
+                </div>
+              )}
+
               {recommendation.cta && (
                 <button onClick={() => {
                   trackEvent("decision_cta_clicked", { action: recommendation.action, confidence: recommendation.confidence, spot: spotObj?.id, ctaScreen: recommendation.cta.screen });

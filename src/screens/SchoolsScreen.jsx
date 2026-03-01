@@ -95,7 +95,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
       });
     } catch (err) {
       setBookingStatus("error");
-      setBookingError(err.message);
+      setBookingError(err.i18nKey ? _(err.i18nKey, err.message) : err.message);
       trackEvent("booking_payment_error", { error: err.message });
     }
   };
