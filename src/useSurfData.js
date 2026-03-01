@@ -156,12 +156,13 @@ export default function useSurfData(sync) {
 
   // v6.3: Save user profile (Sprint 32)
   const saveProfile = useCallback((profile) => {
-    const merged = { skillLevel, primaryGoal, wantsSchoolHelp, ...profile };
+    const merged = { skillLevel, primaryGoal, wantsSchoolHelp, spot, ...profile };
     if (profile.skillLevel !== undefined) setSkillLevel(profile.skillLevel);
     if (profile.primaryGoal !== undefined) setPrimaryGoal(profile.primaryGoal);
     if (profile.wantsSchoolHelp !== undefined) setWantsSchoolHelp(profile.wantsSchoolHelp);
+    if (profile.spot !== undefined) setSpot(profile.spot);
     try { localStorage.setItem("soulsurf_profile", JSON.stringify(merged)); } catch {}
-  }, [skillLevel, primaryGoal, wantsSchoolHelp]);
+  }, [skillLevel, primaryGoal, wantsSchoolHelp, spot]);
 
   const saveAll = useCallback((overrides = {}) => {
     const base = { days, goal, spot, board, experience, completed, diary, activeDay, surfDays };
