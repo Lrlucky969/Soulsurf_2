@@ -417,14 +417,18 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 </div>
               )}
 
-              {/* v7.2: Last updated timestamp */}
-              {lastUpdated && (
-                <div style={{ textAlign: "right", marginBottom: 8 }}>
-                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: dm ? "rgba(255,255,255,0.3)" : t.text3 }}>
-                    ↻ {Math.round((Date.now() - lastUpdated.getTime()) / 60000)} min
-                  </span>
-                </div>
-              )}
+              {/* v7.2.1: Smart last-updated timestamp */}
+              {lastUpdated && (() => {
+                const mins = Math.round((Date.now() - lastUpdated.getTime()) / 60000);
+                const label = mins < 3 ? _("decision.justUpdated", "Gerade aktualisiert ✓")
+                  : mins < 60 ? `↻ ${mins} min`
+                  : `↻ ${lastUpdated.toLocaleTimeString(i18n?.lang === "en" ? "en-GB" : i18n?.lang === "pt" ? "pt-PT" : "de-DE", { hour: "2-digit", minute: "2-digit" })}`;
+                return (
+                  <div style={{ textAlign: "right", marginBottom: 8 }}>
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: mins > 60 ? (dm ? "#FFB74D" : "#E65100") : (dm ? "rgba(255,255,255,0.3)" : t.text3) }}>{label}</span>
+                  </div>
+                );
+              })()}
 
               {/* Primary CTA */}
               {/* v7.2: Tomorrow-better hint (when today is bad but tomorrow looks good) */}
