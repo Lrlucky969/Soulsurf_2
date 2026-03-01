@@ -228,6 +228,10 @@ const T = {
   "pay.error.card": { de: "Karte abgelehnt. Bitte andere Zahlungsmethode versuchen.", en: "Card declined. Please try another payment method.", pt: "Cartão recusado. Tente outro método de pagamento." },
   "pay.error.expired": { de: "Karte abgelaufen. Bitte aktualisieren.", en: "Card expired. Please update your card.", pt: "Cartão expirado. Atualize seu cartão." },
   "pay.error.default": { de: "Zahlung fehlgeschlagen. Bitte erneut versuchen oder Anfrage senden.", en: "Payment failed. Please try again or send a request.", pt: "Pagamento falhou. Tente novamente ou envie uma solicitação." },
+  "pay.error.funds": { de: "Nicht genug Guthaben auf der Karte.", en: "Insufficient funds on card.", pt: "Saldo insuficiente no cartão." },
+  "pay.error.cvc": { de: "CVC-Code falsch. Bitte prüfen.", en: "Incorrect CVC code. Please check.", pt: "Código CVC incorreto. Verifique." },
+  "pay.error.processing": { de: "Zahlung wird noch verarbeitet. Bitte kurz warten.", en: "Payment is still processing. Please wait.", pt: "Pagamento em processamento. Aguarde." },
+  "pay.error.auth": { de: "3D-Secure Verifizierung fehlgeschlagen. Bitte erneut versuchen.", en: "3D Secure verification failed. Please try again.", pt: "Verificação 3D Secure falhou. Tente novamente." },
 
   // ══════════════════════════════════════════
   // ONBOARDING v6.3 (Sprint 32)
@@ -320,6 +324,7 @@ const T = {
   "decision.cta.otherSpots": { de: "Andere Spots", en: "Other spots", pt: "Outros spots" },
   "decision.bestWindow": { de: "Bestes Zeitfenster", en: "Best window", pt: "Melhor horário" },
   "decision.tomorrowBetter": { de: "Morgen sieht besser aus!", en: "Tomorrow looks better!", pt: "Amanhã parece melhor!" },
+  "decision.justUpdated": { de: "Gerade aktualisiert ✓", en: "Just updated ✓", pt: "Atualizado ✓" },
   "decision.conditions": { de: "Aktuelle Bedingungen", en: "Current conditions", pt: "Condições atuais" },
   "decision.waves": { de: "Wellen", en: "Waves", pt: "Ondas" },
   "decision.wind": { de: "Wind", en: "Wind", pt: "Vento" },

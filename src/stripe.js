@@ -1,28 +1,40 @@
-// SoulSurf – Stripe Client Helper v7.1 (cleaned, user-friendly errors)
+// SoulSurf – Stripe Client Helper v7.2.1 (expanded error mapping)
 const API_BASE = typeof window !== "undefined"
   ? (import.meta.env.VITE_APP_URL || window.location.origin)
   : "";
 
 // User-friendly error messages (i18n-ready keys)
 const ERROR_MAP = {
-  network: "pay.error.network",       // "Keine Internetverbindung. Bitte erneut versuchen."
-  card_declined: "pay.error.card",     // "Karte abgelehnt. Bitte andere Zahlungsmethode."
-  expired_card: "pay.error.expired",   // "Karte abgelaufen. Bitte aktualisieren."
-  default: "pay.error.default",        // "Zahlung fehlgeschlagen. Bitte erneut versuchen."
+  network: "pay.error.network",
+  card_declined: "pay.error.card",
+  expired_card: "pay.error.expired",
+  insufficient_funds: "pay.error.funds",
+  incorrect_cvc: "pay.error.cvc",
+  processing_error: "pay.error.processing",
+  authentication_required: "pay.error.auth",
+  default: "pay.error.default",
 };
 
 function mapError(err) {
   if (err.message?.includes("NetworkError") || err.message?.includes("Failed to fetch")) {
     return { key: ERROR_MAP.network, fallback: "Keine Internetverbindung. Bitte erneut versuchen." };
   }
-  if (err.code === "card_declined") {
-    return { key: ERROR_MAP.card_declined, fallback: "Karte abgelehnt. Bitte andere Zahlungsmethode versuchen." };
+  const code = err.code || err.decline_code;
+  if (code && ERROR_MAP[code]) {
+    return { key: ERROR_MAP[code], fallback: FALLBACKS[code] };
   }
-  if (err.code === "expired_card") {
-    return { key: ERROR_MAP.expired_card, fallback: "Karte abgelaufen. Bitte aktualisieren." };
-  }
-  return { key: ERROR_MAP.default, fallback: "Zahlung fehlgeschlagen. Bitte erneut versuchen oder Anfrage senden." };
+  return { key: ERROR_MAP.default, fallback: FALLBACKS.default };
 }
+
+const FALLBACKS = {
+  card_declined: "Karte abgelehnt. Bitte andere Zahlungsmethode versuchen.",
+  expired_card: "Karte abgelaufen. Bitte aktualisieren.",
+  insufficient_funds: "Nicht genug Guthaben auf der Karte.",
+  incorrect_cvc: "CVC-Code falsch. Bitte prüfen.",
+  processing_error: "Zahlung wird noch verarbeitet. Bitte kurz warten.",
+  authentication_required: "3D-Secure Verifizierung fehlgeschlagen. Bitte erneut versuchen.",
+  default: "Zahlung fehlgeschlagen. Bitte erneut versuchen oder Anfrage senden.",
+};
 
 /**
  * Create a Stripe Checkout Session
