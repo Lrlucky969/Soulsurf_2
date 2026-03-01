@@ -1,4 +1,4 @@
-// SoulSurf v6.9 – App Shell (V4: Decision Dominance)
+// SoulSurf v7.0 – App Shell (V5: E2E Polish)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -258,7 +258,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v6.9</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v7.0</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -421,7 +421,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v6.9 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v7.0 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
