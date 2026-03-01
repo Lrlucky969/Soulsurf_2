@@ -1,7 +1,8 @@
-// SoulSurf – ProfileScreen v7.3 (Sprint 37: Spot editing added)
+// SoulSurf – ProfileScreen v7.4 (Sprint 38: Booking History + Sync Status)
 // New "Profile" tab combining: User Profile, Settings, Progress, Equipment, Instructor links
 import React, { useState, useMemo } from "react";
 import { SURF_SPOTS } from "../data.js";
+import useBookings from "../useBookings.js";
 
 const SKILL_LEVELS = [
   { id: "beginner", emoji: "🌱", key: "skill.beginner", color: "#4CAF50" },
@@ -32,13 +33,15 @@ const STREAK_BADGES = [
   { id: "streak-30", emoji: "🏆", name: "Legend", threshold: 30 },
 ];
 
-export default function ProfileScreen({ data, auth, t, dm, i18n, navigate, notifications }) {
+export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate, notifications }) {
   const _ = i18n?.t || ((k, f) => f || k);
   const [editingProfile, setEditingProfile] = useState(false);
   const [editSkill, setEditSkill] = useState(data.skillLevel || "beginner");
   const [editGoal, setEditGoal] = useState(data.primaryGoal || "first_waves");
   const [editSchool, setEditSchool] = useState(data.wantsSchoolHelp !== false);
   const [editSpot, setEditSpot] = useState(data.spot || "");
+
+  const { bookings, loading: bookingsLoading } = useBookings(auth?.user?.email);
 
   const skillObj = useMemo(() => SKILL_LEVELS.find(s => s.id === data.skillLevel) || SKILL_LEVELS[0], [data.skillLevel]);
   const goalObj = useMemo(() => SURF_GOALS.find(g => g.id === data.primaryGoal) || SURF_GOALS[0], [data.primaryGoal]);
@@ -265,6 +268,65 @@ export default function ProfileScreen({ data, auth, t, dm, i18n, navigate, notif
         </div>
       </div>
 
+      {/* Booking History (v7.4) */}
+      {auth?.isLoggedIn && (
+        <div style={card}>
+          <div style={sectionLabel}>{_("profile.bookings", "Meine Buchungen")}</div>
+          {bookingsLoading ? (
+            <div style={{ textAlign: "center", padding: "12px 0", fontSize: 12, color: t.text3 }}>Lade...</div>
+          ) : bookings.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "16px 0" }}>
+              <div style={{ fontSize: 28, marginBottom: 6 }}>📋</div>
+              <div style={{ fontSize: 12, color: t.text2 }}>{_("profile.noBookings", "Noch keine Buchungen")}</div>
+              <button onClick={() => navigate("schools")} style={{ marginTop: 10, background: "none", border: `1px solid ${t.accent}`, borderRadius: 8, padding: "6px 14px", fontSize: 11, fontWeight: 600, color: t.accent, cursor: "pointer" }}>
+                {_("profile.findSchool", "Surfschule finden")} →
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {bookings.map(b => {
+                const statusColor = b.status === "confirmed" ? "#4CAF50" : b.status === "cancelled" ? "#F44336" : "#FF9800";
+                const statusEmoji = b.status === "confirmed" ? "✅" : b.status === "cancelled" ? "❌" : "⏳";
+                const price = b.amount_total ? `${(b.amount_total / 100).toFixed(0)}€` : "";
+                return (
+                  <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 12, background: dm ? "rgba(255,255,255,0.03)" : "#FAFAFA", border: `1px solid ${t.cardBorder}` }}>
+                    <span style={{ fontSize: 18 }}>{statusEmoji}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: t.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{b.school_name}</div>
+                      <div style={{ fontSize: 10, color: t.text2 }}>{b.course_name} · {b.date} · {b.people}x</div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 800, color: t.accent }}>{price}</div>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, color: statusColor, fontWeight: 700 }}>{b.status}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Sync Status (v7.4) */}
+      {auth?.isLoggedIn && sync && (
+        <div style={{ ...card, display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 20 }}>☁️</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: t.text }}>{_("profile.cloudSync", "Cloud-Sync")}</div>
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: sync.syncStatus === "error" ? "#E53935" : sync.syncStatus === "synced" ? "#4CAF50" : t.text3 }}>
+              {sync.syncStatus === "syncing" ? _("profile.syncing", "Synchronisiere...") :
+               sync.syncStatus === "synced" ? _("profile.synced", "Synchronisiert ✓") :
+               sync.syncStatus === "error" ? _("profile.syncError", "Sync-Fehler") :
+               _("profile.syncIdle", "Bereit")}
+              {sync.lastSynced && sync.syncStatus === "synced" && (
+                <span> · {new Date(sync.lastSynced).toLocaleTimeString(i18n?.lang === "en" ? "en-GB" : "de-DE", { hour: "2-digit", minute: "2-digit" })}</span>
+              )}
+            </div>
+          </div>
+          <button onClick={() => { if (data.getProgramSnapshot && data.getTripsSnapshot) sync.forceUpload(data.getProgramSnapshot(), data.getTripsSnapshot()); }} style={{ background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 8, padding: "6px 10px", fontSize: 10, fontWeight: 600, color: t.text2, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>↻ Sync</button>
+        </div>
+      )}
+
       {/* Navigation Links */}
       <div style={{ marginTop: 8 }}>
         <div style={{ ...sectionLabel, padding: "0 4px" }}>{_("profile.more", "Weitere")}</div>
@@ -277,7 +339,7 @@ export default function ProfileScreen({ data, auth, t, dm, i18n, navigate, notif
       {/* App Info */}
       <div style={{ marginTop: 20, padding: 16, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, textAlign: "center" }}>
         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>
-          SoulSurf v6.3.4 · {_("profile.madeWith", "Made with")} ☮ & 🌊
+          SoulSurf v7.4 · {_("profile.madeWith", "Made with")} ☮ & 🌊
         </div>
         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, marginTop: 4 }}>
           {data.done} {_("profile.lessons", "Lektionen")} · {data.diaryCount} {_("profile.entries", "Einträge")} · {data.streak} {_("home.streak", "Streak")}
