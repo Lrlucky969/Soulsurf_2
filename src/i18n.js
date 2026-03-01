@@ -224,6 +224,10 @@ const T = {
   "pay.cancelledDesc": { de: "Die Zahlung wurde nicht abgeschlossen. Du kannst es erneut versuchen.", en: "The payment was not completed. You can try again.", pt: "O pagamento não foi concluído. Você pode tentar novamente." },
   "pay.tryAgain": { de: "Erneut versuchen", en: "Try again", pt: "Tentar novamente" },
   "pay.cancellationNote": { de: "Kostenlose Stornierung bis 24h vor Kursbeginn", en: "Free cancellation up to 24h before the course", pt: "Cancelamento gratuito até 24h antes do curso" },
+  "pay.error.network": { de: "Keine Internetverbindung. Bitte erneut versuchen.", en: "No internet connection. Please try again.", pt: "Sem conexão. Tente novamente." },
+  "pay.error.card": { de: "Karte abgelehnt. Bitte andere Zahlungsmethode versuchen.", en: "Card declined. Please try another payment method.", pt: "Cartão recusado. Tente outro método de pagamento." },
+  "pay.error.expired": { de: "Karte abgelaufen. Bitte aktualisieren.", en: "Card expired. Please update your card.", pt: "Cartão expirado. Atualize seu cartão." },
+  "pay.error.default": { de: "Zahlung fehlgeschlagen. Bitte erneut versuchen oder Anfrage senden.", en: "Payment failed. Please try again or send a request.", pt: "Pagamento falhou. Tente novamente ou envie uma solicitação." },
 
   // ══════════════════════════════════════════
   // ONBOARDING v6.3 (Sprint 32)
@@ -315,6 +319,7 @@ const T = {
   "decision.cta.checkForecast": { de: "Forecast checken", en: "Check forecast", pt: "Ver previsão" },
   "decision.cta.otherSpots": { de: "Andere Spots", en: "Other spots", pt: "Outros spots" },
   "decision.bestWindow": { de: "Bestes Zeitfenster", en: "Best window", pt: "Melhor horário" },
+  "decision.tomorrowBetter": { de: "Morgen sieht besser aus!", en: "Tomorrow looks better!", pt: "Amanhã parece melhor!" },
   "decision.conditions": { de: "Aktuelle Bedingungen", en: "Current conditions", pt: "Condições atuais" },
   "decision.waves": { de: "Wellen", en: "Waves", pt: "Ondas" },
   "decision.wind": { de: "Wind", en: "Wind", pt: "Vento" },

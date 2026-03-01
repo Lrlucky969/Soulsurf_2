@@ -1,32 +1,37 @@
-// SoulSurf – Stripe Client Helper (Sprint 30 - PRODUCTION READY + DEBUG)
+// SoulSurf – Stripe Client Helper v7.1 (cleaned, user-friendly errors)
 const API_BASE = typeof window !== "undefined"
   ? (import.meta.env.VITE_APP_URL || window.location.origin)
   : "";
 
+// User-friendly error messages (i18n-ready keys)
+const ERROR_MAP = {
+  network: "pay.error.network",       // "Keine Internetverbindung. Bitte erneut versuchen."
+  card_declined: "pay.error.card",     // "Karte abgelehnt. Bitte andere Zahlungsmethode."
+  expired_card: "pay.error.expired",   // "Karte abgelaufen. Bitte aktualisieren."
+  default: "pay.error.default",        // "Zahlung fehlgeschlagen. Bitte erneut versuchen."
+};
+
+function mapError(err) {
+  if (err.message?.includes("NetworkError") || err.message?.includes("Failed to fetch")) {
+    return { key: ERROR_MAP.network, fallback: "Keine Internetverbindung. Bitte erneut versuchen." };
+  }
+  if (err.code === "card_declined") {
+    return { key: ERROR_MAP.card_declined, fallback: "Karte abgelehnt. Bitte andere Zahlungsmethode versuchen." };
+  }
+  if (err.code === "expired_card") {
+    return { key: ERROR_MAP.expired_card, fallback: "Karte abgelaufen. Bitte aktualisieren." };
+  }
+  return { key: ERROR_MAP.default, fallback: "Zahlung fehlgeschlagen. Bitte erneut versuchen oder Anfrage senden." };
+}
+
 /**
  * Create a Stripe Checkout Session
- * @param {Object} booking - Booking details
- * @returns {Promise<{url: string, sessionId: string}>}
  */
 export async function createCheckoutSession(booking) {
   try {
-    const endpoint = `${API_BASE}/api/checkout`;
-    
-    console.log("🔵 [Stripe] Creating checkout session:", endpoint);
-    console.log("🔵 [Stripe] Booking:", {
-      school: booking.schoolName,
-      course: booking.courseName,
-      amount: booking.pricePerPerson,
-      people: booking.people,
-      currency: booking.currency
-    });
-
-    const res = await fetch(endpoint, {
+    const res = await fetch(`${API_BASE}/api/checkout`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         schoolName: booking.schoolName,
         schoolId: booking.schoolId,
@@ -44,37 +49,21 @@ export async function createCheckoutSession(booking) {
       }),
     });
 
-    console.log("🔵 [Stripe] Response status:", res.status);
-    console.log("🔵 [Stripe] Response headers:", Object.fromEntries(res.headers.entries()));
-
     if (!res.ok) {
-      const errorText = await res.text();
-      console.error("❌ [Stripe] Checkout error:", res.status, errorText);
-      
-      let errorData;
-      try {
-        errorData = JSON.parse(errorText);
-      } catch {
-        throw new Error(`Payment service error (${res.status}): ${errorText.slice(0, 200)}`);
-      }
-      
-      throw new Error(errorData.error || "Checkout failed");
+      const errorData = await res.json().catch(() => ({ error: "Payment service unavailable" }));
+      const err = new Error(errorData.error || "Checkout failed");
+      err.code = errorData.code;
+      err.type = errorData.type;
+      throw err;
     }
 
-    const data = await res.json();
-    console.log("✅ [Stripe] Session created:", data.sessionId);
-    console.log("✅ [Stripe] Checkout URL:", data.url);
-    
-    return data;
+    return res.json();
   } catch (error) {
-    console.error("❌ [Stripe] Client error:", error);
-    
-    // User-friendly error messages
-    if (error.message.includes("NetworkError") || error.message.includes("Failed to fetch")) {
-      throw new Error("Netzwerkfehler. Bitte Internetverbindung prüfen.");
-    }
-    
-    throw error;
+    const mapped = mapError(error);
+    const userError = new Error(mapped.fallback);
+    userError.i18nKey = mapped.key;
+    userError.originalError = error;
+    throw userError;
   }
 }
 
@@ -82,29 +71,13 @@ export async function createCheckoutSession(booking) {
  * Redirect to Stripe Checkout
  */
 export async function redirectToCheckout(booking) {
-  try {
-    const { url, sessionId } = await createCheckoutSession(booking);
-    
-    if (!url) {
-      throw new Error("No checkout URL received from server");
-    }
-
-    console.log("🔵 [Stripe] Session ID:", sessionId);
-    console.log("🔵 [Stripe] Redirecting to:", url);
-    
-    // Small delay to ensure console logs are visible
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    window.location.href = url;
-  } catch (error) {
-    console.error("❌ [Stripe] Redirect failed:", error);
-    throw error;
-  }
+  const { url } = await createCheckoutSession(booking);
+  if (!url) throw new Error("No checkout URL received");
+  window.location.href = url;
 }
 
 /**
- * Check if returning from Stripe payment
- * Call this on app mount
+ * Check if returning from Stripe payment (call on app mount)
  */
 export function checkBookingReturn() {
   if (typeof window === "undefined") return null;
@@ -121,38 +94,14 @@ export function checkBookingReturn() {
     window.history.replaceState({}, "", url.toString());
   }
 
-  if (status === "success") {
-    console.log("✅ [Stripe] Payment successful:", sessionId);
-    return { status: "success", sessionId };
-  }
-
-  if (status === "cancelled") {
-    console.log("⚠️ [Stripe] Payment cancelled");
-    return { status: "cancelled" };
-  }
-
+  if (status === "success") return { status: "success", sessionId };
+  if (status === "cancelled") return { status: "cancelled" };
   return null;
 }
 
 /**
  * Convert price to cents (Stripe format)
- * @param {number} price - Price in Euros/Dollars (e.g. 45.00)
- * @returns {number} Price in cents (e.g. 4500)
  */
 export function priceToCents(price) {
-  const cents = Math.round(parseFloat(price) * 100);
-  console.log(`💰 [Stripe] Converting ${price} → ${cents} cents`);
-  return cents;
-}
-
-/**
- * Format price from cents
- * @param {number} cents - Price in cents (e.g. 4500)
- * @param {string} currency - Currency code (e.g. "eur")
- * @returns {string} Formatted price (e.g. "€45.00")
- */
-export function formatPriceFromCents(cents, currency = "eur") {
-  const amount = cents / 100;
-  const symbol = currency === "eur" ? "€" : currency === "brl" ? "R$" : "$";
-  return `${symbol}${amount.toFixed(2)}`;
+  return Math.round(parseFloat(price) * 100);
 }
