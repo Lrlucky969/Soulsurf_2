@@ -1,4 +1,4 @@
-// SoulSurf – ProfileScreen v6.3.4 (Sprint 32: Strategic Refocus)
+// SoulSurf – ProfileScreen v7.3 (Sprint 37: Spot editing added)
 // New "Profile" tab combining: User Profile, Settings, Progress, Equipment, Instructor links
 import React, { useState, useMemo } from "react";
 import { SURF_SPOTS } from "../data.js";
@@ -38,6 +38,7 @@ export default function ProfileScreen({ data, auth, t, dm, i18n, navigate, notif
   const [editSkill, setEditSkill] = useState(data.skillLevel || "beginner");
   const [editGoal, setEditGoal] = useState(data.primaryGoal || "first_waves");
   const [editSchool, setEditSchool] = useState(data.wantsSchoolHelp !== false);
+  const [editSpot, setEditSpot] = useState(data.spot || "");
 
   const skillObj = useMemo(() => SKILL_LEVELS.find(s => s.id === data.skillLevel) || SKILL_LEVELS[0], [data.skillLevel]);
   const goalObj = useMemo(() => SURF_GOALS.find(g => g.id === data.primaryGoal) || SURF_GOALS[0], [data.primaryGoal]);
@@ -56,7 +57,7 @@ export default function ProfileScreen({ data, auth, t, dm, i18n, navigate, notif
 
   const handleSaveProfile = () => {
     if (data.saveProfile) {
-      data.saveProfile({ skillLevel: editSkill, primaryGoal: editGoal, wantsSchoolHelp: editSchool });
+      data.saveProfile({ skillLevel: editSkill, primaryGoal: editGoal, wantsSchoolHelp: editSchool, spot: editSpot });
     }
     setEditingProfile(false);
   };
@@ -104,7 +105,7 @@ export default function ProfileScreen({ data, auth, t, dm, i18n, navigate, notif
       <div style={card}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div style={sectionLabel}>{_("profile.surfProfile", "Surf-Profil")}</div>
-          <button onClick={() => { if (editingProfile) handleSaveProfile(); else setEditingProfile(true); }} style={{
+          <button onClick={() => { if (editingProfile) handleSaveProfile(); else { setEditSkill(data.skillLevel || "beginner"); setEditGoal(data.primaryGoal || "first_waves"); setEditSchool(data.wantsSchoolHelp !== false); setEditSpot(data.spot || ""); setEditingProfile(true); } }} style={{
             background: editingProfile ? "linear-gradient(135deg, #009688, #4DB6AC)" : t.inputBg,
             color: editingProfile ? "white" : t.accent,
             border: editingProfile ? "none" : `1px solid ${t.inputBorder}`,
@@ -179,6 +180,18 @@ export default function ProfileScreen({ data, auth, t, dm, i18n, navigate, notif
                   </button>
                 ))}
               </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: t.text3, marginBottom: 6 }}>{_("profile.spot", "Spot")}</div>
+              <select value={editSpot} onChange={e => setEditSpot(e.target.value)} style={{
+                width: "100%", padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+                border: `2px solid ${t.accent}`, background: dm ? "rgba(0,150,136,0.06)" : "#E0F2F1",
+                color: t.text, cursor: "pointer",
+              }}>
+                {SURF_SPOTS.map(s => (
+                  <option key={s.id} value={s.id}>{s.emoji} {s.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <div style={{ fontSize: 10, color: t.text3, marginBottom: 6 }}>{_("profile.schoolHelp", "Surfschul-Empfehlungen")}</div>
