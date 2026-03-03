@@ -170,7 +170,9 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
 
         {/* Header with school context */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 14, background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>{expandedSchool.logo}</div>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, overflow: "hidden" }}>
+            {expandedSchool.image ? <img src={expandedSchool.image} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : expandedSchool.logo}
+          </div>
           <div>
             <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 800, color: t.text, margin: 0 }}>{_("pay.checkout")}</h2>
             <p style={{ fontSize: 12, color: t.text2, margin: 0 }}>{expandedSchool.name} · {selectedCourse.name}</p>
@@ -274,22 +276,47 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
         {spotsWithSchools.map(s => <option key={s.id} value={s.id}>{s.emoji} {s.name}</option>)}
       </select>
 
-      {/* Conditions context card */}
+      {/* Spot context card with image */}
       {spot && (
-        <div style={{ ...card, padding: "12px 16px", marginBottom: 14, display: "flex", gap: 10, alignItems: "center" }}>
-          <span style={{ fontSize: 24 }}>{spot.emoji}</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{spot.name.split(",")[0]}</span>
-              {suitability && <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: `${suitability.color}12`, color: suitability.color, fontWeight: 700, fontFamily: "'Space Mono', monospace" }}>{suitability.emoji} {_(suitability.labelKey)}</span>}
-            </div>
-            {conditions && (
-              <div style={{ fontSize: 10, color: t.text2, fontFamily: "'Space Mono', monospace" }}>
-                🌊 {conditions.waveHeight?.toFixed(1)}m · 💨 {conditions.wind != null ? Math.round(conditions.wind) : "–"}km/h · 🌡️ {conditions.temp != null ? Math.round(conditions.temp) : "–"}°
+        <div style={{ ...card, padding: 0, marginBottom: 14, overflow: "hidden" }}>
+          {spot.image && (
+            <div style={{ height: 100, position: "relative", overflow: "hidden" }}>
+              <img src={spot.image} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, rgba(0,0,0,0.55) 0%, transparent 50%)" }} />
+              <div style={{ position: "absolute", bottom: 8, left: 12, right: 12, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{spot.name.split(",")[0]}</div>
+                  {conditions ? (
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.8)", fontFamily: "'Space Mono', monospace" }}>
+                      {conditions.waveHeight?.toFixed(1)}m · {conditions.wind != null ? Math.round(conditions.wind) : "–"}km/h · {conditions.temp != null ? Math.round(conditions.temp) : "–"}°
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{spot.waveType} · {spot.season}</div>
+                  )}
+                </div>
+                {suitability && (
+                  <span style={{ fontSize: 9, padding: "3px 8px", borderRadius: 6, background: `${suitability.color}25`, backdropFilter: "blur(6px)", color: suitability.color, fontWeight: 700, fontFamily: "'Space Mono', monospace" }}>{suitability.emoji} {_(suitability.labelKey)}</span>
+                )}
               </div>
-            )}
-            {!conditions && <div style={{ fontSize: 10, color: t.text3 }}>{spot.waveType} · {spot.season}</div>}
-          </div>
+            </div>
+          )}
+          {!spot.image && (
+            <div style={{ padding: "12px 16px", display: "flex", gap: 10, alignItems: "center" }}>
+              <span style={{ fontSize: 24 }}>{spot.emoji}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{spot.name.split(",")[0]}</span>
+                  {suitability && <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: `${suitability.color}12`, color: suitability.color, fontWeight: 700, fontFamily: "'Space Mono', monospace" }}>{suitability.emoji} {_(suitability.labelKey)}</span>}
+                </div>
+                {conditions && (
+                  <div style={{ fontSize: 10, color: t.text2, fontFamily: "'Space Mono', monospace" }}>
+                    🌊 {conditions.waveHeight?.toFixed(1)}m · 💨 {conditions.wind != null ? Math.round(conditions.wind) : "–"}km/h · 🌡️ {conditions.temp != null ? Math.round(conditions.temp) : "–"}°
+                  </div>
+                )}
+                {!conditions && <div style={{ fontSize: 10, color: t.text3 }}>{spot.waveType} · {spot.season}</div>}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -317,7 +344,9 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
               width: "100%", display: "flex", gap: 12, padding: "14px 16px", cursor: "pointer", textAlign: "left",
               background: "transparent", border: "none", color: "inherit",
             }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>{school.logo}</div>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, overflow: "hidden" }}>
+                {school.image ? <img src={school.image} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : school.logo}
+              </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: t.text }}>{school.name}</span>

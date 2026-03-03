@@ -1,4 +1,4 @@
-// SoulSurf – SurfScreen v6.8 (V3: Portugal Content + Spot Lessons)
+// SoulSurf – SurfScreen v7.5.1 (Production Polish: Spot Images + Hero Headers)
 // Replaces ForecastScreen as "Surf" tab target
 // 3 Views: Spots | Schools | Forecast (toggle)
 import React, { useState, useMemo } from "react";
@@ -102,11 +102,17 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
               border: isSelected ? `2px solid ${t.accent}` : `1px solid ${t.cardBorder}`,
               animation: "slideUp 0.3s ease both", animationDelay: `${Math.min(i, 8) * 40}ms`,
             }}>
-              {/* Suitability badge */}
+              {/* Spot thumbnail */}
               <div style={{
-                width: 42, height: 42, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
-                background: `${suit.color}15`, fontSize: 20,
-              }}>{spot.emoji}</div>
+                width: 52, height: 52, borderRadius: 12, overflow: "hidden", flexShrink: 0,
+                background: `${suit.color}15`, display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                {spot.image ? (
+                  <img src={spot.image} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <span style={{ fontSize: 20 }}>{spot.emoji}</span>
+                )}
+              </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
@@ -150,17 +156,36 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
     return (
       <div>
         {/* Spot header */}
-        <div style={{ ...card, padding: "16px 18px", marginBottom: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-            <span style={{ fontSize: 28 }}>{spotObj.emoji}</span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text }}>{spotObj.name}</div>
-              <div style={{ fontSize: 12, color: t.text2 }}>{spotObj.waveType} · {spotObj.season}</div>
+        <div style={{ ...card, padding: 0, marginBottom: 12, overflow: "hidden" }}>
+          {/* Spot hero image */}
+          {spotObj.image && (
+            <div style={{ height: 120, position: "relative", overflow: "hidden" }}>
+              <img src={spotObj.image} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 60%)" }} />
+              <div style={{ position: "absolute", bottom: 10, left: 14, right: 14, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: "#fff" }}>{spotObj.name}</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>{spotObj.waveType} · {spotObj.season}</div>
+                </div>
+                <div style={{ padding: "4px 10px", borderRadius: 8, background: `${suit.color}20`, backdropFilter: "blur(8px)", border: `1px solid ${suit.color}40` }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: suit.color }}>{suit.emoji} {_(suit.labelKey)}</span>
+                </div>
+              </div>
             </div>
-            <div style={{ padding: "4px 10px", borderRadius: 8, background: `${suit.color}12`, border: `1px solid ${suit.color}30` }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: suit.color }}>{suit.emoji} {_(suit.labelKey)}</span>
+          )}
+          {!spotObj.image && (
+            <div style={{ padding: "16px 18px", display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+              <span style={{ fontSize: 28 }}>{spotObj.emoji}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text }}>{spotObj.name}</div>
+                <div style={{ fontSize: 12, color: t.text2 }}>{spotObj.waveType} · {spotObj.season}</div>
+              </div>
+              <div style={{ padding: "4px 10px", borderRadius: 8, background: `${suit.color}12`, border: `1px solid ${suit.color}30` }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: suit.color }}>{suit.emoji} {_(suit.labelKey)}</span>
+              </div>
             </div>
-          </div>
+          )}
+          <div style={{ padding: "12px 18px" }}>
           {/* Hazards + info */}
           <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
             {(spotObj.hazards || []).map(h => (
@@ -174,6 +199,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
             <span style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4, background: dm ? "rgba(255,255,255,0.05)" : "#F5F5F5", color: t.text3, fontFamily: "'Space Mono', monospace" }}>
               🧥 {spotObj.wetsuit === "none" ? "Boardshorts" : spotObj.wetsuit}
             </span>
+          </div>
           </div>
         </div>
 

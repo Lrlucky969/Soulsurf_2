@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v7.2 (Sprint 36: Tomorrow-aware, lastUpdated)
+// SoulSurf – HomeScreen v7.5.1 (Production Polish: Spot image in Decision Hero)
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
@@ -328,6 +328,8 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           }),
         }}>
           <div style={{ position: "absolute", top: -20, right: -20, fontSize: 80, opacity: 0.07 }}>{act.emoji}</div>
+          {/* v7.5.1: Spot background image */}
+          {spotObj.image && <img src={spotObj.image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: dm ? 0.12 : 0.08, pointerEvents: "none" }} />}
 
           {/* State label */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
