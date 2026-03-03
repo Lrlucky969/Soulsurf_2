@@ -1,4 +1,4 @@
-// SoulSurf v7.4 – App Shell (Sprint 38: Cloud Sync + Booking History)
+// SoulSurf v7.5-PP – App Shell (Production Polish: Dead Code Removal)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -20,7 +20,6 @@ const ProgressScreen = lazy(() => import("./screens/ProgressScreen.jsx"));
 const ProfileScreen = lazy(() => import("./screens/ProfileScreen.jsx"));
 const EquipmentScreen = lazy(() => import("./screens/EquipmentScreen.jsx"));
 const CommunityScreen = lazy(() => import("./screens/CommunityScreen.jsx"));
-const ForecastScreen = lazy(() => import("./screens/ForecastScreen.jsx"));
 const SurfScreen = lazy(() => import("./screens/SurfScreen.jsx"));
 const SchoolsScreen = lazy(() => import("./screens/SchoolsScreen.jsx"));
 const InstructorScreen = lazy(() => import("./screens/InstructorScreen.jsx"));
@@ -55,8 +54,9 @@ const ALL_NAV_KEYS = [
   { id: "builder", icon: "✎", key: "nav.builder", menuOnly: true },
   { id: "equipment", icon: "🏄", key: "nav.equipment", menuOnly: true },
   { id: "progress", icon: "📊", key: "nav.progress", menuOnly: true },
-  { id: "community", icon: "🤝", key: "nav.community", menuOnly: true },
-  { id: "instructor", icon: "👨‍🏫", key: "nav.instructor", instructorOnly: true, menuOnly: true },
+  // v7.5-PP: Community + Instructor hidden until real content exists
+  // { id: "community", icon: "🤝", key: "nav.community", menuOnly: true },
+  // { id: "instructor", icon: "👨‍🏫", key: "nav.instructor", instructorOnly: true, menuOnly: true },
 ];
 
 export default function SurfApp() {
@@ -258,7 +258,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v7.4</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: th.text3 }}>v7.5</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -421,7 +421,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v7.4 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: th.text3 }}>v7.5 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
