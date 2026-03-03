@@ -1,4 +1,4 @@
-// SoulSurf – ProfileScreen v7.4 (Sprint 38: Booking History + Sync Status)
+// SoulSurf – ProfileScreen v7.5-PP (Production Polish: Nav cleanup)
 // New "Profile" tab combining: User Profile, Settings, Progress, Equipment, Instructor links
 import React, { useState, useMemo } from "react";
 import { SURF_SPOTS } from "../data.js";
@@ -332,14 +332,13 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
         <div style={{ ...sectionLabel, padding: "0 4px" }}>{_("profile.more", "Weitere")}</div>
         {linkBtn(() => navigate("equipment"), "🏄", _("nav.equipment", "Equipment"), _("profile.equipmentDesc", "Board-Beratung & Gear"), null)}
         {linkBtn(() => navigate("progress"), "📊", _("nav.progress", "Fortschritt"), _("profile.progressDesc", "Badges, Skill Tree, Coaching"), null)}
-        {linkBtn(() => navigate("community"), "🤝", _("nav.community", "Community"), _("profile.communityDesc", "Spots & Leute"), null)}
-        {isInstructor && linkBtn(() => navigate("instructor"), "👨‍🏫", _("nav.instructor", "Instructor"), _("profile.instructorDesc", "Surfschul-Dashboard"), t.accent)}
+        {/* v7.5-PP: Community + Instructor hidden until real content exists */}
       </div>
 
       {/* App Info */}
       <div style={{ marginTop: 20, padding: 16, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, textAlign: "center" }}>
         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>
-          SoulSurf v7.4 · {_("profile.madeWith", "Made with")} ☮ & 🌊
+          SoulSurf v7.5 · {_("profile.madeWith", "Made with")} ☮ & 🌊
         </div>
         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, marginTop: 4 }}>
           {data.done} {_("profile.lessons", "Lektionen")} · {data.diaryCount} {_("profile.entries", "Einträge")} · {data.streak} {_("home.streak", "Streak")}
