@@ -510,5 +510,5 @@ function ScreenSkeleton({ t, dm }) {
       <div style={{ background: bg, borderRadius: 16, height: 80, marginBottom: 12 }} />
       <div style={{ background: bg, borderRadius: 16, height: 80, marginBottom: 12 }} />
     </div>
-  );
+  ); 
 }
