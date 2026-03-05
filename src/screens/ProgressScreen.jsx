@@ -1,4 +1,4 @@
-// SoulSurf – ProgressScreen (Badges, Skill Tree, Coaching) – v6.1 Streak System
+// SoulSurf – ProgressScreen v7.6 (Design Upgrade Complete)
 import React from "react";
 import { CONTENT_POOL, SKILL_TREE } from "../data.js";
 
@@ -35,21 +35,21 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
 
   return (
     <div style={{ paddingTop: 24 }}>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 6 }}>{_("prog.title")}</h2>
+      <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 6 }}>{_("prog.title")}</h2>
       <p style={{ fontSize: 14, color: t.text2, marginBottom: 20 }}>{done} {_("prog.lessonsN")} · {diaryCount} {_("prog.entriesN")} · 🔥 {data.streak} {_("prog.xpStreak")}</p>
 
       {/* XP & Level Card */}
       {gm.currentLevel && (
-        <div style={{ background: "linear-gradient(135deg, #004D40, #00695C)", borderRadius: 20, padding: "20px", color: "white", marginBottom: 20, position: "relative", overflow: "hidden" }}>
+        <div style={{ background: "linear-gradient(135deg, #0C4A6E, #0369A1)", borderRadius: 20, padding: "20px", color: "white", marginBottom: 20, position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -15, right: -15, fontSize: 70, opacity: 0.08 }}>{gm.currentLevel.emoji}</div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, textTransform: "uppercase", opacity: 0.7 }}>Dein Level</div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, marginTop: 2 }}>{gm.currentLevel.emoji} {gm.currentLevel.name}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, textTransform: "uppercase", opacity: 0.7 }}>Dein Level</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 24, fontWeight: 800, marginTop: 2 }}>{gm.currentLevel.emoji} {gm.currentLevel.name}</div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 900 }}>{gm.totalXP}</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, opacity: 0.7 }}>XP total</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 32, fontWeight: 900 }}>{gm.totalXP}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, opacity: 0.7 }}>XP total</div>
             </div>
           </div>
           {gm.nextLevel && (
@@ -74,8 +74,8 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
           ].map((s, i) => (
             <div key={i} style={{ flex: 1, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 12, padding: "10px 8px", textAlign: "center" }}>
               <div style={{ fontSize: 16 }}>{s.emoji}</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, fontWeight: 700, color: t.accent }}>{s.value}</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, color: t.text3 }}>{s.label}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: t.accent }}>{s.value}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: t.text3 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -84,7 +84,7 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
       {/* v6.1: Streak Badges Section (NEW!) */}
       {streak >= 2 && (
         <div style={{ background: "linear-gradient(135deg, #FFB74D, #FF7043)", borderRadius: 16, padding: "16px 18px", marginBottom: 20 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.9)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>🔥 Streak Badges</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.9)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>🔥 Streak Badges</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: nextStreakBadge ? 12 : 0 }}>
             {STREAK_BADGES.map(b => {
               const isEarned = earnedStreakBadges.includes(b);
@@ -131,7 +131,7 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
 
       {/* Standard Badges */}
       <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #FFF8E1, #FFF3E0)", border: `1px solid ${dm ? "rgba(255,183,77,0.15)" : "#FFE0B2"}`, borderRadius: 16, padding: "16px 18px", marginBottom: 24 }}>
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#FFB74D" : "#E65100", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>{_("prog.badges")}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: dm ? "#FFB74D" : "#E65100", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>{_("prog.badges")}</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: nextBadge ? 12 : 0 }}>
           {BADGES.map(b => {
             const isEarned = earned.includes(b);
@@ -158,7 +158,7 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
       {/* Smart Coaching */}
       {coaching.tips.length > 0 && (
         <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #E8F5E9, #F1F8E9)", border: `1px solid ${dm ? "rgba(102,187,106,0.2)" : "#C8E6C9"}`, borderRadius: 16, padding: "16px 18px", marginBottom: 24 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#66BB6A" : "#2E7D32", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("prog.coach")}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: dm ? "#66BB6A" : "#2E7D32", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>{_("prog.coach")}</div>
           {coaching.patterns.length > 0 && (
             <div style={{ fontSize: 12, color: t.text2, marginBottom: 10 }}>
               Du erwähnst oft: {coaching.patterns.map((p, i) => <strong key={i} style={{ color: dm ? "#66BB6A" : "#2E7D32" }}>{i > 0 ? ", " : ""}{p.keyword}</strong>)}
@@ -186,7 +186,7 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
 
       {/* Skill Tree */}
       <div style={{ background: dm ? "rgba(30,45,61,0.8)" : t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "16px 18px" }}>
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>{_("prog.skillTree")}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 16 }}>{_("prog.skillTree")}</div>
         {[1, 2, 3, 4].map(tier => {
           const tierSkills = SKILL_TREE.filter(s => s.tier === tier);
           const labels = ["", _("prog.basics"), _("prog.buildup"), _("prog.intermediate"), _("prog.advanced")];
@@ -199,7 +199,7 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
                   const progress = skill.lessons.length > 0 ? cl.length / skill.lessons.length : 0;
                   const unlocked = progress >= 1;
                   return (
-                    <div key={skill.id} style={{ flex: "1 1 calc(50% - 4px)", minWidth: 130, background: unlocked ? (dm ? "rgba(0,150,136,0.15)" : "#E0F2F1") : t.inputBg, border: `1px solid ${unlocked ? t.accent : t.inputBorder}`, borderRadius: 14, padding: "12px" }}>
+                    <div key={skill.id} style={{ flex: "1 1 calc(50% - 4px)", minWidth: 130, background: unlocked ? (dm ? "rgba(14,165,233,0.15)" : "#E0F2FE") : t.inputBg, border: `1px solid ${unlocked ? t.accent : t.inputBorder}`, borderRadius: 14, padding: "12px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                         <span style={{ fontSize: 22, filter: unlocked ? "none" : "grayscale(0.5)" }}>{skill.icon}</span>
                         <div>
@@ -211,7 +211,7 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
                       <div style={{ background: dm ? "rgba(255,255,255,0.1)" : "#E0E0E0", borderRadius: 6, height: 5, overflow: "hidden" }}>
                         <div style={{ background: unlocked ? t.accent : "#FFB74D", height: "100%", borderRadius: 6, width: `${progress * 100}%` }} />
                       </div>
-                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, marginTop: 4 }}>{cl.length}/{skill.lessons.length}</div>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: t.text3, marginTop: 4 }}>{cl.length}/{skill.lessons.length}</div>
                     </div>
                   );
                 })}

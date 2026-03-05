@@ -1,4 +1,4 @@
-//SoulSurf – AuthScreen v2 (Email + Google + Apple) 
+// SoulSurf – AuthScreen v7.6 (Design Upgrade Complete)
 import React, { useState } from "react";
 
 export default function AuthScreen({ auth, t, dm, i18n, onClose }) {
@@ -54,7 +54,7 @@ export default function AuthScreen({ auth, t, dm, i18n, onClose }) {
           <div style={{ fontSize: 40, marginBottom: 8 }}>
             {mode === "login" ? "👋" : mode === "register" ? "🏄" : "🔑"}
           </div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, margin: "0 0 4px" }}>
+          <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 24, fontWeight: 800, color: t.text, margin: "0 0 4px" }}>
             {mode === "login" ? _("auth.welcomeBack") : mode === "register" ? _("auth.createAccount") : _("auth.resetPassword")}
           </h2>
           <p style={{ fontSize: 13, color: t.text2 }}>
@@ -63,7 +63,7 @@ export default function AuthScreen({ auth, t, dm, i18n, onClose }) {
         </div>
 
         {(auth.error || message) && (
-          <div style={{ background: (message?.type === "success") ? (dm ? "rgba(77,182,172,0.1)" : "#E0F2F1") : (dm ? "rgba(229,57,53,0.1)" : "#FFEBEE"), border: `1px solid ${(message?.type === "success") ? "#4DB6AC" : "#FFCDD2"}`, borderRadius: 12, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: (message?.type === "success") ? "#4DB6AC" : "#E53935" }}>
+          <div style={{ background: (message?.type === "success") ? (dm ? "rgba(56,189,248,0.1)" : "#E0F2FE") : (dm ? "rgba(229,57,53,0.1)" : "#FFEBEE"), border: `1px solid ${(message?.type === "success") ? "#38BDF8" : "#FFCDD2"}`, borderRadius: 12, padding: "10px 14px", marginBottom: 14, fontSize: 13, color: (message?.type === "success") ? "#38BDF8" : "#E53935" }}>
             {message?.text || auth.error}
           </div>
         )}
@@ -91,7 +91,7 @@ export default function AuthScreen({ auth, t, dm, i18n, onClose }) {
           </div>
         )}
 
-        <button onClick={handleSubmit} disabled={auth.loading} style={{ width: "100%", padding: "14px", borderRadius: 14, fontSize: 16, fontWeight: 700, cursor: auth.loading ? "wait" : "pointer", background: auth.loading ? "#B0BEC5" : "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", marginBottom: 14 }}>
+        <button onClick={handleSubmit} disabled={auth.loading} style={{ width: "100%", padding: "14px", borderRadius: 14, fontSize: 16, fontWeight: 700, cursor: auth.loading ? "wait" : "pointer", background: auth.loading ? "#B0BEC5" : "linear-gradient(135deg, #0EA5E9, #38BDF8)", color: "white", border: "none", marginBottom: 14 }}>
           {auth.loading ? _("auth.moment") : mode === "login" ? _("auth.login") : mode === "register" ? _("auth.register") : _("auth.sendReset")}
         </button>
 
