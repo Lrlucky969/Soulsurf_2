@@ -1,4 +1,4 @@
-// SoulSurf – LessonsScreen
+// SoulSurf – LessonsScreen v7.5.1 (Production Polish: Spot image header)
 import React, { useState } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import { LessonCard } from "../components.jsx";
@@ -15,8 +15,10 @@ export default function LessonsScreen({ data, t, dm, i18n, spotObj, setOpenLesso
   // Empty state: no program yet
   if (!program || !program.program) {
     return (
-      <div style={{ paddingTop: 60, textAlign: "center" }}>
-        <div style={{ fontSize: 60, marginBottom: 16, animation: "float 4s ease-in-out infinite" }}>📚</div>
+      <div style={{ paddingTop: 40, textAlign: "center" }}>
+        <div style={{ borderRadius: 20, overflow: "hidden", marginBottom: 20, maxWidth: 320, margin: "0 auto 20px" }}>
+          <img src="https://images.unsplash.com/photo-1502680390548-bdbac40e7a78?w=600&q=75" alt="" loading="lazy" style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }} />
+        </div>
         <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("lessons.noProgram")}</h2>
         <p style={{ fontSize: 14, color: t.text2, maxWidth: 320, margin: "0 auto 24px", lineHeight: 1.6 }}>{_("lessons.noProgramDesc")}</p>
         <button onClick={() => navigate("builder")} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "14px 36px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 6px 20px rgba(0,150,136,0.3)" }}>{_("lessons.createProgram")}</button>
@@ -29,6 +31,7 @@ export default function LessonsScreen({ data, t, dm, i18n, spotObj, setOpenLesso
       {/* Header Card */}
       <div style={{ background: "linear-gradient(135deg, #004D40, #00695C, #00897B)", borderRadius: 24, padding: "24px 20px", color: "white", marginBottom: 20, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -20, right: -20, fontSize: 100, opacity: 0.1, transform: "rotate(-15deg)" }}>🌊</div>
+        {spotObj?.image && <img src={spotObj.image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, pointerEvents: "none" }} />}
         <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", opacity: 0.7 }}>{_("lessons.yourProgram")}</span>
         <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, margin: "6px 0 10px", lineHeight: 1.2 }}>{data.days} Tage · {savedGoal?.emoji} {savedGoal?.name}</h2>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>

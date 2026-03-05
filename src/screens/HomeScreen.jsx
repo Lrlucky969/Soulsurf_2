@@ -527,6 +527,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             color: "white", border: "none", position: "relative", overflow: "hidden",
           }}>
             <div style={{ position: "absolute", top: -10, right: -10, fontSize: 50, opacity: 0.08 }}>📚</div>
+            <img src="https://images.unsplash.com/photo-1455729552457-5c322b38ea2e?w=400&q=60" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, pointerEvents: "none" }} />
             <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>▶</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700 }}>{_("home.continueSurf", "Weiter surfen")}</div>
@@ -588,10 +589,15 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
   return (
     <div style={{ paddingTop: 20 }}>
       <div style={{ textAlign: "center", marginBottom: 20 }}>
-        <div style={{ fontSize: 48, marginBottom: 8 }}>🌊</div>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 900, color: t.text, lineHeight: 1.1, marginBottom: 4 }}>{_("home.heroTitle", "Lerne Surfen.")}</h2>
-        <p style={{ fontSize: 13, color: t.text2, maxWidth: 360, margin: "0 auto", lineHeight: 1.5 }}>{_("home.heroDesc", "Erstelle dein persönliches Surf-Programm oder plane deinen nächsten Trip.")}</p>
-      </div>
+        {/* v7.5.1: Surf hero image */}
+        <div style={{ borderRadius: 20, overflow: "hidden", marginBottom: 20, position: "relative" }}>
+          <img src="https://images.unsplash.com/photo-1502680390548-bdbac40e7a78?w=800&q=75" alt="" loading="lazy" style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)" }} />
+          <div style={{ position: "absolute", bottom: 16, left: 18, right: 18 }}>
+            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: 4 }}>{_("home.heroTitle", "Lerne Surfen.")}</h2>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", maxWidth: 340, lineHeight: 1.5 }}>{_("home.heroDesc", "Erstelle dein persönliches Surf-Programm oder plane deinen nächsten Trip.")}</p>
+          </div>
+        </div>
 
       {/* v6.9: Decision Hero for no-program users */}
       {spotObj && conditions && (
