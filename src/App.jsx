@@ -1,4 +1,4 @@
-// SoulSurf v7.6 – App Shell (Design Upgrade Complete)
+// SoulSurf v7.6.1 – App Shell (Flow Optimization)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -154,7 +154,7 @@ export default function SurfApp() {
       case "equipment": return <EquipmentScreen data={data} t={th} dm={dm} i18n={i18n} />;
       case "community": return <CommunityScreen data={data} auth={auth} t={th} dm={dm} i18n={i18n} navigate={navigate} />;
       case "forecast": return <SurfScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} />;
-      case "schools": return <SchoolsScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} navParams={navParams} spotObj={spotObj} />;
+      case "schools": return <SchoolsScreen data={data} auth={auth} t={th} dm={dm} i18n={i18n} navigate={navigate} navParams={navParams} spotObj={spotObj} />;
       case "instructor": return <InstructorScreen data={data} auth={auth} t={th} dm={dm} i18n={i18n} navigate={navigate} />;
       default: return null;
     }
@@ -289,7 +289,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: th.text3 }}>v7.6</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: th.text3 }}>v7.6.1</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -452,7 +452,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: th.text3 }}>v7.6 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: th.text3 }}>v7.6.1 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
