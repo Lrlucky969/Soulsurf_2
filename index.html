@@ -17,8 +17,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Critical fonts with display=swap (prevents FOIT) -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800;900&family=Space+Mono:wght@400;700&display=swap" />
+    <!-- v7.5.4: New font stack – Plus Jakarta Sans + JetBrains Mono + DM Sans -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;600;700&display=swap" />
 
     <!-- Preconnect to APIs -->
     <link rel="preconnect" href="https://api.open-meteo.com" />
@@ -29,17 +29,17 @@
     <!-- Inline critical CSS for instant first paint -->
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: #FFFDF7; overflow-x: hidden; }
+      body { font-family: 'Plus Jakarta Sans', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: #FAFAF7; overflow-x: hidden; }
       #root { min-height: 100vh; }
       /* Splash screen while JS loads */
-      .splash { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #FFFDF7; }
+      .splash { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #FAFAF7; }
       .splash img { width: 80px; height: 80px; border-radius: 20px; animation: pulse 1.5s ease-in-out infinite; }
-      .splash p { font-family: 'DM Sans', sans-serif; color: #90A4AE; font-size: 13px; margin-top: 16px; }
+      .splash p { font-family: 'Plus Jakarta Sans', 'DM Sans', sans-serif; color: #94A3B8; font-size: 13px; margin-top: 16px; }
       @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.97); } }
       @media (prefers-color-scheme: dark) {
-        body { background: #0d1820; }
-        .splash { background: #0d1820; }
-        .splash p { color: #546E7A; }
+        body { background: #0F172A; }
+        .splash { background: #0F172A; }
+        .splash p { color: #475569; }
       }
     </style>
   </head>
