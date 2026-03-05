@@ -598,6 +598,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", maxWidth: 340, lineHeight: 1.5 }}>{_("home.heroDesc", "Erstelle dein persönliches Surf-Programm oder plane deinen nächsten Trip.")}</p>
           </div>
         </div>
+      </div>
 
       {/* v6.9: Decision Hero for no-program users */}
       {spotObj && conditions && (
