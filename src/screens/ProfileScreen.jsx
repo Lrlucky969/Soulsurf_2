@@ -1,4 +1,4 @@
-// SoulSurf – ProfileScreen v7.5-PP (Production Polish: Nav cleanup)
+// SoulSurf – ProfileScreen v7.5.6 (Design Upgrade Part 3: Fonts + Colors)
 // New "Profile" tab combining: User Profile, Settings, Progress, Equipment, Instructor links
 import React, { useState, useMemo } from "react";
 import { SURF_SPOTS } from "../data.js";
@@ -67,7 +67,7 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
 
   // Card style helper
   const card = { background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "16px 18px", marginBottom: 12 };
-  const sectionLabel = { fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 };
+  const sectionLabel = { fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 };
   const linkBtn = (onClick, icon, label, desc, accent) => (
     <button onClick={onClick} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, padding: "14px 16px", marginBottom: 8, cursor: "pointer", textAlign: "left" }}>
       <span style={{ fontSize: 22 }}>{icon}</span>
@@ -85,14 +85,14 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
       <div style={{ textAlign: "center", marginBottom: 24 }}>
         <div style={{
           width: 72, height: 72, borderRadius: "50%", margin: "0 auto 12px",
-          background: "linear-gradient(135deg, #009688, #4DB6AC)",
+          background: "linear-gradient(135deg, #0EA5E9, #38BDF8)",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 28, color: "white", fontWeight: 800,
-          boxShadow: "0 8px 30px rgba(0,150,136,0.25)",
+          boxShadow: "0 8px 30px rgba(14,165,233,0.25)",
         }}>
           {auth?.displayName?.charAt(0).toUpperCase() || "🏄"}
         </div>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text }}>
+        <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 24, fontWeight: 800, color: t.text }}>
           {auth?.displayName || _("profile.surfer", "Surfer")}
         </h2>
         {auth?.isLoggedIn && (
@@ -100,7 +100,7 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
         )}
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, background: `${skillObj.color}15`, padding: "6px 14px", borderRadius: 10, border: `1px solid ${skillObj.color}30` }}>
           <span style={{ fontSize: 14 }}>{skillObj.emoji}</span>
-          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700, color: skillObj.color }}>{_(skillObj.key)}</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: skillObj.color }}>{_(skillObj.key)}</span>
         </div>
       </div>
 
@@ -109,11 +109,11 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <div style={sectionLabel}>{_("profile.surfProfile", "Surf-Profil")}</div>
           <button onClick={() => { if (editingProfile) handleSaveProfile(); else { setEditSkill(data.skillLevel || "beginner"); setEditGoal(data.primaryGoal || "first_waves"); setEditSchool(data.wantsSchoolHelp !== false); setEditSpot(data.spot || ""); setEditingProfile(true); } }} style={{
-            background: editingProfile ? "linear-gradient(135deg, #009688, #4DB6AC)" : t.inputBg,
+            background: editingProfile ? "linear-gradient(135deg, #0EA5E9, #38BDF8)" : t.inputBg,
             color: editingProfile ? "white" : t.accent,
             border: editingProfile ? "none" : `1px solid ${t.inputBorder}`,
             borderRadius: 8, padding: "5px 12px", fontSize: 11, fontWeight: 700, cursor: "pointer",
-            fontFamily: "'Space Mono', monospace",
+            fontFamily: "'JetBrains Mono', monospace",
           }}>
             {editingProfile ? _("g.save", "Speichern") : _("g.edit", "Bearbeiten")}
           </button>
@@ -175,7 +175,7 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
                 {SURF_GOALS.map(g => (
                   <button key={g.id} onClick={() => setEditGoal(g.id)} style={{
                     display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
-                    background: editGoal === g.id ? (dm ? "rgba(0,150,136,0.1)" : "#E0F2F1") : t.inputBg,
+                    background: editGoal === g.id ? (dm ? "rgba(14,165,233,0.1)" : "#E0F2FE") : t.inputBg,
                     border: editGoal === g.id ? `2px solid ${t.accent}` : `2px solid ${t.inputBorder}`,
                     fontSize: 13, fontWeight: editGoal === g.id ? 700 : 500, color: editGoal === g.id ? t.accent : t.text,
                   }}>
@@ -188,7 +188,7 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
               <div style={{ fontSize: 10, color: t.text3, marginBottom: 6 }}>{_("profile.spot", "Spot")}</div>
               <select value={editSpot} onChange={e => setEditSpot(e.target.value)} style={{
                 width: "100%", padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 600,
-                border: `2px solid ${t.accent}`, background: dm ? "rgba(0,150,136,0.06)" : "#E0F2F1",
+                border: `2px solid ${t.accent}`, background: dm ? "rgba(14,165,233,0.06)" : "#E0F2FE",
                 color: t.text, cursor: "pointer",
               }}>
                 {SURF_SPOTS.map(s => (
@@ -201,7 +201,7 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
               <div style={{ display: "flex", gap: 6 }}>
                 <button onClick={() => setEditSchool(true)} style={{
                   flex: 1, padding: "10px", borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                  background: editSchool ? (dm ? "rgba(0,150,136,0.1)" : "#E0F2F1") : t.inputBg,
+                  background: editSchool ? (dm ? "rgba(14,165,233,0.1)" : "#E0F2FE") : t.inputBg,
                   border: editSchool ? `2px solid ${t.accent}` : `2px solid ${t.inputBorder}`,
                   color: editSchool ? t.accent : t.text2,
                 }}>👍 {_("ob.schoolYes")}</button>
@@ -229,8 +229,8 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
           ].map((s, i) => (
             <div key={i} style={{ textAlign: "center" }}>
               <div style={{ fontSize: 18 }}>{s.emoji}</div>
-              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 800, color: t.accent }}>{s.value}</div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, color: t.text3 }}>{s.label}</div>
+              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 20, fontWeight: 800, color: t.accent }}>{s.value}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: t.text3 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -241,7 +241,7 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
               <span>{progressPct}%</span>
             </div>
             <div style={{ background: dm ? "rgba(255,255,255,0.08)" : "#ECEFF1", borderRadius: 6, height: 8, overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 6, background: "linear-gradient(90deg, #009688, #4DB6AC)", width: `${progressPct}%`, transition: "width 0.5s ease" }} />
+              <div style={{ height: "100%", borderRadius: 6, background: "linear-gradient(90deg, #0EA5E9, #38BDF8)", width: `${progressPct}%`, transition: "width 0.5s ease" }} />
             </div>
           </div>
         )}
@@ -296,8 +296,8 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
                       <div style={{ fontSize: 10, color: t.text2 }}>{b.course_name} · {b.date} · {b.people}x</div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
-                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 800, color: t.accent }}>{price}</div>
-                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, color: statusColor, fontWeight: 700 }}>{b.status}</div>
+                      <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 15, fontWeight: 800, color: t.accent }}>{price}</div>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: statusColor, fontWeight: 700 }}>{b.status}</div>
                     </div>
                   </div>
                 );
@@ -313,7 +313,7 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
           <span style={{ fontSize: 20 }}>☁️</span>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: t.text }}>{_("profile.cloudSync", "Cloud-Sync")}</div>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: sync.syncStatus === "error" ? "#E53935" : sync.syncStatus === "synced" ? "#4CAF50" : t.text3 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: sync.syncStatus === "error" ? "#E53935" : sync.syncStatus === "synced" ? "#4CAF50" : t.text3 }}>
               {sync.syncStatus === "syncing" ? _("profile.syncing", "Synchronisiere...") :
                sync.syncStatus === "synced" ? _("profile.synced", "Synchronisiert ✓") :
                sync.syncStatus === "error" ? _("profile.syncError", "Sync-Fehler") :
@@ -323,7 +323,7 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
               )}
             </div>
           </div>
-          <button onClick={() => { if (data.getProgramSnapshot && data.getTripsSnapshot) sync.forceUpload(data.getProgramSnapshot(), data.getTripsSnapshot()); }} style={{ background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 8, padding: "6px 10px", fontSize: 10, fontWeight: 600, color: t.text2, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>↻ Sync</button>
+          <button onClick={() => { if (data.getProgramSnapshot && data.getTripsSnapshot) sync.forceUpload(data.getProgramSnapshot(), data.getTripsSnapshot()); }} style={{ background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 8, padding: "6px 10px", fontSize: 10, fontWeight: 600, color: t.text2, cursor: "pointer", fontFamily: "'JetBrains Mono', monospace" }}>↻ Sync</button>
         </div>
       )}
 
@@ -337,10 +337,10 @@ export default function ProfileScreen({ data, auth, sync, t, dm, i18n, navigate,
 
       {/* App Info */}
       <div style={{ marginTop: 20, padding: 16, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, textAlign: "center" }}>
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3 }}>
-          SoulSurf v7.5 · {_("profile.madeWith", "Made with")} ☮ & 🌊
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: t.text3 }}>
+          SoulSurf v7.5.6 · {_("profile.madeWith", "Made with")} ☮ & 🌊
         </div>
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, marginTop: 4 }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: t.text3, marginTop: 4 }}>
           {data.done} {_("profile.lessons", "Lektionen")} · {data.diaryCount} {_("profile.entries", "Einträge")} · {data.streak} {_("home.streak", "Streak")}
         </div>
       </div>

@@ -1,4 +1,4 @@
-// SoulSurf – SurfScreen v7.5.1 (Production Polish: Spot Images + Hero Headers)
+// SoulSurf – SurfScreen v7.5.6 (Design Upgrade Part 3: Fonts + Colors)
 // Replaces ForecastScreen as "Surf" tab target
 // 3 Views: Spots | Schools | Forecast (toggle)
 import React, { useState, useMemo } from "react";
@@ -64,7 +64,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
   }, [data.skillLevel]);
 
   const card = { background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, overflow: "hidden" };
-  const sectionLabel = { fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 };
+  const sectionLabel = { fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 };
 
   // ═══ SPOTS VIEW ═══
   const renderSpots = () => (
@@ -78,10 +78,10 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
         ].map(f => (
           <button key={f.id} onClick={() => setFilterLevel(f.id)} style={{
             padding: "6px 14px", borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: "pointer",
-            background: filterLevel === f.id ? (dm ? "rgba(0,150,136,0.15)" : "#E0F2F1") : t.inputBg,
+            background: filterLevel === f.id ? (dm ? "rgba(14,165,233,0.15)" : "#E0F2FE") : t.inputBg,
             border: filterLevel === f.id ? `2px solid ${t.accent}` : `2px solid ${t.inputBorder}`,
             color: filterLevel === f.id ? t.accent : t.text2,
-            fontFamily: "'Space Mono', monospace",
+            fontFamily: "'JetBrains Mono', monospace",
           }}>{f.label} ({f.count})</button>
         ))}
       </div>
@@ -116,23 +116,23 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 14, fontWeight: 700, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{spot.name.split(",")[0]}</span>
+                  <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 14, fontWeight: 700, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{spot.name.split(",")[0]}</span>
                   <span style={{ fontSize: 10 }}>{suit.emoji}</span>
                 </div>
                 <div style={{ fontSize: 11, color: t.text2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {spot.waveType} · {spot.season}
                 </div>
                 <div style={{ display: "flex", gap: 4, marginTop: 4, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: `${suit.color}12`, color: suit.color, fontWeight: 700, fontFamily: "'Space Mono', monospace" }}>
+                  <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: `${suit.color}12`, color: suit.color, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" }}>
                     {_(suit.labelKey)}
                   </span>
                   {schools.length > 0 && (
-                    <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: dm ? "rgba(255,183,77,0.08)" : "#FFF8E1", color: dm ? "#FFB74D" : "#E65100", fontFamily: "'Space Mono', monospace" }}>
+                    <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: dm ? "rgba(255,183,77,0.08)" : "#FFF8E1", color: dm ? "#FFB74D" : "#E65100", fontFamily: "'JetBrains Mono', monospace" }}>
                       🏫 {schools.length}
                     </span>
                   )}
                   {spot.crowd && (
-                    <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: dm ? "rgba(255,255,255,0.05)" : "#F5F5F5", color: t.text3, fontFamily: "'Space Mono', monospace" }}>
+                    <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: dm ? "rgba(255,255,255,0.05)" : "#F5F5F5", color: t.text3, fontFamily: "'JetBrains Mono', monospace" }}>
                       {spot.crowd === "high" ? "👥 crowded" : spot.crowd === "low" ? "🏖️ quiet" : "👤 moderate"}
                     </span>
                   )}
@@ -164,7 +164,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 60%)" }} />
               <div style={{ position: "absolute", bottom: 10, left: 14, right: 14, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
                 <div>
-                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: "#fff" }}>{spotObj.name}</div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 18, fontWeight: 800, color: "#fff" }}>{spotObj.name}</div>
                   <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>{spotObj.waveType} · {spotObj.season}</div>
                 </div>
                 <div style={{ padding: "4px 10px", borderRadius: 8, background: `${suit.color}20`, backdropFilter: "blur(8px)", border: `1px solid ${suit.color}40` }}>
@@ -177,7 +177,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
             <div style={{ padding: "16px 18px", display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
               <span style={{ fontSize: 28 }}>{spotObj.emoji}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.text }}>{spotObj.name}</div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 18, fontWeight: 800, color: t.text }}>{spotObj.name}</div>
                 <div style={{ fontSize: 12, color: t.text2 }}>{spotObj.waveType} · {spotObj.season}</div>
               </div>
               <div style={{ padding: "4px 10px", borderRadius: 8, background: `${suit.color}12`, border: `1px solid ${suit.color}30` }}>
@@ -189,14 +189,14 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
           {/* Hazards + info */}
           <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
             {(spotObj.hazards || []).map(h => (
-              <span key={h} style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4, background: dm ? "rgba(244,67,54,0.08)" : "#FFEBEE", color: "#E53935", fontFamily: "'Space Mono', monospace" }}>
+              <span key={h} style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4, background: dm ? "rgba(244,67,54,0.08)" : "#FFEBEE", color: "#E53935", fontFamily: "'JetBrains Mono', monospace" }}>
                 ⚠️ {h}
               </span>
             ))}
-            <span style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4, background: dm ? "rgba(255,255,255,0.05)" : "#F5F5F5", color: t.text3, fontFamily: "'Space Mono', monospace" }}>
+            <span style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4, background: dm ? "rgba(255,255,255,0.05)" : "#F5F5F5", color: t.text3, fontFamily: "'JetBrains Mono', monospace" }}>
               🌡️ {spotObj.water}
             </span>
-            <span style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4, background: dm ? "rgba(255,255,255,0.05)" : "#F5F5F5", color: t.text3, fontFamily: "'Space Mono', monospace" }}>
+            <span style={{ fontSize: 9, padding: "2px 8px", borderRadius: 4, background: dm ? "rgba(255,255,255,0.05)" : "#F5F5F5", color: t.text3, fontFamily: "'JetBrains Mono', monospace" }}>
               🧥 {spotObj.wetsuit === "none" ? "Boardshorts" : spotObj.wetsuit}
             </span>
           </div>
@@ -219,22 +219,22 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
             <div style={{ ...sectionLabel }}>{_("decision.conditions", "Aktuelle Bedingungen")}</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 12 }}>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>{_("decision.waves")}</div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: t.text }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: t.text3 }}>{_("decision.waves")}</div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 22, fontWeight: 800, color: t.text }}>
                   {conditions.waveHeight?.toFixed(1) ?? "–"}<span style={{ fontSize: 11, fontWeight: 400 }}>m</span>
                 </div>
                 {sRating && <div style={{ fontSize: 10, color: sRating.color, fontWeight: 700 }}>{sRating.emoji} {sRating.label}</div>}
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>{_("decision.wind")}</div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: t.text }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: t.text3 }}>{_("decision.wind")}</div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 22, fontWeight: 800, color: t.text }}>
                   {conditions.wind != null ? Math.round(conditions.wind) : "–"}<span style={{ fontSize: 11, fontWeight: 400 }}>km/h</span>
                 </div>
                 {conditions.windDir != null && <div style={{ fontSize: 10, color: t.text3 }}>{windDirLabel(conditions.windDir)}</div>}
               </div>
               <div style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3 }}>Score</div>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: conditions.surfScore != null ? scoreLabel(conditions.surfScore).color : t.text3 }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: t.text3 }}>Score</div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 22, fontWeight: 800, color: conditions.surfScore != null ? scoreLabel(conditions.surfScore).color : t.text3 }}>
                   {conditions.surfScore ?? "–"}
                 </div>
                 {conditions.surfScore != null && <div style={{ fontSize: 10, color: scoreLabel(conditions.surfScore).color, fontWeight: 700 }}>{scoreLabel(conditions.surfScore).emoji} {scoreLabel(conditions.surfScore).label}</div>}
@@ -262,7 +262,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
                   flex: 1, padding: "8px 6px", borderRadius: 10, fontSize: 11, fontWeight: selectedDay === i ? 700 : 500, cursor: "pointer",
                   background: selectedDay === i ? (dm ? t.accent : "#263238") : t.inputBg,
                   color: selectedDay === i ? "white" : t.text2, border: `1px solid ${selectedDay === i ? "transparent" : t.inputBorder}`,
-                  fontFamily: "'Space Mono', monospace",
+                  fontFamily: "'JetBrains Mono', monospace",
                 }}>{i === 0 ? _("fc.today", "Heute") : i === 1 ? _("fc.tomorrow", "Morgen") : d.label}</button>
               ))}
             </div>
@@ -279,7 +279,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
                         <div style={{ height: 3, borderRadius: 2, background: dm ? "rgba(255,255,255,0.06)" : "#ECEFF1", marginBottom: 3 }}>
                           <div style={{ height: "100%", borderRadius: 2, background: sl.color, width: `${score}%` }} />
                         </div>
-                        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, fontWeight: 700, color: sl.color, marginBottom: 2 }}>{score}</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, color: sl.color, marginBottom: 2 }}>{score}</div>
                         {h.waveHeight != null && <div style={{ fontSize: 9, color: t.text2 }}>🌊 {h.waveHeight.toFixed(1)}m</div>}
                         <div style={{ fontSize: 9, color: t.text3 }}>💨 {Math.round(h.wind || 0)}</div>
                       </div>
@@ -320,7 +320,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
                   <div style={{ ...sectionLabel, marginBottom: 4 }}>{_("spot.bestMonths", "Beste Monate")}</div>
                   <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
                     {["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"].map((m, i) => (
-                      <span key={i} style={{ fontSize: 9, padding: "2px 5px", borderRadius: 4, fontFamily: "'Space Mono', monospace", background: spotObj.bestMonths.includes(i + 1) ? (dm ? "rgba(0,150,136,0.15)" : "#E0F2F1") : "transparent", color: spotObj.bestMonths.includes(i + 1) ? t.accent : t.text3, fontWeight: spotObj.bestMonths.includes(i + 1) ? 700 : 400 }}>{m}</span>
+                      <span key={i} style={{ fontSize: 9, padding: "2px 5px", borderRadius: 4, fontFamily: "'JetBrains Mono', monospace", background: spotObj.bestMonths.includes(i + 1) ? (dm ? "rgba(14,165,233,0.15)" : "#E0F2FE") : "transparent", color: spotObj.bestMonths.includes(i + 1) ? t.accent : t.text3, fontWeight: spotObj.bestMonths.includes(i + 1) ? 700 : 400 }}>{m}</span>
                     ))}
                   </div>
                 </div>
@@ -391,7 +391,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
                 <span style={{ fontSize: 16 }}>🏫</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{school.name}</div>
-                  {school.price && <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.accent }}>ab €{school.price}</div>}
+                  {school.price && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: t.accent }}>ab €{school.price}</div>}
                 </div>
                 <span style={{ fontSize: 12, color: t.accent, fontWeight: 700 }}>→</span>
               </button>
@@ -403,7 +403,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
         <button onClick={() => setView("spots")} style={{
           width: "100%", padding: "12px", borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: "pointer",
           background: t.inputBg, border: `1px solid ${t.inputBorder}`, color: t.text2,
-          fontFamily: "'Space Mono', monospace",
+          fontFamily: "'JetBrains Mono', monospace",
         }}>← {_("surf.allSpots", "Alle Spots")}</button>
       </div>
     );
@@ -412,7 +412,7 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
   return (
     <div style={{ paddingTop: 20 }}>
       {/* Header */}
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("surf.title", "Surf")}</h2>
+      <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("surf.title", "Surf")}</h2>
       <p style={{ fontSize: 13, color: t.text2, marginBottom: 16 }}>{_("surf.subtitle", "Spots, Schulen & Bedingungen")}</p>
 
       {/* View toggle – v6.6.2: 2 views (merged spots+schools) */}
@@ -423,10 +423,10 @@ export default function SurfScreen({ data, t, dm, i18n, navigate }) {
         ].map(tab => (
           <button key={tab.id} onClick={() => setView(tab.id)} style={{
             flex: 1, padding: "10px 8px", borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: "pointer",
-            background: view === tab.id ? (dm ? "rgba(0,150,136,0.15)" : "white") : "transparent",
-            border: view === tab.id ? `1px solid ${dm ? "rgba(0,150,136,0.3)" : "#E0E0E0"}` : "1px solid transparent",
+            background: view === tab.id ? (dm ? "rgba(14,165,233,0.15)" : "white") : "transparent",
+            border: view === tab.id ? `1px solid ${dm ? "rgba(14,165,233,0.3)" : "#E0E0E0"}` : "1px solid transparent",
             color: view === tab.id ? t.accent : t.text2,
-            fontFamily: "'Space Mono', monospace",
+            fontFamily: "'JetBrains Mono', monospace",
             boxShadow: view === tab.id ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
             transition: "all 0.2s ease",
           }}>

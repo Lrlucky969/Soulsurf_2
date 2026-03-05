@@ -1,4 +1,4 @@
-// SoulSurf – SchoolsScreen v7.1 (Sprint 35: Stripe Payment Restored)
+// SoulSurf – SchoolsScreen v7.5.6 (Design Upgrade Part 3: Fonts + Colors)
 // Merges v6.7 UX (inline expand, hero badge, decision context, includes/meetingPoint)
 // with v6.0 Stripe Checkout flow (real payments, success/cancelled states)
 import React, { useState, useMemo, useEffect } from "react";
@@ -58,7 +58,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
 
   // Style helpers
   const card = { background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, overflow: "hidden" };
-  const label = { fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" };
+  const label = { fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em" };
 
   const resetBooking = () => {
     setBookingStatus(null); setBookingError(null); setBookingStep(0);
@@ -120,9 +120,9 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
     return (
       <div style={{ paddingTop: 60, textAlign: "center", animation: "screenIn 0.4s ease both" }}>
         <div style={{ fontSize: 64, marginBottom: 16, animation: "float 3s ease-in-out infinite" }}>🎉</div>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("pay.success")}</h2>
+        <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("pay.success")}</h2>
         <p style={{ fontSize: 14, color: t.text2, maxWidth: 320, margin: "0 auto", lineHeight: 1.6 }}>{_("pay.successDesc")}</p>
-        <div style={{ marginTop: 24, background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", borderRadius: 16, padding: "16px", maxWidth: 320, margin: "16px auto 0" }}>
+        <div style={{ marginTop: 24, background: dm ? "rgba(14,165,233,0.1)" : "#E0F2FE", borderRadius: 16, padding: "16px", maxWidth: 320, margin: "16px auto 0" }}>
           <div style={{ fontSize: 12, color: t.accent, fontWeight: 600 }}>{_("pay.confirmEmail")}</div>
         </div>
         <button onClick={resetBooking} style={{ marginTop: 24, background: t.inputBg, border: `1px solid ${t.inputBorder}`, borderRadius: 12, padding: "12px 24px", color: t.text2, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
@@ -137,9 +137,9 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
     return (
       <div style={{ paddingTop: 60, textAlign: "center", animation: "screenIn 0.4s ease both" }}>
         <div style={{ fontSize: 64, marginBottom: 16 }}>↩️</div>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("pay.cancelled")}</h2>
+        <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 22, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("pay.cancelled")}</h2>
         <p style={{ fontSize: 14, color: t.text2, maxWidth: 320, margin: "0 auto 20px", lineHeight: 1.6 }}>{_("pay.cancelledDesc")}</p>
-        <button onClick={resetBooking} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 14, padding: "12px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>{_("pay.tryAgain")}</button>
+        <button onClick={resetBooking} style={{ background: "linear-gradient(135deg, #0EA5E9, #38BDF8)", color: "white", border: "none", borderRadius: 14, padding: "12px 28px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>{_("pay.tryAgain")}</button>
       </div>
     );
   }
@@ -149,7 +149,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
     return (
       <div style={{ paddingTop: 60, textAlign: "center" }}>
         <div style={{ fontSize: 64, marginBottom: 16, animation: "float 2s ease-in-out infinite" }}>✅</div>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("schools.requestSent")}</h2>
+        <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 26, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("schools.requestSent")}</h2>
         <p style={{ fontSize: 14, color: t.text2, maxWidth: 320, margin: "0 auto", lineHeight: 1.6 }}>
           {expandedSchool?.name} {_("schools.notified", "wurde benachrichtigt.")}
         </p>
@@ -170,11 +170,11 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
 
         {/* Header with school context */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 14, background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, overflow: "hidden" }}>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: dm ? "rgba(14,165,233,0.1)" : "#E0F2FE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, overflow: "hidden" }}>
             {expandedSchool.image ? <img src={expandedSchool.image} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : expandedSchool.logo}
           </div>
           <div>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 800, color: t.text, margin: 0 }}>{_("pay.checkout")}</h2>
+            <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 20, fontWeight: 800, color: t.text, margin: 0 }}>{_("pay.checkout")}</h2>
             <p style={{ fontSize: 12, color: t.text2, margin: 0 }}>{expandedSchool.name} · {selectedCourse.name}</p>
           </div>
         </div>
@@ -195,7 +195,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
             <label style={{ fontSize: 11, fontWeight: 600, color: t.text2, display: "block", marginBottom: 3 }}>{_("schools.people")}</label>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <button onClick={() => setBookingForm({ ...bookingForm, people: Math.max(1, bookingForm.people - 1) })} style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 18, cursor: "pointer" }}>−</button>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 18, fontWeight: 700, color: t.text, minWidth: 24, textAlign: "center" }}>{bookingForm.people}</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: t.text, minWidth: 24, textAlign: "center" }}>{bookingForm.people}</span>
               <button onClick={() => setBookingForm({ ...bookingForm, people: Math.min(8, bookingForm.people + 1) })} style={{ width: 36, height: 36, borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 18, cursor: "pointer" }}>+</button>
             </div>
           </div>
@@ -206,10 +206,10 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
         </div>
 
         {/* Price Summary */}
-        <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", borderRadius: 16, padding: "16px", marginTop: 14, marginBottom: 8 }}>
+        <div style={{ background: dm ? "rgba(14,165,233,0.1)" : "#E0F2FE", borderRadius: 16, padding: "16px", marginTop: 14, marginBottom: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <span style={{ fontSize: 13, color: t.text2 }}>{selectedCourse.name} × {bookingForm.people}</span>
-            <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: t.accent }}>{formatPrice(totalPrice, expandedSchool.priceRange.currency)}</span>
+            <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 22, fontWeight: 800, color: t.accent }}>{formatPrice(totalPrice, expandedSchool.priceRange.currency)}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ fontSize: 14 }}>🔒</span>
@@ -226,10 +226,10 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
         <button onClick={handlePayment} disabled={!isReady || bookingStatus === "loading"} style={{
           width: "100%", padding: "16px", borderRadius: 16, fontSize: 16, fontWeight: 700,
           cursor: isReady && bookingStatus !== "loading" ? "pointer" : "not-allowed",
-          fontFamily: "'Playfair Display', serif",
-          background: isReady && bookingStatus !== "loading" ? "linear-gradient(135deg, #009688, #00796B)" : "#BDBDBD",
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          background: isReady && bookingStatus !== "loading" ? "linear-gradient(135deg, #0EA5E9, #00796B)" : "#BDBDBD",
           color: "white", border: "none",
-          boxShadow: isReady ? "0 6px 20px rgba(0,150,136,0.3)" : "none",
+          boxShadow: isReady ? "0 6px 20px rgba(14,165,233,0.3)" : "none",
           marginBottom: 8,
         }}>
           {bookingStatus === "loading" ? _("pay.processing") : `${_("pay.payNow")} · ${formatPrice(totalPrice, expandedSchool.priceRange.currency)}`}
@@ -251,7 +251,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
   // ═══ SCHOOL FINDER (Browse + Inline Detail) ═══
   return (
     <div style={{ paddingTop: 24 }}>
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("schools.title")}</h2>
+      <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 28, fontWeight: 800, color: t.text, marginBottom: 4 }}>{_("schools.title")}</h2>
       <p style={{ fontSize: 13, color: t.text2, marginBottom: 14 }}>{_("schools.subtitle")}</p>
 
       {/* Contextual banner from Decision Engine */}
@@ -287,7 +287,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{spot.name.split(",")[0]}</div>
                   {conditions ? (
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.8)", fontFamily: "'Space Mono', monospace" }}>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.8)", fontFamily: "'JetBrains Mono', monospace" }}>
                       {conditions.waveHeight?.toFixed(1)}m · {conditions.wind != null ? Math.round(conditions.wind) : "–"}km/h · {conditions.temp != null ? Math.round(conditions.temp) : "–"}°
                     </div>
                   ) : (
@@ -295,7 +295,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
                   )}
                 </div>
                 {suitability && (
-                  <span style={{ fontSize: 9, padding: "3px 8px", borderRadius: 6, background: `${suitability.color}25`, backdropFilter: "blur(6px)", color: suitability.color, fontWeight: 700, fontFamily: "'Space Mono', monospace" }}>{suitability.emoji} {_(suitability.labelKey)}</span>
+                  <span style={{ fontSize: 9, padding: "3px 8px", borderRadius: 6, background: `${suitability.color}25`, backdropFilter: "blur(6px)", color: suitability.color, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" }}>{suitability.emoji} {_(suitability.labelKey)}</span>
                 )}
               </div>
             </div>
@@ -306,10 +306,10 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
               <div style={{ flex: 1 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, color: t.text }}>{spot.name.split(",")[0]}</span>
-                  {suitability && <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: `${suitability.color}12`, color: suitability.color, fontWeight: 700, fontFamily: "'Space Mono', monospace" }}>{suitability.emoji} {_(suitability.labelKey)}</span>}
+                  {suitability && <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: `${suitability.color}12`, color: suitability.color, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace" }}>{suitability.emoji} {_(suitability.labelKey)}</span>}
                 </div>
                 {conditions && (
-                  <div style={{ fontSize: 10, color: t.text2, fontFamily: "'Space Mono', monospace" }}>
+                  <div style={{ fontSize: 10, color: t.text2, fontFamily: "'JetBrains Mono', monospace" }}>
                     🌊 {conditions.waveHeight?.toFixed(1)}m · 💨 {conditions.wind != null ? Math.round(conditions.wind) : "–"}km/h · 🌡️ {conditions.temp != null ? Math.round(conditions.temp) : "–"}°
                   </div>
                 )}
@@ -324,7 +324,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
       {schools.length === 0 && (
         <div style={{ textAlign: "center", padding: "40px 20px", ...card }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🔍</div>
-          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: t.text, marginBottom: 8 }}>{_("schools.noSchools")}</h3>
+          <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 18, color: t.text, marginBottom: 8 }}>{_("schools.noSchools")}</h3>
           <p style={{ fontSize: 12, color: t.text2 }}>{_("schools.noSchoolsDesc", "Hier gibt es noch keine Schulen.")}</p>
         </div>
       )}
@@ -344,7 +344,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
               width: "100%", display: "flex", gap: 12, padding: "14px 16px", cursor: "pointer", textAlign: "left",
               background: "transparent", border: "none", color: "inherit",
             }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, overflow: "hidden" }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: dm ? "rgba(14,165,233,0.1)" : "#E0F2FE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, overflow: "hidden" }}>
                 {school.image ? <img src={school.image} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : school.logo}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -363,7 +363,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
                 </div>
               </div>
               <div style={{ textAlign: "right", flexShrink: 0, alignSelf: "center" }}>
-                <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 800, color: t.accent }}>{formatPrice(school.priceRange.from, school.priceRange.currency)}</div>
+                <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 18, fontWeight: 800, color: t.accent }}>{formatPrice(school.priceRange.from, school.priceRange.currency)}</div>
                 <div style={{ fontSize: 9, color: t.text3 }}>{isExpanded ? "▲" : "▼"}</div>
               </div>
             </button>
@@ -375,7 +375,7 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
                 {school.description && <p style={{ fontSize: 12, color: t.text2, lineHeight: 1.6, marginBottom: 10 }}>{school.description}</p>}
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
                   {school.highlights?.map(h => (
-                    <span key={h} style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, background: dm ? "rgba(0,150,136,0.06)" : "#E8F5E9", color: t.accent, fontWeight: 600 }}>✓ {h}</span>
+                    <span key={h} style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, background: dm ? "rgba(14,165,233,0.06)" : "#E8F5E9", color: t.accent, fontWeight: 600 }}>✓ {h}</span>
                   ))}
                 </div>
                 {school.includes && school.includes.length > 0 && (
@@ -416,9 +416,9 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
                     </div>
                     <button onClick={() => { setSelectedCourse(course); setBookingStep(3); }} style={{
                       flexShrink: 0, padding: "10px 16px", borderRadius: 12, border: "none", cursor: "pointer",
-                      background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white",
-                      fontFamily: "'Playfair Display', serif", fontSize: 14, fontWeight: 700,
-                      boxShadow: "0 4px 12px rgba(0,150,136,0.25)",
+                      background: "linear-gradient(135deg, #0EA5E9, #38BDF8)", color: "white",
+                      fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 14, fontWeight: 700,
+                      boxShadow: "0 4px 12px rgba(14,165,233,0.25)",
                     }}>
                       {formatPrice(course.price, school.priceRange.currency)}
                     </button>

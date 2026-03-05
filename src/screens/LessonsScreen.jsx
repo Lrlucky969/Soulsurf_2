@@ -1,4 +1,4 @@
-// SoulSurf – LessonsScreen v7.5.1 (Production Polish: Spot image header)
+// SoulSurf – LessonsScreen v7.5.6 (Design Upgrade Part 3: Fonts + Colors)
 import React, { useState } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import { LessonCard } from "../components.jsx";
@@ -19,9 +19,9 @@ export default function LessonsScreen({ data, t, dm, i18n, spotObj, setOpenLesso
         <div style={{ borderRadius: 20, overflow: "hidden", marginBottom: 20, maxWidth: 320, margin: "0 auto 20px" }}>
           <img src="https://images.unsplash.com/photo-1502680390548-bdbac40e7a78?w=600&q=75" alt="" loading="lazy" style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }} />
         </div>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("lessons.noProgram")}</h2>
+        <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("lessons.noProgram")}</h2>
         <p style={{ fontSize: 14, color: t.text2, maxWidth: 320, margin: "0 auto 24px", lineHeight: 1.6 }}>{_("lessons.noProgramDesc")}</p>
-        <button onClick={() => navigate("builder")} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "14px 36px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 6px 20px rgba(0,150,136,0.3)" }}>{_("lessons.createProgram")}</button>
+        <button onClick={() => navigate("builder")} style={{ background: "linear-gradient(135deg, #0EA5E9, #38BDF8)", color: "white", border: "none", borderRadius: 50, padding: "14px 36px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Plus Jakarta Sans', sans-serif", boxShadow: "0 6px 20px rgba(14,165,233,0.3)" }}>{_("lessons.createProgram")}</button>
       </div>
     );
   }
@@ -29,11 +29,11 @@ export default function LessonsScreen({ data, t, dm, i18n, spotObj, setOpenLesso
   return (
     <div style={{ paddingTop: 24 }}>
       {/* Header Card */}
-      <div style={{ background: "linear-gradient(135deg, #004D40, #00695C, #00897B)", borderRadius: 24, padding: "24px 20px", color: "white", marginBottom: 20, position: "relative", overflow: "hidden" }}>
+      <div style={{ background: "linear-gradient(135deg, #0C4A6E, #0369A1, #0284C7)", borderRadius: 24, padding: "24px 20px", color: "white", marginBottom: 20, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: -20, right: -20, fontSize: 100, opacity: 0.1, transform: "rotate(-15deg)" }}>🌊</div>
         {spotObj?.image && <img src={spotObj.image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, pointerEvents: "none" }} />}
-        <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", opacity: 0.7 }}>{_("lessons.yourProgram")}</span>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 24, fontWeight: 800, margin: "6px 0 10px", lineHeight: 1.2 }}>{data.days} Tage · {savedGoal?.emoji} {savedGoal?.name}</h2>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.15em", opacity: 0.7 }}>{_("lessons.yourProgram")}</span>
+        <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 24, fontWeight: 800, margin: "6px 0 10px", lineHeight: 1.2 }}>{data.days} Tage · {savedGoal?.emoji} {savedGoal?.name}</h2>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
           <span style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 12px", fontSize: 12 }}>{spotObj?.emoji} {spotObj?.name}</span>
           <span style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 12px", fontSize: 12 }}>✓ {done}/{total}</span>
@@ -67,7 +67,7 @@ export default function LessonsScreen({ data, t, dm, i18n, spotObj, setOpenLesso
       {/* Filter */}
       <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
         {[{ k: "all", l: _("g.all"), e: "📚" }, { k: "equipment", l: _("lessons.equipment"), e: "🎒" }, { k: "warmup", l: _("lessons.warmup"), e: "🔥" }, { k: "theory", l: _("lessons.theory"), e: "📖" }, { k: "practice", l: _("lessons.practice"), e: "🏄" }].map(f => (
-          <button key={f.k} onClick={() => setFilter(f.k)} style={{ background: filter === f.k ? (dm ? "#4DB6AC" : "#263238") : t.inputBg, color: filter === f.k ? "white" : t.text2, border: `1px solid ${filter === f.k ? (dm ? "#4DB6AC" : "#263238") : t.inputBorder}`, borderRadius: 20, padding: "7px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{f.e} {f.l}</button>
+          <button key={f.k} onClick={() => setFilter(f.k)} style={{ background: filter === f.k ? (dm ? "#38BDF8" : "#263238") : t.inputBg, color: filter === f.k ? "white" : t.text2, border: `1px solid ${filter === f.k ? (dm ? "#38BDF8" : "#263238") : t.inputBorder}`, borderRadius: 20, padding: "7px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{f.e} {f.l}</button>
         ))}
       </div>
 
@@ -79,11 +79,11 @@ export default function LessonsScreen({ data, t, dm, i18n, spotObj, setOpenLesso
           <div key={dayData.day} style={{ marginBottom: 20 }}>
             <button onClick={() => { const next = activeDay === dayData.day ? null : dayData.day; setActiveDay(next); data.setActiveDay(next); data.saveAll({ activeDay: next }); }} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, padding: "12px 16px", cursor: "pointer" }}>
               <div style={{ textAlign: "left" }}>
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.accent, textTransform: "uppercase", letterSpacing: "0.05em" }}>Tag {dayData.day}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: t.accent, textTransform: "uppercase", letterSpacing: "0.05em" }}>Tag {dayData.day}</span>
                 {dayData.focus && <span style={{ fontSize: 12, color: t.text2, marginLeft: 8 }}>{dayData.focus}</span>}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.text3 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: t.text3 }}>
                   {fl.filter(l => completed[l.id]).length}/{fl.length}
                 </span>
                 <span style={{ fontSize: 14, transform: activeDay === dayData.day ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s ease" }}>▼</span>
@@ -104,7 +104,7 @@ export default function LessonsScreen({ data, t, dm, i18n, spotObj, setOpenLesso
 
       <div style={{ textAlign: "center", padding: "36px 20px", borderTop: `1px dashed ${dm ? "#2d3f50" : "#CFD8DC"}` }}>
         <span style={{ fontSize: 46, display: "block", marginBottom: 10, animation: "wave 2s ease-in-out infinite" }}>🤙</span>
-        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: t.text, marginBottom: 4 }}>
+        <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 18, fontWeight: 700, color: t.text, marginBottom: 4 }}>
           {done === total && total > 0 ? _("lessons.allDone") : _("lessons.keepPaddling")}
         </p>
       </div>
