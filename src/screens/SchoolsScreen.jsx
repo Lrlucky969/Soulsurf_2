@@ -1,4 +1,4 @@
-// SoulSurf – SchoolsScreen v7.5.6 (Design Upgrade Part 3: Fonts + Colors)
+// SoulSurf – SchoolsScreen v7.6.1 (Flow: Auto-Fill + Auto-Expand)
 // Merges v6.7 UX (inline expand, hero badge, decision context, includes/meetingPoint)
 // with v6.0 Stripe Checkout flow (real payments, success/cancelled states)
 import React, { useState, useMemo, useEffect } from "react";
@@ -14,13 +14,16 @@ function StarRating({ rating, size = 14 }) {
   return <span style={{ fontSize: size, letterSpacing: 1 }}>{"★".repeat(full)}{half ? "½" : ""}{"☆".repeat(5 - full - (half ? 1 : 0))}</span>;
 }
 
-export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, spotObj: homeSpot }) {
+export default function SchoolsScreen({ data, auth, t, dm, i18n, navigate, navParams, spotObj: homeSpot }) {
   const _ = i18n?.t || ((k, f) => f || k);
   const [selectedSpot, setSelectedSpot] = useState(navParams?.spot || data.spot || "portugal");
   const [expandedSchool, setExpandedSchool] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [bookingStep, setBookingStep] = useState(0); // 0=browse, 1=detail, 3=form
-  const [bookingForm, setBookingForm] = useState({ name: "", email: "", date: "", people: 1, message: "" });
+  // v7.6.1: Auto-fill from auth
+  const autoName = auth?.user?.user_metadata?.full_name || auth?.displayName || "";
+  const autoEmail = auth?.user?.email || "";
+  const [bookingForm, setBookingForm] = useState({ name: autoName, email: autoEmail, date: "", people: 1, message: "" });
   const [bookingStatus, setBookingStatus] = useState(null); // null | "loading" | "success" | "cancelled" | "error" | "request_sent"
   const [bookingError, setBookingError] = useState(null);
   const fromDecision = navParams?.fromDecision || false;
@@ -49,6 +52,15 @@ export default function SchoolsScreen({ data, t, dm, i18n, navigate, navParams, 
     return allSpots.filter(s => schoolSpotIds.has(s.id));
   }, [allSpots]);
   const schools = useMemo(() => getSchoolsBySpot(selectedSpot), [selectedSpot]);
+
+  // v7.6.1: Auto-expand when only 1 school at spot (saves 1 tap)
+  useEffect(() => {
+    if (schools.length === 1 && !expandedSchool) {
+      setExpandedSchool(schools[0]);
+    } else if (schools.length !== 1 && expandedSchool && !schools.find(s => s.id === expandedSchool.id)) {
+      setExpandedSchool(null);
+    }
+  }, [schools, selectedSpot]);
   const spot = allSpots.find(s => s.id === selectedSpot);
   const suitability = useMemo(() => spot ? getSpotSuitability(spot, data.skillLevel) : null, [spot, data.skillLevel]);
 
