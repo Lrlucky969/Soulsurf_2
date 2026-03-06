@@ -525,7 +525,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
       <div style={{ textAlign: "center", marginBottom: 20 }}>
         {/* v7.5.1: Surf hero image */}
         <div style={{ borderRadius: 20, overflow: "hidden", marginBottom: 20, position: "relative" }}>
-          <img src="https://images.unsplash.com/photo-1502680390548-bdbac40e7a78?w=800&q=75" alt="" loading="lazy" style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }} />
+          <img src="https://images.unsplash.com/photo-1455729552457-5c322b38ea2e?w=800&q=75" alt="" loading="lazy" style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)" }} />
           <div style={{ position: "absolute", bottom: 16, left: 18, right: 18 }}>
             <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: 4 }}>{_("home.heroTitle", "Lerne Surfen.")}</h2>
