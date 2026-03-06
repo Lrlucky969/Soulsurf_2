@@ -1,4 +1,4 @@
-// SoulSurf – Central State Hook (v6.3.4 – Profile System + Migration Fix)
+// SoulSurf – Central State Hook v7.6.1 (Fix: build() uses primaryGoal fallback)
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { CONTENT_POOL, analyzeDiary } from "./data.js";
 import { generateProgram } from "./generator.js";
@@ -314,13 +314,16 @@ export default function useSurfData(sync) {
   }, [debouncedSave]);
 
   const build = useCallback(() => {
-    if (!days || !goal || !spot) return null;
+    // v7.6.1: Use primaryGoal as fallback (goal may be empty if set via profile/onboarding)
+    const effectiveGoal = goal || primaryGoal || "first_waves";
+    if (!days || !effectiveGoal || !spot) return null;
     const eq = { board: board || "none", experience: experience || "zero" };
-    const p = generateProgram(days, goal, spot, eq);
+    const p = generateProgram(days, effectiveGoal, spot, eq);
+    setGoal(effectiveGoal);
     setProgram(p); setActiveDay(1); setCompleted({}); setDiary({}); setSurfDays([]);
-    saveData({ days, goal, spot, board, experience, equipment: eq, completed: {}, diary: {}, activeDay: 1, surfDays: [] });
+    saveData({ days, goal: effectiveGoal, spot, board, experience, equipment: eq, completed: {}, diary: {}, activeDay: 1, surfDays: [] });
     return p;
-  }, [days, goal, spot, board, experience]);
+  }, [days, goal, primaryGoal, spot, board, experience]);
 
   const resetProgram = useCallback(() => {
     clearData(); setProgram(null); setDays(7); setGoal(""); setSpot(""); setBoard("");
