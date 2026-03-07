@@ -1,4 +1,4 @@
-// SoulSurf – LessonsScreen v7.6.1 (Fix: broken image URL + design migration)
+// SoulSurf – LessonsScreen v7.6.2 (Fix: Pexels image replace broken Unsplash)
 import React, { useState } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import { LessonCard } from "../components.jsx";
@@ -17,7 +17,7 @@ export default function LessonsScreen({ data, t, dm, i18n, spotObj, setOpenLesso
     return (
       <div style={{ paddingTop: 40, textAlign: "center" }}>
         <div style={{ borderRadius: 20, overflow: "hidden", marginBottom: 20, maxWidth: 320, margin: "0 auto 20px" }}>
-          <img src="https://images.unsplash.com/photo-1455729552457-5c322b38ea2e?w=600&q=75" alt="" loading="lazy" style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }} />
+          <img src="https://images.pexels.com/photos/390051/pexels-photo-390051.jpeg?auto=compress&cs=tinysrgb&w=600&h=300&dpr=1" alt="" loading="lazy" style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }} />
         </div>
         <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 24, fontWeight: 800, color: t.text, marginBottom: 8 }}>{_("lessons.noProgram")}</h2>
         <p style={{ fontSize: 14, color: t.text2, maxWidth: 320, margin: "0 auto 24px", lineHeight: 1.6 }}>{_("lessons.noProgramDesc")}</p>

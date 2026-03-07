@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v7.6.1 (Flow: Onboarding 4→2 Steps)
+// SoulSurf – HomeScreen v7.6.2 (Fix: Pexels hero images replace broken Unsplash)
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
@@ -461,7 +461,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             color: "white", border: "none", position: "relative", overflow: "hidden",
           }}>
             <div style={{ position: "absolute", top: -10, right: -10, fontSize: 50, opacity: 0.08 }}>📚</div>
-            <img src="https://images.unsplash.com/photo-1455729552457-5c322b38ea2e?w=400&q=60" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, pointerEvents: "none" }} />
+            <img src="https://images.pexels.com/photos/1654489/pexels-photo-1654489.jpeg?auto=compress&cs=tinysrgb&w=400&h=200&dpr=1" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, pointerEvents: "none" }} />
             <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>▶</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 15, fontWeight: 700 }}>{_("home.continueSurf", "Weiter surfen")}</div>
@@ -525,7 +525,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
       <div style={{ textAlign: "center", marginBottom: 20 }}>
         {/* v7.5.1: Surf hero image */}
         <div style={{ borderRadius: 20, overflow: "hidden", marginBottom: 20, position: "relative" }}>
-          <img src="https://images.unsplash.com/photo-1455729552457-5c322b38ea2e?w=800&q=75" alt="" loading="lazy" style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }} />
+          <img src="https://images.pexels.com/photos/390051/pexels-photo-390051.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&dpr=1" alt="" loading="lazy" style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)" }} />
           <div style={{ position: "absolute", bottom: 16, left: 18, right: 18 }}>
             <h2 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 26, fontWeight: 900, color: "#fff", lineHeight: 1.1, marginBottom: 4 }}>{_("home.heroTitle", "Lerne Surfen.")}</h2>
