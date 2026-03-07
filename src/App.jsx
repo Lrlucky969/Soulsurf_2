@@ -1,4 +1,4 @@
-// SoulSurf v7.7.1 – App Shell (Design Sprint 1: Visual Consistency)
+// SoulSurf v7.7.2 – App Shell (Design Sprint 2: Gamification)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -99,6 +99,7 @@ export default function SurfApp() {
   const [transitioning, setTransitioning] = useState(false);
   const [screenKey, setScreenKey] = useState(0);
   const [syncToast, setSyncToast] = useState(null);
+  const [xpToast, setXpToast] = useState(null); // v7.7.2: XP gain toast
   const mainRef = useRef(null);
   const hasAutoSynced = useRef(false);
 
@@ -144,7 +145,7 @@ export default function SurfApp() {
       return <EmptyState icon="📊" title={i18n.t("app.noProgress")} desc={i18n.t("app.emptyProgDesc")} cta={i18n.t("app.createProgram")} onCta={() => navigate("builder")} t={th} dm={dm} i18n={i18n} />;
     }
     switch (screen) {
-      case "home": return <HomeScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} spotObj={spotObj} savedGoal={savedGoal} notifications={notifications} />;
+      case "home": return <HomeScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} spotObj={spotObj} savedGoal={savedGoal} notifications={notifications} showXpToast={(xp) => { setXpToast(xp); setTimeout(() => setXpToast(null), 2000); }} />;
       case "builder": return <BuilderScreen data={data} t={th} dm={dm} i18n={i18n} navigate={navigate} />;
       case "lessons": return <LessonsScreen data={data} t={th} dm={dm} i18n={i18n} spotObj={spotObj} setOpenLesson={setOpenLesson} navigate={navigate} />;
       case "trip": return <TripScreen data={data} t={th} dm={dm} i18n={i18n} spotObj={spotObj} navigate={navigate} />;
@@ -214,6 +215,12 @@ export default function SurfApp() {
         ::-webkit-scrollbar-thumb { background: rgba(14,165,233,0.3); border-radius: 10px; }
         input[type=range] { accent-color: #0EA5E9; }
         .card-interactive:active { transform: scale(0.98); opacity: 0.9; transition: transform 0.1s ease; }
+        .btn-tap:active { transform: scale(0.97); opacity: 0.9; transition: all 0.1s ease; }
+        @keyframes flicker { 0%,100% { transform: scale(1); } 25% { transform: scale(1.06) rotate(-2deg); } 75% { transform: scale(1.03) rotate(1deg); } }
+        @keyframes fillBar { from { width: 0; } }
+        @keyframes badgeUnlock { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: none; } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-8px); } }
       `}</style>
 
       {/* v6.2: Notification Permission Banner */}
@@ -289,7 +296,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: th.text3 }}>v7.7.1</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: th.text3 }}>v7.7.2</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -452,7 +459,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: th.text3 }}>v7.7.1 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: th.text3 }}>v7.7.2 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
@@ -496,6 +503,13 @@ export default function SurfApp() {
       {syncToast && (
         <div style={{ position: "fixed", top: 70, left: "50%", transform: "translateX(-50%)", zIndex: 1200, background: dm ? "#1a2332" : "white", border: `1px solid ${th.accent}`, borderRadius: 14, padding: "10px 20px", fontSize: 13, fontWeight: 600, color: th.accent, boxShadow: "0 8px 30px rgba(0,0,0,0.15)", animation: "slideUp 0.3s ease both" }}>
           {syncToast}
+        </div>
+      )}
+      {/* v7.7.2: XP Gain Toast */}
+      {xpToast && (
+        <div style={{ position: "fixed", top: 80, left: "50%", transform: "translateX(-50%)", zIndex: 1200, background: dm ? "rgba(14,165,233,0.15)" : "rgba(14,165,233,0.1)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${dm ? "rgba(56,189,248,0.25)" : "rgba(14,165,233,0.2)"}`, borderRadius: 20, padding: "8px 18px", animation: "toastIn 0.3s ease both", display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: th.accent }}>+{xpToast} XP</span>
+          <span style={{ fontSize: 12 }}>✨</span>
         </div>
       )}
     </div>
