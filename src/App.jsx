@@ -1,4 +1,4 @@
-// SoulSurf v7.7.2 – App Shell (Design Sprint 2: Gamification)
+// SoulSurf v7.7.3 – App Shell (Design Sprint 3: Polish & Detail)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -296,7 +296,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: th.text3 }}>v7.7.2</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: th.text3 }}>v7.7.3</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -304,8 +304,8 @@ export default function SurfApp() {
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {data.gamification?.currentLevel && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: th.accent }}>{data.gamification.currentLevel.emoji} {data.gamification.totalXP}</span>}
-          {data.streak > 0 && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: "#FFB74D" }}>🔥 {data.streak}</span>}
+          {data.streak > 0 && <div style={{ display: "flex", alignItems: "center", gap: 3, background: dm ? "rgba(251,191,36,0.12)" : "rgba(245,158,11,0.08)", padding: "3px 8px", borderRadius: 8 }}><span style={{ fontSize: 12 }}>🔥</span><span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: dm ? "#FBBF24" : "#D97706" }}>{data.streak}</span></div>}
+          {data.gamification?.totalXP > 0 && <div style={{ display: "flex", alignItems: "center", gap: 3, background: dm ? "rgba(56,189,248,0.1)" : "rgba(14,165,233,0.06)", padding: "3px 8px", borderRadius: 8 }}><span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: th.accent }}>{data.gamification.totalXP} XP</span></div>}
           {notifications.isGranted && (
             <button
               onClick={() => navigate("home")}
@@ -459,7 +459,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: th.text3 }}>v7.7.2 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: th.text3 }}>v7.7.3 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
@@ -529,18 +529,20 @@ function EmptyState({ icon, title, desc, cta, onCta, t, dm }) {
 
 function ScreenSkeleton({ t, dm }) {
   const bg = dm ? "rgba(255,255,255,0.05)" : "#F0F0F0";
+  const shimmer = dm ? "rgba(255,255,255,0.08)" : "#E8E8E8";
+  const shimmerStyle = { background: `linear-gradient(90deg, ${bg} 25%, ${shimmer} 50%, ${bg} 75%)`, backgroundSize: "200% 100%", animation: "shimmer 1.5s ease-in-out infinite" };
   return (
-    <div style={{ paddingTop: 24, animation: "pulse 1.5s ease-in-out infinite" }}>
-      <div style={{ background: bg, borderRadius: 12, height: 32, width: "60%", marginBottom: 8 }} />
-      <div style={{ background: bg, borderRadius: 8, height: 16, width: "40%", marginBottom: 24 }} />
-      <div style={{ background: bg, borderRadius: 18, height: 140, marginBottom: 16 }} />
+    <div style={{ paddingTop: 24 }}>
+      <div style={{ ...shimmerStyle, borderRadius: 12, height: 32, width: "60%", marginBottom: 8 }} />
+      <div style={{ ...shimmerStyle, borderRadius: 8, height: 16, width: "40%", marginBottom: 24 }} />
+      <div style={{ ...shimmerStyle, borderRadius: 18, height: 140, marginBottom: 16 }} />
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <div style={{ flex: 1, background: bg, borderRadius: 12, height: 44 }} />
-        <div style={{ flex: 1, background: bg, borderRadius: 12, height: 44 }} />
-        <div style={{ flex: 1, background: bg, borderRadius: 12, height: 44 }} />
+        <div style={{ flex: 1, ...shimmerStyle, borderRadius: 12, height: 44 }} />
+        <div style={{ flex: 1, ...shimmerStyle, borderRadius: 12, height: 44 }} />
+        <div style={{ flex: 1, ...shimmerStyle, borderRadius: 12, height: 44 }} />
       </div>
-      <div style={{ background: bg, borderRadius: 16, height: 80, marginBottom: 12 }} />
-      <div style={{ background: bg, borderRadius: 16, height: 80, marginBottom: 12 }} />
+      <div style={{ ...shimmerStyle, borderRadius: 16, height: 80, marginBottom: 12 }} />
+      <div style={{ ...shimmerStyle, borderRadius: 16, height: 80, marginBottom: 12 }} />
     </div>
   );
 }
