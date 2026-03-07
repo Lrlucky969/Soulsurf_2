@@ -1,4 +1,4 @@
-// SoulSurf v7.6.2 – App Shell (Fix: Broken hero images)
+// SoulSurf v7.7.1 – App Shell (Design Sprint 1: Visual Consistency)
 import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, lazy } from "react";
 import useSurfData from "./useSurfData.js";
 import useAuth from "./useAuth.js";
@@ -289,7 +289,7 @@ export default function SurfApp() {
             <img src="/icon-192.png" alt="SoulSurf" style={{ width: 32, height: 32, borderRadius: 8 }} />
             <div>
               <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 18, fontWeight: 800, color: th.text, display: "block", lineHeight: 1 }}>SoulSurf</span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: th.text3 }}>v7.6.2</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: th.text3 }}>v7.7.1</span>
             </div>
           </div>
           {screen !== "home" && screen !== "builder" && (
@@ -452,7 +452,7 @@ export default function SurfApp() {
 
             {/* Version Badge */}
             <div style={{ padding: "12px 0", textAlign: "center", background: dm ? "#1a2332" : "#FFFDF7", borderTop: `1px solid ${th.cardBorder}` }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: th.text3 }}>v7.6.2 · ride the vibe ☮</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: th.text3 }}>v7.7.1 · ride the vibe ☮</span>
             </div>
           </nav>
         </div>
@@ -476,21 +476,16 @@ export default function SurfApp() {
             <button key={item.id} onClick={() => navigate(item.id)} style={{
               display: "flex", flexDirection: "column", alignItems: "center", gap: 2, position: "relative",
               background: "none", border: "none", cursor: "pointer", padding: "4px 12px",
-              color: isActive ? th.accent : th.text3, fontSize: 10, fontWeight: isActive ? 700 : 500,
+              color: isActive ? th.accent : th.text3, fontSize: 11, fontWeight: isActive ? 600 : 400,
               fontFamily: "'JetBrains Mono', monospace", transition: "color 0.2s ease",
             }}>
-              {TAB_ICONS[item.id] ? (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isActive ? th.accent : th.text3} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.2s ease", transform: isActive ? "scale(1.15) translateY(-2px)" : "scale(1)" }}>
-                  <path d={TAB_ICONS[item.id]} />
-                </svg>
-              ) : (
-                <span style={{ fontSize: 20, transition: "transform 0.2s ease", transform: isActive ? "scale(1.2) translateY(-2px)" : "scale(1)" }}>{item.icon}</span>
-              )}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isActive ? th.accent : th.text3} strokeWidth={isActive ? 2.2 : 1.6} strokeLinecap="round" strokeLinejoin="round" style={{ transition: "all 0.2s ease" }}>
+                <path d={TAB_ICONS[item.id]} />
+              </svg>
               <span>{item.label}</span>
               {showBadge && (
                 <span style={{ position: "absolute", top: 0, right: 4, background: "#FF7043", color: "white", fontSize: 8, fontWeight: 700, borderRadius: 8, padding: "1px 5px", minWidth: 16, textAlign: "center" }}>{remaining}</span>
               )}
-              {isActive && <div style={{ position: "absolute", bottom: -6, width: 20, height: 3, borderRadius: 2, background: th.accent }} />}
             </button>
           );
         })}
