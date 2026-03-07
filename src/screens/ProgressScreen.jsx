@@ -1,4 +1,4 @@
-// SoulSurf – ProgressScreen v7.6 (Design Upgrade Complete)
+// SoulSurf – ProgressScreen v7.7.3 (Design Sprint 3: Badge Ring + XP Cleanup)
 import React from "react";
 import { CONTENT_POOL, SKILL_TREE } from "../data.js";
 
@@ -67,15 +67,15 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
       {gm.xpBreakdown && (
         <div style={{ display: "flex", gap: 6, marginBottom: 20, overflowX: "auto" }}>
           {[
-            { emoji: "📚", value: gm.xpBreakdown.lessonXP, label: _("prog.xpLessons") },
-            { emoji: "📓", value: gm.xpBreakdown.diaryXP, label: _("prog.xpDiary") },
-            { emoji: "🏄", value: gm.xpBreakdown.surfDayXP, label: _("prog.xpSurfDays") },
-            { emoji: "🔥", value: gm.xpBreakdown.streakBonus, label: _("prog.xpStreak") },
+            { color: t.accent, value: gm.xpBreakdown.lessonXP, label: _("prog.xpLessons") },
+            { color: dm ? "#FBBF24" : "#D97706", value: gm.xpBreakdown.diaryXP, label: _("prog.xpDiary") },
+            { color: dm ? "#34D399" : "#10B981", value: gm.xpBreakdown.surfDayXP, label: _("prog.xpSurfDays") },
+            { color: dm ? "#F87171" : "#EF4444", value: gm.xpBreakdown.streakBonus, label: _("prog.xpStreak") },
           ].map((s, i) => (
-            <div key={i} style={{ flex: 1, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 12, padding: "10px 8px", textAlign: "center" }}>
-              <div style={{ fontSize: 16 }}>{s.emoji}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: t.accent }}>{s.value}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: t.text3 }}>{s.label}</div>
+            <div key={i} style={{ flex: 1, background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 12, padding: "10px 8px", textAlign: "center", boxShadow: t.cardShadow }}>
+              <div style={{ width: 8, height: 8, borderRadius: 4, background: s.color, margin: "0 auto 6px" }} />
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, fontWeight: 700, color: s.color }}>{s.value}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: t.text3, marginTop: 2 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -129,28 +129,35 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
         </div>
       )}
 
-      {/* Standard Badges */}
-      <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #FFF8E1, #FFF3E0)", border: `1px solid ${dm ? "rgba(255,183,77,0.15)" : "#FFE0B2"}`, borderRadius: 16, padding: "16px 18px", marginBottom: 24 }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: dm ? "#FFB74D" : "#E65100", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>{_("prog.badges")}</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: nextBadge ? 12 : 0 }}>
+      {/* Standard Badges – v7.7.3: Ring design */}
+      <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "16px 18px", marginBottom: 24, boxShadow: t.cardShadow }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>{_("prog.badges")}</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: nextBadge ? 14 : 0 }}>
           {BADGES.map(b => {
             const isEarned = earned.includes(b);
             const progress = b.cat === "lessons" ? done / b.threshold : diaryCount / b.threshold;
             return (
-              <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 6, background: isEarned ? (dm ? "rgba(255,183,77,0.15)" : "rgba(255,183,77,0.2)") : (dm ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"), borderRadius: 10, padding: "8px 12px", border: isEarned ? `1px solid ${dm ? "rgba(255,183,77,0.3)" : "#FFB74D"}` : `1px dashed ${dm ? "#2d3f50" : "#CFD8DC"}`, opacity: isEarned ? 1 : 0.5 }}>
-                <span style={{ fontSize: 20, filter: isEarned ? "none" : "grayscale(1)" }}>{b.emoji}</span>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: isEarned ? (dm ? "#e8eaed" : "#4E342E") : t.text3 }}>{b.name}</div>
-                  <div style={{ fontSize: 9, color: t.text3 }}>{isEarned ? _("prog.earned") : `${Math.round(progress * 100)}%`}</div>
+              <div key={b.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 6px", animation: isEarned ? "badgeUnlock 0.5s ease both" : "none" }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26,
+                  background: isEarned ? (dm ? "rgba(14,165,233,0.1)" : "rgba(14,165,233,0.06)") : (dm ? "rgba(255,255,255,0.03)" : "#F8FAFC"),
+                  border: `3px solid ${isEarned ? t.accent : (dm ? "rgba(255,255,255,0.06)" : "#E2E8F0")}`,
+                  opacity: isEarned ? 1 : 0.3, transition: "all 0.3s ease",
+                }}>
+                  {b.emoji}
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: isEarned ? t.text : t.text3 }}>{b.name}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: isEarned ? t.accent : t.text3 }}>{isEarned ? _("prog.earned") : `${Math.round(progress * 100)}%`}</div>
                 </div>
               </div>
             );
           })}
         </div>
         {nextBadge && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 10, borderTop: `1px dashed ${dm ? "#2d3f50" : "#FFE0B2"}` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 12, borderTop: `1px solid ${t.cardBorder}` }}>
             <span style={{ fontSize: 12 }}>🎯</span>
-            <span style={{ fontSize: 11, color: t.text2 }}>Nächstes: <strong style={{ color: dm ? "#FFB74D" : "#E65100" }}>{nextBadge.name}</strong> – {nextBadge.cat === "lessons" ? `noch ${nextBadge.threshold - done} Lektionen` : `noch ${nextBadge.threshold - diaryCount} Einträge`}</span>
+            <span style={{ fontSize: 11, color: t.text2 }}>{_("prog.next", "Nächstes")}: <strong style={{ color: t.accent }}>{nextBadge.name}</strong> – {nextBadge.cat === "lessons" ? `${nextBadge.threshold - done} ${_("prog.lessonsLeft", "Lektionen")}` : `${nextBadge.threshold - diaryCount} ${_("prog.entriesLeft", "Einträge")}`}</span>
           </div>
         )}
       </div>

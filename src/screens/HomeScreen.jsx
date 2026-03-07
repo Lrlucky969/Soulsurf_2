@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v7.7.2 (Design Sprint 2: Gamification Upgrade)
+// SoulSurf – HomeScreen v7.7.3 (Design Sprint 3: Quick Links removed)
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
@@ -549,20 +549,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </div>
         )}
 
-        {/* Quick Links */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 20 }}>
-          {[
-            { icon: "🌊", label: _("nav.surf", "Surf"), screen: "forecast" },
-            { icon: "🏫", label: _("nav.schools", "Schulen"), screen: "schools" },
-            { icon: "📓", label: _("nav.log", "Log"), screen: "diary" },
-            { icon: "👤", label: _("nav.profile", "Profil"), screen: "profile" },
-          ].map((card, i) => (
-            <button key={i} onClick={() => navigate(card.screen)} style={{ background: t.card, borderRadius: 12, padding: "12px 6px", border: `1px solid ${t.cardBorder}`, cursor: "pointer", textAlign: "center" }}>
-              <div style={{ fontSize: 20, marginBottom: 3 }}>{card.icon}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 600, color: t.text2 }}>{card.label}</div>
-            </button>
-          ))}
-        </div>
       </div>
     );
   }
