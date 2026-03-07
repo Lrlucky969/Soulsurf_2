@@ -1,4 +1,4 @@
-// SoulSurf – HomeScreen v7.6.2 (Fix: Pexels hero images replace broken Unsplash)
+// SoulSurf – HomeScreen v7.7.2 (Design Sprint 2: Gamification Upgrade)
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
 import useForecast from "../useForecast.js";
@@ -20,7 +20,7 @@ const SURF_GOALS = [
   { id: "surf_independently", emoji: "🏄", key: "goal.surfIndependently", descKey: "goal.surfIndependentlyDesc", color: "#E91E63" },
 ];
 
-export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, savedGoal, notifications }) {
+export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, savedGoal, notifications, showXpToast }) {
   const _ = i18n?.t || ((k, f) => f || k);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [onboarded, setOnboarded] = useState(true);
@@ -306,6 +306,24 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 </div>
               </div>
 
+              {/* v7.7.2: Score Range Bar – Aware-style */}
+              {conditions.surfScore != null && (
+                <div style={{ marginBottom: 14, padding: "0 4px" }}>
+                  <div style={{ height: 6, borderRadius: 3, background: `linear-gradient(90deg, ${dm ? "#F87171" : "#EF4444"}, ${dm ? "#FBBF24" : "#F59E0B"}, ${dm ? "#34D399" : "#10B981"})`, position: "relative" }}>
+                    <div style={{
+                      position: "absolute", top: -5, width: 16, height: 16, borderRadius: "50%",
+                      background: conf.color, border: `3px solid ${dm ? "#1E293B" : "#fff"}`, boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                      left: `calc(${Math.min(Math.max(conditions.surfScore, 0), 100)}% - 8px)`,
+                      transition: "left 0.6s ease",
+                    }} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 5 }}>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: dm ? "rgba(255,255,255,0.3)" : t.text3 }}>0</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: dm ? "rgba(255,255,255,0.3)" : t.text3 }}>100</span>
+                  </div>
+                </div>
+              )}
+
               {/* Conditions Pill Row */}
               {conditions.waveHeight != null && recommendation.action !== "no_surf" && recommendation.action !== "check_later" && (
                 <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
@@ -418,17 +436,66 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
           </button>
         )}
 
-        {/* Streak Card (v6.9: more compact) */}
-        {data.streak >= 2 && streakMilestones.current && (
-          <div style={{ background: "linear-gradient(135deg, #FFB74D, #FF7043)", borderRadius: 12, padding: "10px 14px", marginBottom: 10, color: "white", display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 20 }}>🔥</span>
+        {/* ══════ v7.7.2: STREAK WIDGET (Duolingo-style) ══════ */}
+        <div style={{ background: t.card, borderRadius: 16, padding: "16px 18px", marginBottom: 12, border: `1px solid ${t.cardBorder}`, boxShadow: t.cardShadow }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+            <span style={{ fontSize: 28, animation: data.streak > 0 ? "flicker 3s ease-in-out infinite" : "none" }}>🔥</span>
             <div style={{ flex: 1 }}>
-              <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 14, fontWeight: 800 }}>{data.streak} {_("general.days", "Tage")}</span>
-              {streakMilestones.next && <span style={{ fontSize: 10, opacity: 0.8, marginLeft: 8 }}>{streakMilestones.next.badge} in {streakMilestones.next.day - data.streak}d</span>}
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 28, fontWeight: 800, color: t.text, lineHeight: 1 }}>{data.streak}</div>
+              <div style={{ fontSize: 12, color: t.text2, fontWeight: 500 }}>{_("home.streakDays", "Tage am Stück")}</div>
             </div>
             {data.canFreezeStreak && data.streak >= 3 && (
-              <button onClick={() => setShowFreezeConfirm(true)} style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 9, fontWeight: 700, color: "white", cursor: "pointer" }}>🧊</button>
+              <button onClick={() => setShowFreezeConfirm(true)} style={{ background: dm ? "rgba(255,255,255,0.06)" : "#F1F5F9", border: `1px solid ${t.cardBorder}`, borderRadius: 10, padding: "6px 10px", fontSize: 10, fontWeight: 600, color: t.text3, cursor: "pointer", fontFamily: "'JetBrains Mono', monospace" }}>🧊 Freeze</button>
             )}
+          </div>
+          {/* Week dots */}
+          <div style={{ display: "flex", gap: 6, justifyContent: "space-between" }}>
+            {["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map((day, i) => {
+              const now = new Date();
+              const dayOfWeek = (now.getDay() + 6) % 7;
+              const dateForDot = new Date(now);
+              dateForDot.setDate(now.getDate() - dayOfWeek + i);
+              const dateStr = dateForDot.toISOString().slice(0, 10);
+              const active = (data.surfDays || []).includes(dateStr);
+              const isToday = i === dayOfWeek;
+              return (
+                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: isToday ? t.accent : t.text3, fontWeight: isToday ? 700 : 400 }}>{day}</div>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: 8,
+                    background: active ? (dm ? "rgba(251,191,36,0.2)" : "rgba(245,158,11,0.15)") : (dm ? "rgba(255,255,255,0.04)" : "#F1F5F9"),
+                    border: isToday ? `2px solid ${t.accent}` : `1px solid ${active ? (dm ? "rgba(251,191,36,0.3)" : "rgba(245,158,11,0.25)") : "transparent"}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    {active && <span style={{ fontSize: 12 }}>🔥</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {/* Surf today toggle */}
+          <button onClick={() => { data.toggleSurfDay(); if (!surfedToday && showXpToast) showXpToast(15); }} className="btn-tap" style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", marginTop: 12, borderRadius: 12, cursor: "pointer", textAlign: "left",
+            background: surfedToday ? (dm ? "rgba(16,185,129,0.1)" : "rgba(16,185,129,0.06)") : (dm ? "rgba(255,255,255,0.04)" : "#F8FAFC"),
+            border: `1px solid ${surfedToday ? (dm ? "rgba(52,211,153,0.2)" : "rgba(16,185,129,0.15)") : t.cardBorder}`,
+          }}>
+            <span style={{ fontSize: 18 }}>{surfedToday ? "🏄‍♂️" : "🏖️"}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: surfedToday ? (dm ? "#34D399" : "#065F46") : t.text }}>{surfedToday ? _("home.surfedToday") : _("home.surfedTodayQ")}</div>
+            </div>
+            {surfedToday && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: dm ? "#34D399" : "#10B981", fontWeight: 700 }}>+15 XP</span>}
+          </button>
+        </div>
+
+        {/* v7.7.2: Level Progress */}
+        {data.gamification?.currentLevel && (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, padding: "0 4px" }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: t.accent }}>Lv.{data.gamification.currentLevel.level}</span>
+            <span style={{ fontSize: 11, color: t.text2, fontWeight: 600 }}>{data.gamification.currentLevel.title}</span>
+            <div style={{ flex: 1, height: 6, borderRadius: 3, background: dm ? "rgba(255,255,255,0.06)" : "#F1F5F9", overflow: "hidden" }}>
+              <div style={{ height: "100%", borderRadius: 3, background: t.accent, width: `${Math.min(100, ((data.gamification.totalXP % 100) / 100) * 100)}%`, transition: "width 0.8s ease", animation: "fillBar 0.8s ease" }} />
+            </div>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: t.text3 }}>{data.gamification.totalXP} XP</span>
           </div>
         )}
 
@@ -470,19 +537,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <span style={{ fontSize: 14, opacity: 0.7 }}>→</span>
           </button>
         )}
-
-        {/* Surf Today toggle */}
-        <button onClick={data.toggleSurfDay} style={{
-          width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", marginBottom: 12, borderRadius: 14, cursor: "pointer", textAlign: "left",
-          background: surfedToday ? (dm ? "rgba(255,183,77,0.12)" : "#FFF8E1") : t.card,
-          border: `1px solid ${surfedToday ? "#FFB74D" : t.cardBorder}`,
-        }}>
-          <span style={{ fontSize: 22 }}>{surfedToday ? "🏄‍♂️" : "🏖️"}</span>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: surfedToday ? "#E65100" : t.text }}>{surfedToday ? _("home.surfedToday") : _("home.surfedTodayQ")}</div>
-            <div style={{ fontSize: 10, color: t.text2 }}>{surfedToday ? `${_("home.streak")}: ${data.streak} 🔥` : _("home.tapToLog")}</div>
-          </div>
-        </button>
 
         {/* Reset program (hidden behind tap) */}
         {showResetConfirm && (
