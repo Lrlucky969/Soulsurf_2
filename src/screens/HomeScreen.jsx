@@ -1,6 +1,7 @@
-// SoulSurf – HomeScreen v7.7.3 (Design Sprint 3: Quick Links removed)
+// SoulSurf – HomeScreen v7.7.4 (Feedback fixes: colors, progress, cleanup)
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { SURF_SPOTS, GOALS } from "../data.js";
+import { UI_ICONS } from "../components.jsx";
 import useForecast from "../useForecast.js";
 import { getTodayRecommendation, confidenceDisplay, actionDisplay } from "../decisionEngine.js";
 import { trackEvent } from "../analytics.js";
@@ -493,7 +494,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: t.accent }}>Lv.{data.gamification.currentLevel.level}</span>
             <span style={{ fontSize: 11, color: t.text2, fontWeight: 600 }}>{data.gamification.currentLevel.title}</span>
             <div style={{ flex: 1, height: 6, borderRadius: 3, background: dm ? "rgba(255,255,255,0.06)" : "#F1F5F9", overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 3, background: t.accent, width: `${Math.min(100, ((data.gamification.totalXP % 100) / 100) * 100)}%`, transition: "width 0.8s ease", animation: "fillBar 0.8s ease" }} />
+              <div style={{ height: "100%", borderRadius: 3, background: t.accent, width: `${Math.min(100, Math.round((data.gamification.levelProgress || 0) * 100))}%`, transition: "width 0.8s ease", animation: "fillBar 0.8s ease" }} />
             </div>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: t.text3 }}>{data.gamification.totalXP} XP</span>
           </div>
@@ -514,7 +515,7 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
         {milestone && !seenTooltips[`ms-${data.done}-${data.streak}`] && (
           <div style={{ background: dm ? "rgba(255,183,77,0.1)" : "#FFF8E1", border: `1px solid ${dm ? "rgba(255,183,77,0.2)" : "#FFE0B2"}`, borderRadius: 14, padding: "10px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 24 }}>{milestone.emoji}</span>
-            <div style={{ flex: 1, fontSize: 12, fontWeight: 600, color: dm ? "#FFB74D" : "#E65100" }}>{milestone.text}</div>
+            <div style={{ flex: 1, fontSize: 12, fontWeight: 600, color: dm ? "#FBBF24" : "#92400E" }}>{milestone.text}</div>
             <button onClick={() => dismissTooltip(`ms-${data.done}-${data.streak}`)} style={{ background: "none", border: "none", color: t.text3, fontSize: 14, cursor: "pointer", padding: 2 }}>✕</button>
           </div>
         )}
@@ -527,7 +528,6 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
             padding: "14px 16px", marginBottom: 12, cursor: "pointer", textAlign: "left",
             color: "white", border: "none", position: "relative", overflow: "hidden",
           }}>
-            <div style={{ position: "absolute", top: -10, right: -10, fontSize: 50, opacity: 0.08 }}>📚</div>
             <img src="https://images.pexels.com/photos/1654489/pexels-photo-1654489.jpeg?auto=compress&cs=tinysrgb&w=400&h=200&dpr=1" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.15, pointerEvents: "none" }} />
             <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>▶</div>
             <div style={{ flex: 1 }}>
@@ -574,43 +574,43 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
         </div>
       </div>
 
-      {/* v6.9: Decision Hero for no-program users */}
+      {/* v7.7.4: Decision Hero for no-program users – new color system */}
       {spotObj && conditions && (
         <div style={{
           borderRadius: 20, padding: "18px", marginBottom: 16,
+          backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
           ...(recommendation.action === "surf_solo" ? {
-            background: dm ? "linear-gradient(135deg, #1B5E20, #2E7D32)" : "linear-gradient(135deg, #E8F5E9, #C8E6C9)",
-            border: "2px solid #4CAF5060",
+            background: dm ? "linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.12))" : "linear-gradient(135deg, rgba(16,185,129,0.1), rgba(14,165,233,0.06))",
+            border: `2px solid ${dm ? "rgba(16,185,129,0.25)" : "rgba(16,185,129,0.2)"}`,
           } : recommendation.action === "book_lesson" ? {
-            background: dm ? "linear-gradient(135deg, #E65100, #BF360C)" : "linear-gradient(135deg, #FFF3E0, #FFE0B2)",
-            border: "2px solid #FF980060",
+            background: dm ? "linear-gradient(135deg, rgba(245,158,11,0.2), rgba(249,115,22,0.12))" : "linear-gradient(135deg, rgba(245,158,11,0.1), rgba(249,115,22,0.05))",
+            border: `2px solid ${dm ? "rgba(245,158,11,0.25)" : "rgba(245,158,11,0.2)"}`,
           } : {
-            background: `linear-gradient(135deg, ${conf2.color}18, ${conf2.color}08)`,
-            border: `2px solid ${conf2.color}40`,
+            background: dm ? "rgba(30,41,59,0.6)" : "rgba(255,255,255,0.7)",
+            border: `2px solid ${dm ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
           }),
           position: "relative", overflow: "hidden", textAlign: "left",
+          boxShadow: dm ? "0 4px 20px rgba(0,0,0,0.25)" : "0 4px 20px rgba(0,0,0,0.05)",
         }}>
-          <div style={{ position: "absolute", top: -15, right: -15, fontSize: 70, opacity: 0.06 }}>{act2.emoji}</div>
+          {spotObj.image && <img src={spotObj.image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: dm ? 0.08 : 0.05, pointerEvents: "none" }} />}
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
             <div style={{ width: 48, height: 48, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26,
-              background: dm ? "rgba(255,255,255,0.1)" : `${act2.color}15`,
+              background: dm ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.03)",
             }}>{act2.emoji}</div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 20, fontWeight: 900,
-                color: recommendation.action === "surf_solo" ? (dm ? "#fff" : "#1B5E20") : recommendation.action === "book_lesson" ? (dm ? "#fff" : "#BF360C") : t.text,
-              }}>{_(act2.label)}</div>
-              <div style={{ fontSize: 11, color: dm ? "rgba(255,255,255,0.7)" : t.text2, marginTop: 1 }}>
+              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 20, fontWeight: 900, color: dm ? "#fff" : t.text }}>{_(act2.label)}</div>
+              <div style={{ fontSize: 11, color: dm ? "rgba(255,255,255,0.65)" : t.text2, marginTop: 1 }}>
                 {_(recommendation.reasonKey)} · {spotObj.emoji} {spotObj.name.split(",")[0]} · {conditions.waveHeight?.toFixed(1)}m
               </div>
             </div>
-            <div style={{ background: `${conf2.color}20`, padding: "3px 8px", borderRadius: 6 }}>
+            <div style={{ background: `${conf2.color}15`, backdropFilter: "blur(8px)", padding: "3px 8px", borderRadius: 6, border: `1px solid ${conf2.color}25` }}>
               <span style={{ fontSize: 10 }}>{conf2.emoji}</span>
             </div>
           </div>
           {recommendation.beginnerZone && (
             <div style={{ fontSize: 11, padding: "6px 10px", borderRadius: 8, marginBottom: 8,
-              background: dm ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)", display: "flex", gap: 6, alignItems: "center",
-              color: dm ? "rgba(255,255,255,0.8)" : t.text2,
+              background: dm ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", display: "flex", gap: 6, alignItems: "center",
+              color: dm ? "rgba(255,255,255,0.7)" : t.text2,
             }}>
               <span>📍</span> {recommendation.beginnerZone}
             </div>
@@ -624,7 +624,9 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
                 navigate(recommendation.cta.screen);
               }
             }} style={{ width: "100%", padding: "12px", borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Plus Jakarta Sans', sans-serif", color: "white", border: "none",
-              background: recommendation.action === "book_lesson" ? "linear-gradient(135deg, #FF9800, #FF7043)" : "linear-gradient(135deg, #0EA5E9, #38BDF8)",
+              background: recommendation.action === "book_lesson" ? "linear-gradient(135deg, #F59E0B, #F97316)"
+                : recommendation.action === "surf_solo" ? "linear-gradient(135deg, #10B981, #06B6D4)"
+                : "linear-gradient(135deg, #0EA5E9, #38BDF8)",
               boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
             }}>
               {_(recommendation.cta.text)} →
@@ -637,15 +639,18 @@ export default function HomeScreen({ data, t, dm, i18n, navigate, spotObj, saved
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 28 }}>
         {[
-          { icon: "🌊", title: _("nav.surf", "Surf"), desc: _("home.checkForecastDesc", "Surf-Bedingungen"), screen: "forecast" },
-          { icon: "🏫", title: _("nav.schools", "Schulen"), desc: _("home.findSchool", "Surfschulen finden"), screen: "schools" },
-          { icon: "🏄", title: _("nav.equipment", "Equipment"), desc: _("home.findBoardDesc", "Finde dein Board"), screen: "equipment" },
+          { iconName: "wave", color: t.accent, title: _("nav.surf", "Surf"), desc: _("home.checkForecastDesc", "Surf-Bedingungen"), screen: "forecast" },
+          { iconName: "school", color: dm ? "#FBBF24" : "#D97706", title: _("nav.schools", "Schulen"), desc: _("home.findSchool", "Surfschulen finden"), screen: "schools" },
+          { iconName: "board", color: dm ? "#34D399" : "#10B981", title: _("nav.equipment", "Equipment"), desc: _("home.findBoardDesc", "Finde dein Board"), screen: "equipment" },
         ].map((card, i) => (
-          <button key={i} onClick={() => navigate(card.screen)} style={{
-            background: t.card, borderRadius: 18, padding: "18px 14px", border: `1px solid ${t.cardBorder}`,
+          <button key={i} onClick={() => navigate(card.screen)} className="card-interactive" style={{
+            background: t.card, borderRadius: 16, padding: "18px 14px", border: `1px solid ${t.cardBorder}`,
             cursor: "pointer", textAlign: "left", animation: "slideUp 0.4s ease both", animationDelay: `${i * 100}ms`,
+            boxShadow: t.cardShadow,
           }}>
-            <div style={{ fontSize: 26, marginBottom: 6 }}>{card.icon}</div>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: `${card.color}12`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={card.color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={UI_ICONS[card.iconName]} /></svg>
+            </div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700, color: t.text, marginBottom: 3 }}>{card.title}</div>
             <div style={{ fontSize: 11, color: t.text3, lineHeight: 1.3 }}>{card.desc}</div>
           </button>

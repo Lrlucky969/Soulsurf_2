@@ -1,4 +1,4 @@
-// SoulSurf – ProgressScreen v7.7.3 (Design Sprint 3: Badge Ring + XP Cleanup)
+// SoulSurf – ProgressScreen v7.7.4 (Feedback: Streak badges clean, XP bar fix)
 import React from "react";
 import { CONTENT_POOL, SKILL_TREE } from "../data.js";
 
@@ -55,7 +55,7 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
           {gm.nextLevel && (
             <>
               <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 6, height: 8, overflow: "hidden", marginBottom: 6 }}>
-                <div style={{ height: "100%", borderRadius: 6, background: "linear-gradient(90deg, #FFB74D, #FF7043)", width: `${Math.round(gm.levelProgress * 100)}%` }} />
+                <div style={{ height: "100%", borderRadius: 6, background: t.gradient, width: `${Math.round(gm.levelProgress * 100)}%`, transition: "width 0.8s ease" }} />
               </div>
               <div style={{ fontSize: 11, opacity: 0.7, textAlign: "right" }}>{gm.nextLevel.emoji} {gm.nextLevel.name} in {gm.nextLevel.minXP - gm.totalXP} XP</div>
             </>
@@ -81,51 +81,39 @@ export default function ProgressScreen({ data, t, dm, i18n, setOpenLesson }) {
         </div>
       )}
 
-      {/* v6.1: Streak Badges Section (NEW!) */}
+      {/* v7.7.4: Streak Badges – clean card style */}
       {streak >= 2 && (
-        <div style={{ background: "linear-gradient(135deg, #FFB74D, #FF7043)", borderRadius: 16, padding: "16px 18px", marginBottom: 20 }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "rgba(255,255,255,0.9)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>🔥 Streak Badges</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: nextStreakBadge ? 12 : 0 }}>
+        <div style={{ background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 16, padding: "16px 18px", marginBottom: 20, boxShadow: t.cardShadow }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: dm ? "#FBBF24" : "#D97706", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14 }}>🔥 Streak Badges</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 6, marginBottom: nextStreakBadge ? 12 : 0 }}>
             {STREAK_BADGES.map(b => {
               const isEarned = earnedStreakBadges.includes(b);
               const progress = streak / b.threshold;
               return (
-                <div key={b.id} style={{ 
-                  display: "flex", alignItems: "center", gap: 6, 
-                  background: isEarned ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.1)", 
-                  borderRadius: 10, padding: "8px 12px", 
-                  border: isEarned ? "1px solid rgba(255,255,255,0.4)" : "1px dashed rgba(255,255,255,0.2)", 
-                  opacity: isEarned ? 1 : 0.6 
-                }}>
-                  <span style={{ fontSize: 20, filter: isEarned ? "none" : "grayscale(1)" }}>{b.emoji}</span>
-                  <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "white" }}>{b.name}</div>
-                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.8)" }}>{isEarned ? "Erreicht!" : `${Math.round(progress * 100)}%`}</div>
+                <div key={b.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 4px" }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20,
+                    background: isEarned ? (dm ? "rgba(251,191,36,0.12)" : "rgba(245,158,11,0.08)") : (dm ? "rgba(255,255,255,0.03)" : "#F8FAFC"),
+                    border: `2px solid ${isEarned ? (dm ? "#FBBF24" : "#F59E0B") : (dm ? "rgba(255,255,255,0.06)" : "#E2E8F0")}`,
+                    opacity: isEarned ? 1 : 0.3, transition: "all 0.3s ease",
+                    animation: isEarned ? "badgeUnlock 0.5s ease both" : "none",
+                  }}>
+                    {b.emoji}
                   </div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: isEarned ? t.text : t.text3, textAlign: "center" }}>{b.name}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: isEarned ? (dm ? "#FBBF24" : "#D97706") : t.text3 }}>{isEarned ? "✓" : `${Math.round(progress * 100)}%`}</div>
                 </div>
               );
             })}
           </div>
           {nextStreakBadge && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 10, borderTop: "1px dashed rgba(255,255,255,0.3)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 10, borderTop: `1px solid ${t.cardBorder}` }}>
               <span style={{ fontSize: 12 }}>🎯</span>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.9)" }}>
-                Nächstes: <strong>{nextStreakBadge.name}</strong> – noch {nextStreakBadge.threshold - streak} Tage
+              <span style={{ fontSize: 11, color: t.text2 }}>
+                {_("prog.next", "Nächstes")}: <strong style={{ color: dm ? "#FBBF24" : "#D97706" }}>{nextStreakBadge.name}</strong> – {nextStreakBadge.threshold - streak} {_("prog.daysLeft", "Tage")}
               </span>
             </div>
           )}
-          {/* Streak Stats */}
-          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px dashed rgba(255,255,255,0.3)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "rgba(255,255,255,0.9)" }}>
-              <span>Aktueller Streak:</span>
-              <span style={{ fontWeight: 700 }}>🔥 {streak} Tage</span>
-            </div>
-            {data.canFreezeStreak && (
-              <div style={{ marginTop: 6, fontSize: 10, color: "rgba(255,255,255,0.8)" }}>
-                🧊 Streak Freeze verfügbar
-              </div>
-            )}
-          </div>
         </div>
       )}
 
